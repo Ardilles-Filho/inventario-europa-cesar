@@ -1,0 +1,11 @@
+   # Dados do inventário: nunca versionar
+   importar.html
+
+   # Firebase CLI
+   .firebase/
+   *-debug.log
+
+   # Node e sistema
+   node_modules/
+   Thumbs.db
+   .DS_Store

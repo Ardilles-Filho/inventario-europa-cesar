@@ -1,0 +1,1240 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Inventário Apple CESAR</title><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<style>
+/* Layout: app shell — barra lateral de navegação + área de trabalho; gaveta de detalhe à direita. Paleta oficial CESAR. */
+:root {
+  --bg: #ffffff;
+  --surface: #f7f6f2;
+  --surface-2: #efede6;
+  --line: #e2dfd6;
+  --fg: #161616;
+  --fg-2: #3f3f3f;
+  --muted: #6d7484;
+  --accent: #ff6002;
+  --accent-strong: #dd4012;
+  --accent-soft: #fff0e6;
+  --on-accent: #ffffff;
+  --ok: #1f8a4c; --ok-soft: #e4f4ea;
+  --info: #2763c4; --info-soft: #e5eefb;
+  --held: #6a4bc4; --held-soft: #eee9fb;
+  --bad: #c2321b; --bad-soft: #fbe7e3;
+  --warn: #a66300; --warn-soft: #fbf0dc;
+  --mute: #818b9d; --mute-soft: #eef0f3;
+  --shadow: 0 1px 2px rgba(22,22,22,.06), 0 8px 24px rgba(22,22,22,.08);
+  --font: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161616; --surface: #1e1e1d; --surface-2: #272725; --line: #34332f;
+  --fg: #f4f3ee; --fg-2: #cfcdc5; --muted: #9aa1ae;
+  --accent: #ff6d1a; --accent-strong: #ff8a45; --accent-soft: #3a2214; --on-accent: #161616;
+  --ok: #4fc485; --ok-soft: #173326; --info: #7aa7f0; --info-soft: #182840;
+  --held: #a993f0; --held-soft: #261f3d; --bad: #f2775f; --bad-soft: #3d1c16;
+  --warn: #e6a74a; --warn-soft: #3a2a12; --mute: #9aa1ae; --mute-soft: #2a2b2e;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.45);
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #161616; --surface: #1e1e1d; --surface-2: #272725; --line: #34332f;
+  --fg: #f4f3ee; --fg-2: #cfcdc5; --muted: #9aa1ae;
+  --accent: #ff6d1a; --accent-strong: #ff8a45; --accent-soft: #3a2214; --on-accent: #161616;
+  --ok: #4fc485; --ok-soft: #173326; --info: #7aa7f0; --info-soft: #182840;
+  --held: #a993f0; --held-soft: #261f3d; --bad: #f2775f; --bad-soft: #3d1c16;
+  --warn: #e6a74a; --warn-soft: #3a2a12; --mute: #9aa1ae; --mute-soft: #2a2b2e;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.45);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.mono { font-family: var(--mono); font-size: 12.5px; letter-spacing: -.01em; }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+h1, h2, h3 { margin: 0; text-wrap: balance; letter-spacing: -.015em; }
+h1 { font-size: 24px; font-weight: 700; }
+h2 { font-size: 16px; font-weight: 600; }
+h3 { font-size: 13px; font-weight: 600; }
+.eyebrow { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+
+/* Shell */
+#app { min-height: 100%; }
+.shell { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: 100vh; }
+.side { position: sticky; top: env(safe-area-inset-top, 0px); height: calc(100vh - env(safe-area-inset-top, 0px)); border-right: 1px solid var(--line); background: var(--surface); padding: 20px 14px; padding-left: max(14px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 22px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 2px 6px; }
+.brand-mark { width: 28px; height: 28px; position: relative; flex: none; }
+.brand-mark i { position: absolute; border-radius: 50%; background: var(--accent); }
+.brand-mark i:first-child { inset: 0 8px 8px 0; }
+.brand-mark i:last-child { width: 14px; height: 14px; right: 0; bottom: 0; background: var(--fg); border-radius: 14px 0 0 0; }
+.brand b { display: block; font-size: 14px; letter-spacing: -.01em; }
+.brand span { display: block; font-size: 12px; color: var(--muted); }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: var(--fg-2); text-decoration: none; font-weight: 500; }
+.nav a:hover { background: var(--surface-2); }
+.nav a[aria-current="page"] { background: var(--bg); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line); }
+.nav a[aria-current="page"] svg { color: var(--accent); }
+.nav .count { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.nav .count.hot { color: var(--bad); font-weight: 600; }
+.side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--muted); padding: 0 6px; }
+.conn { display: inline-flex; align-items: center; gap: 6px; }
+.conn::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--mute); }
+.conn.live::before { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+.conn.error::before, .conn.offline::before, .conn.timeout::before { background: var(--warn); }
+
+.main { min-width: 0; display: flex; flex-direction: column; }
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; padding-block: 12px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+.search { flex: 1; min-width: 0; max-width: 620px; position: relative; }
+.search input { width: 100%; height: 38px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); padding: 0 64px 0 36px; outline: none; }
+.search input:focus { border-color: var(--accent); background: var(--bg); box-shadow: 0 0 0 3px var(--accent-soft); }
+.search svg { position: absolute; left: 11px; top: 11px; color: var(--muted); }
+.search kbd { position: absolute; right: 10px; top: 9px; font-family: var(--mono); font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; background: var(--bg); }
+.content { padding-block: 24px 64px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 24px; max-width: 1360px; width: 100%; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.page-head p { margin: 4px 0 0; color: var(--muted); max-width: 70ch; }
+
+/* Buttons & inputs */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 13px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-weight: 500; white-space: nowrap; }
+.btn:hover { background: var(--surface); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+.btn.danger { color: var(--bad); }
+.btn.ghost { border-color: transparent; background: transparent; }
+.btn.ghost:hover { background: var(--surface-2); }
+.btn.sm { height: 28px; padding: 0 10px; font-size: 13px; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.icon-btn { width: 34px; padding: 0; }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field label { font-size: 12px; font-weight: 500; color: var(--fg-2); }
+.field input, .field select, .field textarea { height: 36px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 0 10px; width: 100%; min-width: 0; }
+.field textarea { height: auto; min-height: 76px; padding: 8px 10px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.field .err { font-size: 12px; color: var(--bad); }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+
+/* Chips & pills */
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; background: var(--mute-soft); color: var(--fg-2); }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .9; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.info { background: var(--info-soft); color: var(--info); }
+.pill.held { background: var(--held-soft); color: var(--held); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.mute { background: var(--mute-soft); color: var(--mute); }
+.pill.plain::before { display: none; }
+.stage { font-size: 12.5px; color: var(--fg-2); white-space: nowrap; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { height: 30px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+.chip:hover { background: var(--surface); }
+.chip[aria-pressed="true"] { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.chip .n { font-variant-numeric: tabular-nums; opacity: .65; font-size: 12px; }
+.qchip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 6px 0 10px; border-radius: 6px; background: var(--accent-soft); color: var(--accent-strong); font-size: 12.5px; font-weight: 500; }
+.qchip button { border: 0; background: transparent; cursor: pointer; color: inherit; padding: 0 4px; font-size: 14px; line-height: 1; }
+
+/* Panels */
+.panel { background: var(--bg); border: 1px solid var(--line); border-radius: var(--r); }
+.panel-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.panel-b { padding: 16px; }
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.kpi { padding: 16px; border-radius: var(--r); background: var(--surface); display: flex; flex-direction: column; gap: 6px; text-align: left; border: 1px solid transparent; cursor: pointer; }
+.kpi:hover { border-color: var(--line); background: var(--bg); }
+.kpi .v { font-size: 30px; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1.05; }
+.kpi .l { font-size: 13px; color: var(--fg-2); font-weight: 500; }
+.kpi .s { font-size: 12px; color: var(--muted); }
+.kpi.accent { background: var(--accent); color: var(--on-accent); }
+.kpi.accent .l, .kpi.accent .s { color: inherit; opacity: .9; }
+.dash { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* Category bars */
+.bars { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: grid; grid-template-columns: 110px minmax(0, 1fr) 44px; gap: 12px; align-items: center; cursor: pointer; border-radius: 6px; }
+.bar-row:hover .bar-track { box-shadow: 0 0 0 1px var(--line); }
+.bar-row .lbl { font-weight: 500; font-size: 13px; }
+.bar-row .tot { text-align: right; font-variant-numeric: tabular-nums; color: var(--fg-2); }
+.bar-track { height: 14px; border-radius: 4px; background: var(--surface-2); display: flex; overflow: hidden; }
+.bar-track span { height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--fg-2); }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.c-disponivel { background: var(--ok); } .c-reservado { background: var(--info); } .c-alocado { background: var(--held); }
+.c-emprestado { background: color-mix(in srgb, var(--held) 55%, var(--bg)); } .c-danificado { background: var(--bad); } .c-baixado { background: var(--mute); }
+
+/* Pipeline */
+.pipe { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.pipe button { all: unset; cursor: pointer; padding: 14px; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid var(--line); position: relative; }
+.pipe button:last-child { border-right: 0; }
+.pipe button:hover { background: var(--surface); }
+.pipe button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.pipe .v { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.pipe .l { font-size: 12.5px; color: var(--fg-2); font-weight: 500; }
+.pipe .s { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pipe button:not(:last-child)::after { content: ""; position: absolute; right: -6px; top: 50%; width: 10px; height: 10px; background: var(--bg); border-top: 1px solid var(--line); border-right: 1px solid var(--line); transform: translateY(-50%) rotate(45deg); z-index: 1; }
+
+/* Lists */
+.list { display: flex; flex-direction: column; }
+.li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); cursor: pointer; text-align: left; background: none; border-left: 0; border-right: 0; border-bottom: 0; width: 100%; }
+.li:first-child { border-top: 0; }
+.li:hover { background: var(--surface); }
+.li .t { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.li .d { font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sev { width: 4px; align-self: stretch; border-radius: 2px; background: var(--warn); }
+.sev.bad { background: var(--bad); } .sev.info { background: var(--info); } .sev.mute { background: var(--mute); }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-size: 11px; font-weight: 600; color: var(--fg-2); }
+
+/* Table */
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.filters { display: flex; flex-direction: column; gap: 10px; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); }
+table { width: 100%; border-collapse: collapse; min-width: 880px; }
+th { position: sticky; top: 0; background: var(--surface); text-align: left; font-size: 12px; font-weight: 600; color: var(--fg-2); padding: 9px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; user-select: none; }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: 4px; align-items: center; }
+th button:focus-visible { outline: 2px solid var(--accent); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+tbody tr { cursor: pointer; }
+tbody tr:hover td { background: var(--surface); }
+tbody tr:last-child td { border-bottom: 0; }
+td .t { font-weight: 500; }
+td .sub { font-size: 12px; color: var(--muted); }
+.flag { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); margin-left: 6px; vertical-align: 1px; }
+.more { display: flex; justify-content: center; padding: 12px; }
+
+/* Board */
+.board { display: grid; grid-template-columns: repeat(4, minmax(240px, 1fr)); gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+.col { background: var(--surface); border-radius: var(--r); padding: 10px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.col-h { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 4px 6px; }
+.col-h .n { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 12px; }
+.card { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; text-align: left; width: 100%; }
+.card:hover { border-color: var(--fg-2); }
+.card .row { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.age { font-size: 12px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.age.late { color: var(--bad); font-weight: 600; }
+
+/* Drawer */
+.scrim { position: fixed; inset: 0; background: rgba(22,22,22,.35); z-index: 40; animation: fade .15s ease; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(580px, 100%); background: var(--bg); z-index: 41; box-shadow: var(--shadow); display: flex; flex-direction: column; animation: slide .2s ease; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.drawer-h { padding: 18px 20px 14px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.drawer-b { overflow-y: auto; padding: 18px 20px 28px; display: flex; flex-direction: column; gap: 22px; }
+.drawer-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.ids { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--fg-2); }
+.ids span b { font-weight: 500; color: var(--muted); font-family: var(--font); font-size: 12px; margin-right: 4px; }
+.dl { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 8px 14px; margin: 0; }
+.dl dt { color: var(--muted); font-size: 13px; }
+.dl dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.action-form { border: 1px solid var(--accent); border-radius: var(--r); padding: 14px; display: flex; flex-direction: column; gap: 12px; background: var(--accent-soft); }
+.action-form .field input, .action-form .field select, .action-form .field textarea { background: var(--bg); }
+.timeline { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.timeline li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 12px; padding-bottom: 14px; position: relative; }
+.timeline li::before { content: ""; position: absolute; left: 6px; top: 14px; bottom: 0; width: 1px; background: var(--line); }
+.timeline li:last-child::before { display: none; }
+.timeline .dot { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--line); background: var(--bg); margin-top: 3px; }
+.timeline .dot.reparo { border-color: var(--bad); } .timeline .dot.entrega, .timeline .dot.emprestimo { border-color: var(--held); }
+.timeline .dot.devolucao, .timeline .dot.recebido { border-color: var(--ok); } .timeline .dot.nota { border-color: var(--info); }
+.timeline .tt { font-weight: 500; }
+.timeline .tm { font-size: 12px; color: var(--muted); }
+.timeline .tx { font-size: 13px; color: var(--fg-2); margin-top: 2px; overflow-wrap: anywhere; }
+.section-t { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+
+/* Assistant */
+.chat { display: flex; flex-direction: column; gap: 14px; }
+.msg { max-width: 72ch; padding: 12px 14px; border-radius: 12px; overflow-wrap: anywhere; }
+.msg.user { align-self: flex-end; background: var(--fg); color: var(--bg); border-bottom-right-radius: 4px; }
+.msg.bot { align-self: flex-start; background: var(--surface); border-bottom-left-radius: 4px; }
+.msg.bot p { margin: 0 0 8px; } .msg.bot p:last-child { margin: 0; }
+.msg.bot ul { margin: 4px 0 8px; padding-left: 18px; }
+.msg .ref { all: unset; cursor: pointer; font-family: var(--mono); font-size: 12.5px; color: var(--accent-strong); text-decoration: underline; text-underline-offset: 2px; }
+.composer { display: flex; gap: 8px; position: sticky; bottom: 0; background: var(--bg); padding-block: 12px; }
+.composer input { flex: 1; min-width: 0; height: 42px; border-radius: 10px; border: 1px solid var(--line); padding: 0 14px; background: var(--surface); }
+.composer input:focus { outline: none; border-color: var(--accent); background: var(--bg); }
+.thinking { color: var(--muted); font-size: 13px; }
+
+/* Misc */
+.banner { border-radius: var(--r); padding: 12px 14px; background: var(--warn-soft); color: var(--fg); display: flex; gap: 10px; align-items: flex-start; }
+.banner b { color: var(--warn); }
+.empty { padding: 40px 20px; text-align: center; color: var(--muted); display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.empty h2 { color: var(--fg); }
+.toasts { position: fixed; bottom: max(16px, env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); z-index: 60; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+.toast { background: var(--fg); color: var(--bg); padding: 10px 14px; border-radius: 9px; box-shadow: var(--shadow); font-weight: 500; animation: rise .2s ease; pointer-events: auto; }
+.toast.err { background: var(--bad); color: #fff; }
+.skeleton { height: 14px; border-radius: 4px; background: linear-gradient(90deg, var(--surface) 0%, var(--surface-2) 50%, var(--surface) 100%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+.qgroups { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+.prov { font-size: 12.5px; color: var(--muted); }
+.bottom-nav { display: none; }
+
+@keyframes fade { from { opacity: 0 } }
+@keyframes slide { from { transform: translateX(24px); opacity: .6 } }
+@keyframes rise { from { transform: translateY(8px); opacity: 0 } }
+@keyframes shimmer { to { background-position: -200% 0 } }
+@media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
+
+@media (max-width: 1100px) {
+  .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dash { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .side { display: none; }
+  .topbar { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .content { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-bottom: 96px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pipe { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pipe button:nth-child(2) { border-right: 0; }
+  .pipe button:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  .pipe button::after { display: none; }
+  .grid-2 { grid-template-columns: minmax(0, 1fr); }
+  .dl { grid-template-columns: minmax(0, 1fr); gap: 2px 0; }
+  .dl dd { margin-bottom: 8px; }
+  .bar-row { grid-template-columns: 84px minmax(0, 1fr) 36px; gap: 8px; }
+  .new-label { display: none; }
+  .search kbd { display: none; }
+  .bottom-nav { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+  .bottom-nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 6px; font-size: 11px; color: var(--muted); text-decoration: none; }
+  .bottom-nav a[aria-current="page"] { color: var(--accent-strong); }
+}
+/* Login */
+.login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--surface); }
+.login-card { width: min(420px, 100%); background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 32px 28px; display: flex; flex-direction: column; gap: 18px; box-shadow: var(--shadow); }
+.login-card p { margin: 0; color: var(--fg-2); }
+.login-card .btn { height: 42px; justify-content: center; font-size: 15px; }
+.login-card .err { color: var(--bad); font-size: 13px; }
+.who { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Colaboradores e máquinas secundárias */
+.people-form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr) auto; gap: 10px; align-items: end; }
+.people-form .btn { height: 36px; }
+.link { all: unset; cursor: pointer; color: var(--accent-strong); text-decoration: underline; text-underline-offset: 2px; }
+.link:focus-visible { outline: 2px solid var(--accent); border-radius: 4px; }
+.sec-list { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.sec-list .li { padding: 9px 12px; }
+td .actions-inline { display: flex; gap: 6px; justify-content: flex-end; }
+@media (max-width: 860px) { .people-form { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<div id="app"></div>
+
+<!-- Firebase (SDK compat, versão fixa) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  // Configuração do projeto Firebase (não é senha: quem protege os dados são as regras do Firestore).
+  firebase.initializeApp({
+  apiKey: "AIzaSyCeX782dBwE0NwBIaB2-JOoJN8N3rkmusg",
+  authDomain: "inventario-apple-cesar-2144c.firebaseapp.com",
+  projectId: "inventario-apple-cesar-2144c",
+  storageBucket: "inventario-apple-cesar-2144c.firebasestorage.app",
+  messagingSenderId: "120620833617",
+  appId: "1:120620833617:web:bdc63500eea42d887d5170"
+});
+  // Domínio de e-mail autorizado a entrar.
+  window.DOMINIO_PERMITIDO = 'cesar.org.br';
+</script>
+
+<script type="module">
+import { html, render, useState, useEffect, useMemo, useRef, useCallback } from 'https://cdn.jsdelivr.net/npm/htm@3.1.1/preact/standalone.module.js';
+
+/* ================================================================
+   1. DOMÍNIO — vocabulário, regras de negócio e fluxo de estados
+   ================================================================ */
+const STATUS = {
+  disponivel: { label: 'Disponível', tone: 'ok' },
+  reservado:  { label: 'Reservado', tone: 'info' },
+  alocado:    { label: 'Alocado', tone: 'held' },
+  emprestado: { label: 'Emprestado', tone: 'held' },
+  danificado: { label: 'Danificado', tone: 'bad' },
+  baixado:    { label: 'Baixado', tone: 'mute' },
+};
+const ETAPA = {
+  suporte:     { label: 'No suporte' },
+  colaborador: { label: 'Com colaborador' },
+  orcamento:   { label: 'Aguardando orçamento', repair: 1 },
+  aprovacao:   { label: 'Aguardando aprovação', repair: 2 },
+  reparo:      { label: 'Em reparo', repair: 3 },
+  retirada:    { label: 'Pronto p/ retirada', repair: 4 },
+  inviavel:    { label: 'Orçamento inviável' },
+  oficina:     { label: 'Oficina CESAR' },
+  baixa:       { label: 'Fora de uso' },
+};
+const CATEG = { notebook: 'Notebooks', celular: 'Celulares', tablet: 'Tablets', monitor: 'Monitores', desktop: 'Desktops', acessorio: 'Acessórios', outro: 'Outros' };
+const CATEG_ONE = { notebook: 'Notebook', celular: 'Celular', tablet: 'Tablet', monitor: 'Monitor', desktop: 'Desktop', acessorio: 'Acessório', outro: 'Outro' };
+const REPAIR_STAGES = ['orcamento', 'aprovacao', 'reparo', 'retirada'];
+const FORNECEDORES = ['iPlace', 'Mané', 'iJobe', 'Applecare', 'Outra assistência'];
+const STALE_DAYS = 30;
+
+const isRepair = a => !!ETAPA[a.etapa]?.repair;
+/** Tombamentos de máquinas secundárias -> ativo principal (derivado do campo "secundarias" dos principais). */
+let SEC_INDEX = new Map();
+const buildSecIndex = list => { const m = new Map(); list.forEach(a => (a.secundarias || []).forEach(t => { if (!m.has(t)) m.set(t, a); })); SEC_INDEX = m; };
+const primaryOf = a => (a.tombamento && SEC_INDEX.get(a.tombamento)) || null;
+const isSecondary = a => !!primaryOf(a) || !!a.principalExterna;
+const parseTombs = s => [...new Set((Array.isArray(s) ? s.join(' ') : String(s || '')).match(/\d{1,6}/g) || [])].map(t => t.padStart(6, '0'));
+const today = () => new Date().toISOString().slice(0, 10);
+const nowIso = () => new Date().toISOString();
+const daysSince = iso => iso ? Math.floor((Date.now() - new Date(iso).getTime()) / 864e5) : null;
+const norm = s => (s ?? '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+const fmtMoney = v => (v == null || isNaN(v)) ? '—' : brl.format(v);
+const fmtDate = iso => { if (!iso) return '—'; const d = new Date(iso.length === 10 ? iso + 'T12:00:00' : iso); return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', ''); };
+const assetName = a => a.tipo || CATEG_ONE[a.categoria] || 'Equipamento';
+const assetCode = a => a.tombamento ? a.tombamento : (a.serial ? a.serial : 'sem identificação');
+
+/** Desde quando o ativo está na etapa atual (último evento que levou a ela). */
+function stageSince(a) {
+  const h = a.historico || [];
+  for (let i = h.length - 1; i >= 0; i--) if (h[i].para?.etapa === a.etapa) return h[i].data;
+  if (isRepair(a)) return a.reparo?.entrada || null;
+  return null;
+}
+
+/** Regras de qualidade de dados e alertas operacionais. */
+const CHECKS = [
+  { id: 'parado', sev: 'bad', title: 'Parado na assistência', hint: `Em fluxo de reparo há mais de ${STALE_DAYS} dias`,
+    test: a => isRepair(a) && (daysSince(stageSince(a)) ?? 0) > STALE_DAYS, detail: a => `${daysSince(stageSince(a))} dias em "${ETAPA[a.etapa].label}"` },
+  { id: 'triagem', sev: 'warn', title: 'Danificado sem encaminhamento', hint: 'Está no suporte com defeito e ainda não foi para orçamento, oficina ou baixa',
+    test: a => a.status === 'danificado' && a.etapa === 'suporte', detail: a => a.reparo?.defeito || a.observacoes || 'Defeito não descrito' },
+  { id: 'sem_serial', sev: 'warn', title: 'Sem número de série', hint: 'Sem serial não dá para acionar garantia nem cruzar com o Apex One',
+    test: a => !a.serial && !a.imei && a.status !== 'baixado', detail: a => a.tombamento ? `Tomb. ${a.tombamento}` : 'Também sem tombamento' },
+  { id: 'sem_tomb', sev: 'info', title: 'Sem tombamento', hint: 'Patrimônio não identificado na planilha',
+    test: a => !a.tombamento && a.status !== 'baixado', detail: a => a.serial ? `S/N ${a.serial}` : 'Também sem serial' },
+  { id: 'sem_pessoa', sev: 'warn', title: 'Com colaborador sem nome', hint: 'Status diz que está com alguém, mas não diz com quem',
+    test: a => (a.etapa === 'colaborador' || a.status === 'alocado' || a.status === 'emprestado') && !a.responsavel, detail: a => STATUS[a.status]?.label },
+  { id: 'reserva', sev: 'info', title: 'Reserva sem destinatário', hint: 'Marcado como reservado sem indicar para quem',
+    test: a => a.status === 'reservado' && !a.reservadoPara, detail: a => a.observacoes || '' },
+  { id: 'apexone', sev: 'info', title: 'Notebook em uso sem Apex One', hint: 'Notebook com colaborador sem agente Apex One registrado',
+    test: a => a.categoria === 'notebook' && a.etapa === 'colaborador' && !a.apexone, detail: a => a.responsavel || '' },
+  { id: 'historico', sev: 'mute', title: 'Só aparece no histórico', hint: 'Veio das abas Garantia ou Arquivo; confirmar se o equipamento ainda existe',
+    test: a => a.arquivado && a.status !== 'baixado', detail: a => (a.fontes || [])[0] || '' },
+];
+
+/** Fluxo de trabalho: cada ação sabe quando vale, o que pede e o que muda. */
+const ACTIONS = [
+  { id: 'entregar', label: 'Entregar a colaborador', primary: true,
+    when: a => ['disponivel', 'reservado'].includes(a.status) && ['suporte', 'oficina'].includes(a.etapa),
+    fields: [
+      { k: 'pessoa', label: 'Colaborador', req: true, list: 'dl-pessoas', def: a => a.reservadoPara || '' },
+      { k: 'modo', label: 'Tipo de entrega', type: 'select', options: [['alocado', 'Alocação'], ['emprestado', 'Empréstimo']] },
+      { k: 'aprovador', label: 'Aprovador / gerente', list: 'dl-pessoas', def: a => a.aprovador || '' },
+      { k: 'nota', label: 'Observação', type: 'textarea' }],
+    apply: (a, v) => ({ status: v.modo || 'alocado', etapa: 'colaborador', responsavel: v.pessoa, reservadoPara: null, aprovador: v.aprovador || a.aprovador }),
+    event: (a, v) => ({ tipo: 'entrega', titulo: `${v.modo === 'emprestado' ? 'Emprestado' : 'Alocado'} para ${v.pessoa}`, texto: v.nota }) },
+  { id: 'reservar', label: 'Reservar',
+    when: a => a.status === 'disponivel' && !isRepair(a) && a.etapa !== 'colaborador',
+    fields: [{ k: 'pessoa', label: 'Reservar para', req: true, list: 'dl-pessoas' }, { k: 'nota', label: 'Observação', type: 'textarea' }],
+    apply: (a, v) => ({ status: 'reservado', reservadoPara: v.pessoa }),
+    event: (a, v) => ({ tipo: 'reserva', titulo: `Reservado para ${v.pessoa}`, texto: v.nota }) },
+  { id: 'cancelar', label: 'Cancelar reserva', when: a => a.status === 'reservado',
+    apply: () => ({ status: 'disponivel', reservadoPara: null }), event: a => ({ tipo: 'reserva', titulo: 'Reserva cancelada' }) },
+  { id: 'devolver', label: 'Registrar devolução', primary: true, when: a => a.etapa === 'colaborador',
+    fields: [{ k: 'estado', label: 'Como voltou', type: 'select', options: [['ok', 'Funcionando'], ['defeito', 'Com defeito']] }, { k: 'nota', label: 'Observação / defeito', type: 'textarea' }],
+    apply: (a, v) => ({ status: v.estado === 'defeito' ? 'danificado' : 'disponivel', etapa: 'suporte', antigoDono: a.responsavel || a.antigoDono, responsavel: null,
+      reparo: v.estado === 'defeito' ? { defeito: v.nota || null } : a.reparo }),
+    event: (a, v) => ({ tipo: 'devolucao', titulo: `Devolvido${a.responsavel ? ' por ' + a.responsavel : ''}`, texto: v.nota }) },
+  { id: 'defeito', label: 'Registrar defeito',
+    when: a => !['danificado', 'baixado'].includes(a.status) && !isRepair(a),
+    fields: [{ k: 'defeito', label: 'Defeito', req: true, type: 'textarea' }],
+    apply: (a, v) => ({ status: 'danificado', reparo: { defeito: v.defeito } }),
+    event: (a, v) => ({ tipo: 'reparo', titulo: 'Defeito registrado', texto: v.defeito }) },
+  { id: 'enviar', label: 'Enviar para assistência', primary: true,
+    when: a => a.status === 'danificado' && ['suporte', 'oficina', 'inviavel'].includes(a.etapa),
+    fields: [
+      { k: 'fornecedor', label: 'Assistência', type: 'select', options: FORNECEDORES.map(f => [f, f]) },
+      { k: 'os', label: 'Nº da O.S.' },
+      { k: 'defeito', label: 'Defeito', type: 'textarea', def: a => a.reparo?.defeito || '' }],
+    apply: (a, v) => ({ etapa: 'orcamento', fornecedor: v.fornecedor, reparo: { defeito: v.defeito || null, os: v.os || null, entrada: today() } }),
+    event: (a, v) => ({ tipo: 'reparo', titulo: `Enviado para ${v.fornecedor}`, texto: [v.os && `O.S. ${v.os}`, v.defeito].filter(Boolean).join(' · ') }) },
+  { id: 'orcar', label: 'Registrar orçamento', primary: true, when: a => a.etapa === 'orcamento',
+    fields: [
+      { k: 'cobertura', label: 'Cobertura', type: 'select', options: [['', 'Pago pelo CESAR'], ['Garantia', 'Garantia'], ['Applecare', 'AppleCare'], ['Recall', 'Recall']] },
+      { k: 'valor', label: 'Valor do orçamento (R$)', type: 'number' }],
+    validate: v => (!v.cobertura && !(Number(v.valor) > 0)) ? { valor: 'Informe o valor ou escolha uma cobertura.' } : null,
+    apply: (a, v) => ({ etapa: v.cobertura ? 'reparo' : 'aprovacao', reparo: { ...a.reparo, orcamento: v.cobertura ? null : Number(v.valor), cobertura: v.cobertura || null } }),
+    event: (a, v) => ({ tipo: 'reparo', titulo: v.cobertura ? `Coberto por ${v.cobertura}` : `Orçamento de ${fmtMoney(Number(v.valor))}`, valor: v.cobertura ? null : Number(v.valor) }) },
+  { id: 'aprovar', label: 'Aprovar orçamento', primary: true, when: a => a.etapa === 'aprovacao',
+    fields: [{ k: 'aprovador', label: 'Aprovado por', req: true, list: 'dl-pessoas', def: a => a.aprovador || '' }, { k: 'chamado', label: 'Chamado Zeev' }],
+    apply: (a, v) => ({ etapa: 'reparo', aprovador: v.aprovador, reparo: { ...a.reparo, chamado: v.chamado || a.reparo?.chamado || null } }),
+    event: (a, v) => ({ tipo: 'reparo', titulo: `Orçamento aprovado por ${v.aprovador}`, texto: v.chamado ? `Zeev ${v.chamado}` : null }) },
+  { id: 'inviavel', label: 'Marcar como inviável', when: a => ['orcamento', 'aprovacao'].includes(a.etapa),
+    fields: [{ k: 'nota', label: 'Motivo', type: 'textarea' }],
+    apply: () => ({ etapa: 'inviavel' }), event: (a, v) => ({ tipo: 'reparo', titulo: 'Orçamento inviável', texto: v.nota }) },
+  { id: 'pronto', label: 'Pronto para retirada', primary: true, when: a => a.etapa === 'reparo',
+    fields: [{ k: 'nf', label: 'Nota fiscal' }],
+    apply: (a, v) => ({ etapa: 'retirada', reparo: { ...a.reparo, nf: v.nf || a.reparo?.nf || null } }),
+    event: (a, v) => ({ tipo: 'reparo', titulo: 'Reparo concluído, aguardando retirada', texto: v.nf ? `NF ${v.nf}` : null }) },
+  { id: 'receber', label: 'Recebido no suporte', primary: true, when: a => a.etapa === 'retirada',
+    apply: a => ({ status: 'disponivel', etapa: 'suporte', reparo: { ...a.reparo, retorno: today() } }),
+    event: a => ({ tipo: 'recebido', titulo: 'Voltou da assistência', texto: a.fornecedor ? `Retirado na ${a.fornecedor}` : null }) },
+  { id: 'oficina', label: 'Mandar para oficina CESAR', when: a => a.status === 'danificado' && ['suporte', 'inviavel'].includes(a.etapa),
+    fields: [{ k: 'nota', label: 'Observação', type: 'textarea' }],
+    apply: () => ({ etapa: 'oficina' }), event: (a, v) => ({ tipo: 'reparo', titulo: 'Enviado para a oficina CESAR', texto: v.nota }) },
+  { id: 'baixa', label: 'Dar baixa', danger: true,
+    when: a => a.status !== 'baixado' && (a.status === 'danificado' || ['oficina', 'inviavel'].includes(a.etapa)) && !['orcamento', 'aprovacao', 'reparo', 'retirada'].includes(a.etapa),
+    fields: [{ k: 'motivo', label: 'Motivo da baixa', req: true, type: 'textarea' }],
+    apply: () => ({ status: 'baixado', etapa: 'baixa', responsavel: null, reservadoPara: null }),
+    event: (a, v) => ({ tipo: 'baixa', titulo: 'Baixa patrimonial', texto: v.motivo }) },
+  { id: 'nota', label: 'Adicionar nota', when: () => true,
+    fields: [{ k: 'texto', label: 'Nota', req: true, type: 'textarea' }],
+    apply: () => ({}), event: (a, v) => ({ tipo: 'nota', titulo: 'Nota', texto: v.texto }) },
+];
+
+/* ---------- Busca inteligente: entende status, etapa, categoria e chip ---------- */
+const VOCAB = [
+  ...['disponivel', 'disponiveis', 'livre', 'livres'].map(w => [w, 'status', 'disponivel']),
+  ...['reservado', 'reservados', 'reserva'].map(w => [w, 'status', 'reservado']),
+  ...['alocado', 'alocados'].map(w => [w, 'status', 'alocado']),
+  ...['emprestado', 'emprestados', 'emprestimo'].map(w => [w, 'status', 'emprestado']),
+  ...['danificado', 'danificados', 'quebrado', 'quebrados', 'defeito'].map(w => [w, 'status', 'danificado']),
+  ...['baixado', 'baixados'].map(w => [w, 'status', 'baixado']),
+  ...['reparo', 'assistencia', 'conserto'].map(w => [w, 'fluxo', 'reparo']),
+  ...['orcamento'].map(w => [w, 'etapa', 'orcamento']),
+  ...['aprovacao'].map(w => [w, 'etapa', 'aprovacao']),
+  ...['retirada'].map(w => [w, 'etapa', 'retirada']),
+  ...['oficina'].map(w => [w, 'etapa', 'oficina']),
+  ...['colaborador', 'colaboradores', 'uso'].map(w => [w, 'etapa', 'colaborador']),
+  ...['notebook', 'notebooks', 'macbook', 'macbooks', 'mac', 'macs'].map(w => [w, 'categoria', 'notebook']),
+  ...['iphone', 'iphones', 'celular', 'celulares', 'smartphone'].map(w => [w, 'categoria', 'celular']),
+  ...['ipad', 'ipads', 'tablet', 'tablets'].map(w => [w, 'categoria', 'tablet']),
+  ...['monitor', 'monitores'].map(w => [w, 'categoria', 'monitor']),
+  ...['secundaria', 'secundarias', 'secundario', 'secundarios'].map(w => [w, 'uso', 'secundaria']),
+  ...['m1', 'm2', 'm3', 'm4', 'm5'].map(w => [w, 'chip', 'Apple ' + w.toUpperCase()]),
+  ...['intel', 'i7', 'i9', 'i5'].map(w => [w, 'chip', w === 'intel' ? 'Intel' : 'Intel Core ' + w])
+];
+const VOCAB_MAP = new Map(VOCAB.map(([w, k, v]) => [w, { k, v }]));
+const FILTER_LABEL = { status: 'Status', etapa: 'Etapa', categoria: 'Tipo', chip: 'Chip', fluxo: 'Fluxo', flag: 'Pendência', uso: 'Uso' };
+const valueLabel = (k, v) => k === 'status' ? STATUS[v]?.label : k === 'etapa' ? ETAPA[v]?.label : k === 'categoria' ? CATEG[v] : k === 'fluxo' ? 'Em reparo' : k === 'uso' ? 'Máquina secundária' : k === 'flag' ? CHECKS.find(c => c.id === v)?.title : v;
+
+function parseQuery(q) {
+  const filters = []; const words = [];
+  let s = norm(q);
+  const phrases = [['sem serial', 'sem_serial'], ['sem tombamento', 'sem_tomb'], ['sem tomb', 'sem_tomb'], ['parados', 'parado'], ['parado', 'parado'], ['sem apex one', 'apexone'], ['sem apexone', 'apexone'], ['sem apex', 'apexone']];
+  for (const [p, id] of phrases) if (s.includes(p)) { if (!filters.some(f => f.v === id)) filters.push({ k: 'flag', v: id }); s = s.replace(p, ' '); }
+  for (const tok of s.split(/\s+/).filter(Boolean)) {
+    const hit = VOCAB_MAP.get(tok);
+    if (hit && !filters.some(f => f.k === hit.k && f.v === hit.v)) filters.push(hit);
+    else if (!['com', 'de', 'do', 'da', 'em', 'no', 'na', 'os', 'as', 'e', 'que', 'para'].includes(tok)) words.push(tok);
+  }
+  return { filters, words };
+}
+const haystack = a => norm([a.tombamento, ...(a.tombamentosAnteriores || []), a.serial, a.imei, a.tipo, a.configuracao, a.chip, a.responsavel, a.reservadoPara, a.antigoDono, a.aprovador, a.observacoes, a.fornecedor, a.reparo?.os, a.reparo?.defeito, a.centroCusto, a.apexone, a.projeto, ...(a.secundarias || [])].filter(Boolean).join(' '));
+function matchFilter(a, f) {
+  if (f.k === 'status') return a.status === f.v;
+  if (f.k === 'etapa') return a.etapa === f.v;
+  if (f.k === 'categoria') return a.categoria === f.v;
+  if (f.k === 'fluxo') return isRepair(a);
+  if (f.k === 'chip') return (a.chip || '').startsWith(f.v) || norm(a.tipo + ' ' + a.configuracao).includes(norm(f.v.replace('Apple ', '').replace('Intel Core ', '')));
+  if (f.k === 'flag') return CHECKS.find(c => c.id === f.v)?.test(a);
+  if (f.k === 'uso') return isSecondary(a);
+  return true;
+}
+function applySearch(list, parsed) {
+  // Filtros do mesmo tipo combinam com OU; tipos diferentes com E.
+  const groups = {}; parsed.filters.forEach(f => (groups[f.k] ||= []).push(f));
+  return list.filter(a => Object.values(groups).every(g => g.some(f => matchFilter(a, f))) && parsed.words.every(w => (a._hay ||= haystack(a)).includes(w)));
+}
+
+/* ================================================================
+   2. DADOS — repositório sobre o banco compartilhado do artefato
+   ================================================================ */
+const store = {
+  state: { authReady: false, authUser: null, authError: null, assets: [], people: [], peopleLoaded: false, conn: 'connecting', connError: null, meId: null, names: {}, meta: null, toasts: [] },
+  subs: new Set(),
+  set(patch) { this.state = { ...this.state, ...patch }; this.subs.forEach(f => f()); },
+};
+function useStore(sel) {
+  const [, force] = useState(0);
+  useEffect(() => { const f = () => force(x => x + 1); store.subs.add(f); return () => store.subs.delete(f); }, []);
+  return sel(store.state);
+}
+function toast(text, err) {
+  const id = Math.random().toString(36).slice(2);
+  store.set({ toasts: [...store.state.toasts, { id, text, err }] });
+  setTimeout(() => store.set({ toasts: store.state.toasts.filter(t => t.id !== id) }), err ? 6000 : 3200);
+}
+function docsFrom(snap) {
+  const arr = Array.isArray(snap) ? snap : (snap?.docs ?? snap?.items ?? snap?.documents ?? []);
+  return arr.map(d => {
+    const data = typeof d?.data === 'function' ? d.data() : (d?.data && typeof d.data === 'object' ? d.data : d);
+    return { ...data, id: data?.id ?? d?.id };
+  }).filter(x => x && x.id);
+}
+const clean = obj => JSON.parse(JSON.stringify(obj, (k, v) => (k.startsWith('_') ? undefined : v)));
+
+const Repo = {
+  db: null, user: null, writing: new Map(),
+  /** Login com Google e assinatura das coleções do Firestore. */
+  init() {
+    const auth = firebase.auth();
+    auth.onAuthStateChanged(async u => {
+      if (!u) { this.stop(); store.set({ authReady: true, authUser: null, assets: [], people: [], peopleLoaded: false, conn: 'connecting' }); return; }
+      const dom = (window.DOMINIO_PERMITIDO || '').toLowerCase();
+      if (dom && !(u.email || '').toLowerCase().endsWith('@' + dom)) {
+        await auth.signOut();
+        store.set({ authReady: true, authUser: null, authError: `Entre com seu e-mail @${dom}. A conta ${u.email} não tem acesso.` });
+        return;
+      }
+      const nome = u.displayName || u.email;
+      store.set({ authReady: true, authError: null, authUser: { uid: u.uid, nome, email: u.email }, meId: u.uid, names: { ...store.state.names, [u.uid]: nome }, conn: 'connecting' });
+      this.start();
+    });
+  },
+  async signIn() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    if (window.DOMINIO_PERMITIDO) provider.setCustomParameters({ hd: window.DOMINIO_PERMITIDO, prompt: 'select_account' });
+    store.set({ authError: null });
+    try { await firebase.auth().signInWithPopup(provider); }
+    catch (e) {
+      if (e?.code === 'auth/popup-blocked' || e?.code === 'auth/operation-not-supported-in-this-environment') { await firebase.auth().signInWithRedirect(provider); return; }
+      if (e?.code === 'auth/popup-closed-by-user' || e?.code === 'auth/cancelled-popup-request') return;
+      store.set({ authError: e?.code === 'auth/unauthorized-domain' ? 'Este endereço não está autorizado no Firebase (Authentication → Settings → Domínios autorizados).' : `Não foi possível entrar: ${e?.message || e}` });
+    }
+  },
+  signOut() { firebase.auth().signOut(); },
+  stop() { this.unsub?.(); this.unsubPeople?.(); this.unsub = this.unsubPeople = null; this.db = null; },
+  start() {
+    this.stop();
+    const db = firebase.firestore(); this.db = db;
+    const friendly = err => /permission/i.test(String(err?.code || err?.message)) ? 'Sua conta não tem permissão para ler o inventário. Confira as regras do Firestore.' : (err?.message || String(err));
+    const timer = setTimeout(() => { if (store.state.conn === 'connecting') store.set({ conn: 'timeout' }); }, 10000);
+    this.unsub = db.collection('ativos').onSnapshot(snap => {
+      clearTimeout(timer);
+      const list = docsFrom(snap).map(a => ({ ...a, historico: a.historico || [] }));
+      list.sort((x, y) => (y.atualizadoEm || '').localeCompare(x.atualizadoEm || ''));
+      buildSecIndex(list);
+      store.set({ assets: list, conn: 'live' });
+    }, err => { clearTimeout(timer); store.set({ conn: 'error', connError: friendly(err) }); });
+    this.unsubPeople = db.collection('colaboradores').onSnapshot(snap => {
+      const list = docsFrom(snap).filter(p => p.nome).sort((x, y) => x.nome.localeCompare(y.nome, 'pt-BR'));
+      store.set({ people: list, peopleLoaded: true });
+    }, () => store.set({ peopleLoaded: true }));
+    db.doc('sistema/importacao').get().then(m => { const data = m.exists ? m.data() : null; if (data && (data.linhasLidas || data.arquivo)) store.set({ meta: data }); }).catch(() => {});
+  },
+  resolveNames() {},
+  /** Aplica uma mudança + evento de histórico, com atualização otimista. */
+  async commit(asset, patch, ev) {
+    if (!this.db) { toast('Sem conexão com o banco: a alteração não foi salva.', true); return false; }
+    if (this.writing.get(asset.id)) { toast('Aguarde: a alteração anterior deste item ainda está sendo salva.'); return false; }
+    const before = store.state.assets;
+    const de = { status: asset.status, etapa: asset.etapa };
+    const restore = () => { buildSecIndex(before); store.set({ assets: before }); };
+    const next = { ...asset, ...patch, atualizadoEm: nowIso(), atualizadoPor: store.state.meId || null };
+    if (ev) next.historico = [...(asset.historico || []), { data: nowIso(), autorId: store.state.meId || null, autorNome: store.state.authUser?.nome || null, de, para: { status: next.status, etapa: next.etapa }, ...Object.fromEntries(Object.entries(ev).filter(([, v]) => v != null && v !== '')) }];
+    const after = [next, ...before.filter(a => a.id !== asset.id)];
+    buildSecIndex(after); store.set({ assets: after });
+    this.writing.set(asset.id, true);
+    try { await this.db.doc('ativos/' + asset.id).set(clean(next)); return true; }
+    catch (e) {
+      restore();
+      const msg = /not_granted|permission|denied|forbidden/i.test(String(e?.code || e?.message)) ? 'Você só tem acesso de leitura a este inventário.' : `Não foi possível salvar: ${e?.message || e}`;
+      toast(msg, true); return false;
+    } finally { this.writing.delete(asset.id); }
+  },
+  /** Cadastra o colaborador na lista, se ainda não existir (comparação sem acento e sem caixa). */
+  async ensurePerson(nome, projeto) {
+    const n = (nome || '').trim().replace(/\s+/g, ' ');
+    if (!n || !this.db) return;
+    if (store.state.people.some(p => norm(p.nome) === norm(n))) return;
+    try { await this.db.collection('colaboradores').add({ nome: n, projeto: projeto || null, origem: 'manual', criadoEm: nowIso(), criadoPor: store.state.authUser?.email || null }); } catch (e) {}
+  },
+  async addPerson(nome, projeto) {
+    const n = (nome || '').trim().replace(/\s+/g, ' ');
+    if (!this.db) { toast('Sem conexão com o banco: o colaborador não foi salvo.', true); return false; }
+    if (store.state.people.some(p => norm(p.nome) === norm(n))) { toast('Esse colaborador já está na lista.', true); return false; }
+    try { await this.db.collection('colaboradores').add({ nome: n, projeto: (projeto || '').trim() || null, origem: 'manual', criadoEm: nowIso(), criadoPor: store.state.authUser?.email || null }); return true; }
+    catch (e) { toast(/not_granted|permission|denied|forbidden/i.test(String(e?.code || e?.message)) ? 'Você só tem acesso de leitura a este inventário.' : `Não foi possível salvar: ${e?.message || e}`, true); return false; }
+  },
+  async updatePerson(p, patch) {
+    if (!this.db) return false;
+    try { await this.db.doc('colaboradores/' + p.id).update(patch); return true; }
+    catch (e) { toast(`Não foi possível salvar: ${e?.message || e}`, true); return false; }
+  },
+  async removePerson(p) {
+    if (!this.db) return false;
+    try { await this.db.doc('colaboradores/' + p.id).delete(); return true; }
+    catch (e) { toast(`Não foi possível remover: ${e?.message || e}`, true); return false; }
+  },
+  async create(asset) {
+    const id = 'a-' + (crypto.randomUUID?.() || Math.random().toString(36).slice(2)).replace(/-/g, '').slice(0, 12);
+    const rec = { ...asset, id, criadoEm: nowIso(), atualizadoEm: nowIso(), atualizadoPor: store.state.meId || null,
+      historico: [{ tipo: 'cadastro', data: nowIso(), titulo: 'Cadastrado no sistema', autorId: store.state.meId || null, autorNome: store.state.authUser?.nome || null, para: { status: asset.status, etapa: asset.etapa } }] };
+    if (!this.db) { toast('Sem conexão com o banco: o cadastro não foi salvo.', true); return null; }
+    try { await this.db.doc('ativos/' + id).set(clean(rec)); const list = [rec, ...store.state.assets]; buildSecIndex(list); store.set({ assets: list }); return rec; }
+    catch (e) { toast(`Não foi possível cadastrar: ${e?.message || e}`, true); return null; }
+  },
+};
+
+/* ================================================================
+   3. ROTEAMENTO por hash (#painel, #inventario, #reparos ...)
+   ================================================================ */
+const ROUTES = ['painel', 'inventario', 'reparos', 'qualidade', 'colaboradores'];
+function useRoute() {
+  const get = () => { const h = location.hash.replace('#', ''); return ROUTES.includes(h) ? h : 'painel'; };
+  const [r, setR] = useState(get());
+  useEffect(() => { const f = () => setR(get()); addEventListener('hashchange', f); return () => removeEventListener('hashchange', f); }, []);
+  return r;
+}
+const go = r => { location.hash = r; };
+
+/* ================================================================
+   4. INTERFACE
+   ================================================================ */
+const Icon = ({ n, s = 16 }) => {
+  const p = {
+    painel: 'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',
+    inventario: 'M4 6h16M4 12h16M4 18h10',
+    reparos: 'M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z',
+    qualidade: 'M12 3l8 4v5c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V7zM9 12l2 2 4-4',
+    colaboradores: 'M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM21 19v-1a4 4 0 0 0-3-3.9M15.5 4.1a3 3 0 0 1 0 5.8',
+    trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
+    assistente: 'M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9zM19 15l.9 2.1 2.1.9-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z',
+    search: 'M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14zM21 21l-5-5',
+    plus: 'M12 5v14M5 12h14', x: 'M6 6l12 12M18 6L6 18', down: 'M12 4v12M6 10l6 6 6-6',
+    sort: 'M8 5v14M4 15l4 4 4-4M16 19V5M12 9l4-4 4 4', send: 'M4 12l16-8-6 16-2-7z',
+  }[n];
+  return html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${p} /></svg>`;
+};
+const StatusPill = ({ s }) => html`<span class=${'pill ' + (STATUS[s]?.tone || 'mute')}>${STATUS[s]?.label || s}</span>`;
+const Stage = ({ a }) => html`<span class="stage">${ETAPA[a.etapa]?.label || a.etapa}</span>`;
+
+function Login() {
+  const { authReady, authError } = useStore(s => s);
+  const [busy, setBusy] = useState(false);
+  return html`<div class="login"><div class="login-card">
+    <div class="brand" style=${{ padding: 0 }}><div class="brand-mark"><i></i><i></i></div><div><b>Inventário Apple</b><span>Suporte · CESAR</span></div></div>
+    <h1 style=${{ fontSize: '22px' }}>Entre para ver o inventário</h1>
+    <p>Use sua conta Google @${window.DOMINIO_PERMITIDO || 'da empresa'}. Só a equipe com acesso consegue ver e editar os equipamentos.</p>
+    <button class="btn primary" disabled=${!authReady || busy} onClick=${async () => { setBusy(true); await Repo.signIn(); setBusy(false); }}>${!authReady ? 'Carregando…' : busy ? 'Abrindo o Google…' : 'Entrar com Google'}</button>
+    ${authError && html`<span class="err" role="alert">${authError}</span>`}
+  </div></div>`;
+}
+
+function App() {
+  const { authReady, authUser } = useStore(s => s);
+  if (!authReady || !authUser) return html`<${Login} />`;
+  return html`<${Shell} />`;
+}
+
+function Shell() {
+  const route = useRoute();
+  const { assets, conn, toasts, people, authUser } = useStore(s => s);
+  const [openId, setOpenId] = useState(null);
+  const [creating, setCreating] = useState(false);
+  const [query, setQuery] = useState('');
+  const searchRef = useRef();
+  const open = useCallback(id => setOpenId(id), []);
+  const flags = useMemo(() => CHECKS.reduce((n, c) => n + (c.sev === 'bad' ? assets.filter(c.test).length : 0), 0), [assets]);
+  const active = useMemo(() => assets.filter(a => a.status !== 'baixado'), [assets]);
+  const repairCount = useMemo(() => assets.filter(isRepair).length, [assets]);
+
+  useEffect(() => {
+    const k = e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); searchRef.current?.focus(); }
+      if (e.key === 'Escape') { setOpenId(null); setCreating(false); }
+    };
+    addEventListener('keydown', k); return () => removeEventListener('keydown', k);
+  }, []);
+  const onSearch = v => { setQuery(v); if (route !== 'inventario' && v.trim()) go('inventario'); };
+  const openAsset = assets.find(a => a.id === openId);
+  const nav = [
+    ['painel', 'Painel', null], ['inventario', 'Inventário', active.length],
+    ['reparos', 'Reparos', repairCount], ['qualidade', 'Pendências', flags], ['colaboradores', 'Colaboradores', people.length],
+  ];
+
+  return html`
+  <div class="shell">
+    <aside class="side">
+      <div class="brand"><div class="brand-mark"><i></i><i></i></div><div><b>Inventário Apple</b><span>Suporte · CESAR</span></div></div>
+      <nav class="nav" aria-label="Seções">
+        ${nav.map(([id, label, n]) => html`<a href=${'#' + id} aria-current=${route === id ? 'page' : null}><${Icon} n=${id} />${label}${n != null && n > 0 && html`<span class=${'count' + (id === 'qualidade' ? ' hot' : '')}>${n}</span>`}</a>`)}
+      </nav>
+      <div class="side-foot">
+        <span class=${'conn ' + conn}>${{ live: 'Sincronizado ao vivo', connecting: 'Conectando…', offline: 'Sem conexão com o banco', error: 'Erro de conexão', timeout: 'Conexão lenta' }[conn]}</span>
+        <span>Atalho: <span class="mono">Ctrl K</span> busca</span>
+        <div class="who" title=${authUser.email}><span>${authUser.nome}</span><button class="btn ghost sm" onClick=${() => Repo.signOut()}>Sair</button></div>
+      </div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="search">
+          <${Icon} n="search" />
+          <input id="busca-global" ref=${searchRef} type="search" placeholder="Busque por tombamento, serial, pessoa… ou “m1 disponível”" value=${query} onInput=${e => onSearch(e.target.value)} aria-label="Buscar no inventário" />
+          <kbd>Ctrl K</kbd>
+        </div>
+        <button class="btn primary" onClick=${() => setCreating(true)}><${Icon} n="plus" /><span class="new-label">Novo ativo</span></button>
+      </header>
+      <main class="content">
+        <${ConnBanner} conn=${conn} />
+        ${route === 'painel' && html`<${Dashboard} assets=${assets} open=${open} setQuery=${setQuery} />`}
+        ${route === 'inventario' && html`<${Inventory} assets=${assets} open=${open} query=${query} setQuery=${setQuery} />`}
+        ${route === 'reparos' && html`<${Repairs} assets=${assets} open=${open} />`}
+        ${route === 'qualidade' && html`<${Quality} assets=${assets} open=${open} />`}
+        ${route === 'colaboradores' && html`<${People} assets=${assets} open=${open} setQuery=${setQuery} />`}
+      </main>
+    </div>
+  </div>
+  <nav class="bottom-nav" aria-label="Seções">
+    ${nav.map(([id, label]) => html`<a href=${'#' + id} aria-current=${route === id ? 'page' : null}><${Icon} n=${id} s=${20} />${label}</a>`)}
+  </nav>
+  ${openAsset && html`<${Drawer} asset=${openAsset} onClose=${() => setOpenId(null)} open=${open} />`}
+  ${creating && html`<${CreateDrawer} assets=${assets} onClose=${() => setCreating(false)} onCreated=${a => { setCreating(false); setOpenId(a.id); }} />`}
+  <${Datalists} assets=${assets} people=${people} />
+  <div class="toasts" role="status" aria-live="polite">${toasts.map(t => html`<div class=${'toast' + (t.err ? ' err' : '')} key=${t.id}>${t.text}</div>`)}</div>`;
+}
+
+/** Listas suspensas compartilhadas: colaboradores cadastrados + nomes já usados no inventário; projetos. */
+function Datalists({ assets, people }) {
+  const pessoas = useMemo(() => {
+    const m = new Map(); const add = n => { const t = (n || '').trim(); if (t && !m.has(norm(t))) m.set(norm(t), t); };
+    people.forEach(p => add(p.nome)); assets.forEach(a => { add(a.responsavel); add(a.reservadoPara); add(a.antigoDono); add(a.aprovador); });
+    return [...m.values()].sort((x, y) => x.localeCompare(y, 'pt-BR'));
+  }, [assets, people]);
+  const projetos = useMemo(() => [...new Set([...people.map(p => p.projeto), ...assets.map(a => a.projeto)].filter(Boolean).flatMap(p => p.split(' / ')))].sort((x, y) => x.localeCompare(y, 'pt-BR')), [assets, people]);
+  return html`<datalist id="dl-pessoas">${pessoas.map(n => html`<option value=${n} />`)}</datalist><datalist id="dl-projetos">${projetos.map(n => html`<option value=${n} />`)}</datalist>`;
+}
+
+function ConnBanner({ conn }) {
+  if (conn === 'offline') return html`<div class="banner"><b>Sem conexão com o banco.</b><span>Confira sua internet e recarregue a página.</span></div>`;
+  if (conn === 'error') return html`<div class="banner"><b>Erro de conexão.</b><span>${store.state.connError || 'O banco não respondeu.'} Recarregue a página para tentar de novo.</span></div>`;
+  if (conn === 'timeout') return html`<div class="banner"><b>O banco está demorando.</b><span>Os dados aparecem assim que a conexão responder.</span></div>`;
+  return null;
+}
+
+function EmptyState() {
+  const conn = useStore(s => s.conn);
+  if (conn === 'connecting') return html`<div class="panel panel-b stack">${[1, 2, 3, 4].map(i => html`<div class="skeleton" style=${{ width: (90 - i * 12) + '%' }}></div>`)}</div>`;
+  return html`<div class="panel empty"><h2>Nenhum ativo cadastrado ainda</h2><p>Se você acabou de criar o banco, rode a página de importação (importar.html) para trazer os equipamentos. Para começar do zero, use “Novo ativo” no topo da página.</p></div>`;
+}
+
+/* ---------------- Painel ---------------- */
+function Dashboard({ assets, open, setQuery }) {
+  const m = useMemo(() => {
+    const act = assets.filter(a => a.status !== 'baixado');
+    const ready = act.filter(a => a.status === 'disponivel' && a.etapa === 'suporte');
+    const withPeople = act.filter(a => a.etapa === 'colaborador');
+    const repair = act.filter(isRepair);
+    const triage = act.filter(a => a.status === 'danificado' && a.etapa === 'suporte');
+    const byCat = Object.keys(CATEG).map(k => { const items = act.filter(a => a.categoria === k); const by = {}; items.forEach(a => by[a.status] = (by[a.status] || 0) + 1); return { k, n: items.length, by }; }).filter(x => x.n).sort((a, b) => b.n - a.n);
+    const pipe = REPAIR_STAGES.map(s => { const it = act.filter(a => a.etapa === s); return { s, n: it.length, total: it.reduce((t, a) => t + (a.reparo?.orcamento || 0), 0), late: it.filter(a => (daysSince(stageSince(a)) ?? 0) > STALE_DAYS).length }; });
+    const alerts = CHECKS.filter(c => c.sev === 'bad' || c.id === 'triagem').flatMap(c => act.filter(c.test).map(a => ({ a, c }))).sort((x, y) => (daysSince(stageSince(y.a)) ?? 0) - (daysSince(stageSince(x.a)) ?? 0));
+    const events = assets.flatMap(a => (a.historico || []).filter(e => e.tipo !== 'importacao' && e.data >= '2025').map(e => ({ e, a }))).sort((x, y) => y.e.data.localeCompare(x.e.data)).slice(0, 8);
+    const readyByCat = Object.keys(CATEG).map(k => [k, ready.filter(a => a.categoria === k).length]).filter(x => x[1]);
+    return { act, ready, withPeople, repair, triage, byCat, pipe, alerts, events, readyByCat };
+  }, [assets]);
+  useEffect(() => { Repo.resolveNames(m.events.map(x => x.e.autorId)); }, [m.events]);
+  const names = useStore(s => s.names);
+  if (!assets.length) return html`<${PageHead} title="Painel" sub="Visão geral do parque Apple do suporte." /><${EmptyState} />`;
+  const maxCat = Math.max(...m.byCat.map(c => c.n));
+  const toInv = q => { setQuery(q); go('inventario'); };
+
+  return html`
+    <${PageHead} title="Painel" sub=${`${m.act.length} equipamentos ativos. Os números se atualizam sozinhos quando alguém muda um item.`} />
+    <section class="kpis" aria-label="Indicadores">
+      <button class="kpi accent" onClick=${() => toInv('disponivel')}><span class="l">Prontos para entrega</span><span class="v">${m.ready.length}</span><span class="s">${m.readyByCat.map(([k, n]) => `${n} ${CATEG[k].toLowerCase()}`).join(' · ') || 'nenhum'}</span></button>
+      <button class="kpi" onClick=${() => toInv('colaborador')}><span class="l">Com colaboradores</span><span class="v">${m.withPeople.length}</span><span class="s">alocados ou emprestados</span></button>
+      <button class="kpi" onClick=${() => go('reparos')}><span class="l">No fluxo de reparo</span><span class="v">${m.repair.length}</span><span class="s">${fmtMoney(m.repair.reduce((t, a) => t + (a.reparo?.orcamento || 0), 0))} em orçamentos</span></button>
+      <button class="kpi" onClick=${() => toInv('danificado suporte')}><span class="l">Aguardando triagem</span><span class="v">${m.triage.length}</span><span class="s">danificados parados no suporte</span></button>
+      <button class="kpi" onClick=${() => toInv('reservado')}><span class="l">Reservados</span><span class="v">${m.act.filter(a => a.status === 'reservado').length}</span><span class="s">esperando entrega</span></button>
+    </section>
+    <div class="dash">
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-h"><h2>Parque por tipo e status</h2><span class="muted num">${m.act.length} ativos</span></div>
+          <div class="panel-b stack">
+            <div class="bars">
+              ${m.byCat.map(c => html`<div class="bar-row" role="button" tabindex="0" onClick=${() => toInv(c.k)} onKeyDown=${e => e.key === 'Enter' && toInv(c.k)}>
+                <span class="lbl">${CATEG[c.k]}</span>
+                <span class="bar-track" style=${{ width: (c.n / maxCat * 100) + '%' }} title=${Object.entries(c.by).map(([s, n]) => `${STATUS[s].label}: ${n}`).join(' · ')}>
+                  ${Object.keys(STATUS).filter(s => c.by[s]).map(s => html`<span class=${'c-' + s} style=${{ width: (c.by[s] / c.n * 100) + '%' }}></span>`)}
+                </span>
+                <span class="tot">${c.n}</span></div>`)}
+            </div>
+            <div class="legend">${Object.keys(STATUS).filter(s => s !== 'baixado').map(s => html`<span><i class=${'c-' + s}></i>${STATUS[s].label}</span>`)}</div>
+          </div>
+        </section>
+        <section class="stack" style=${{ gap: '10px' }}>
+          <div class="section-t"><h2>Fluxo de reparo</h2><a class="btn ghost sm" href="#reparos">Abrir quadro</a></div>
+          <div class="pipe">
+            ${m.pipe.map(p => html`<button onClick=${() => go('reparos')}><span class="l">${ETAPA[p.s].label}</span><span class="v">${p.n}</span><span class="s">${p.total ? fmtMoney(p.total) : ' '}${p.late ? html` · <span style=${{ color: 'var(--bad)' }}>${p.late} parados</span>` : ''}</span></button>`)}
+          </div>
+        </section>
+      </div>
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-h"><h2>Precisa de atenção</h2><a class="btn ghost sm" href="#qualidade">Ver todas</a></div>
+          <div class="list">
+            ${m.alerts.slice(0, 7).map(({ a, c }) => html`<button class="li" onClick=${() => open(a.id)}><span class=${'sev ' + c.sev}></span><span style=${{ minWidth: 0 }}><div class="t">${assetName(a)} <span class="mono muted">${assetCode(a)}</span></div><div class="d">${c.title}: ${c.detail(a)}</div></span><${StatusPill} s=${a.status} /></button>`)}
+            ${!m.alerts.length && html`<div class="empty">Nada parado. Bom trabalho.</div>`}
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-h"><h2>Atividade recente</h2></div>
+          <div class="list">
+            ${m.events.map(({ e, a }) => html`<button class="li" onClick=${() => open(a.id)}><span class="avatar">${initials(authorName(e, names))}</span><span style=${{ minWidth: 0 }}><div class="t">${e.titulo}</div><div class="d">${assetName(a)} · ${assetCode(a)} · ${authorName(e, names)}</div></span><span class="muted" style=${{ fontSize: '12px' }}>${fmtDate(e.data)}</span></button>`)}
+            ${!m.events.length && html`<div class="empty" style=${{ padding: '24px' }}>As movimentações feitas no sistema (entregas, devoluções, reparos) aparecem aqui.</div>`}
+          </div>
+        </section>
+      </div>
+    </div>`;
+}
+const authorName = (e, names) => e.autorNome || (e.autorId ? (names[e.autorId] || 'Alguém da equipe') : (e.autor || 'Planilha'));
+const initials = n => (n || '?').split(/\s+/).filter(w => w.length > 1).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '·';
+const PageHead = ({ title, sub, children }) => html`<div class="page-head"><div><h1>${title}</h1>${sub && html`<p>${sub}</p>`}</div>${children}</div>`;
+
+/* ---------------- Inventário ---------------- */
+const COLS = [
+  ['tombamento', 'Tombamento'], ['tipo', 'Equipamento'], ['status', 'Status'], ['etapa', 'Onde está'], ['pessoa', 'Com / para'], ['serial', 'Serial'], ['atualizadoEm', 'Atualizado'],
+];
+function Inventory({ assets, open, query, setQuery }) {
+  const [cat, setCat] = useState('todos');
+  const [showBaixados, setShowBaixados] = useState(false);
+  const [sort, setSort] = useState(['atualizadoEm', -1]);
+  const [limit, setLimit] = useState(60);
+  const parsed = useMemo(() => parseQuery(query), [query]);
+  const base = useMemo(() => assets.filter(a => (showBaixados || a.status !== 'baixado')), [assets, showBaixados]);
+  const searched = useMemo(() => applySearch(base, parsed), [base, parsed]);
+  const counts = useMemo(() => { const c = { todos: searched.length, secundarias: 0 }; searched.forEach(a => { c[a.categoria] = (c[a.categoria] || 0) + 1; if (isSecondary(a)) c.secundarias++; }); return c; }, [searched]);
+  const rows = useMemo(() => {
+    const r = cat === 'todos' ? searched : cat === 'secundarias' ? searched.filter(isSecondary) : searched.filter(a => a.categoria === cat);
+    const [k, dir] = sort;
+    const val = a => k === 'pessoa' ? (a.responsavel || a.reservadoPara || '') : k === 'status' ? Object.keys(STATUS).indexOf(a.status) : k === 'etapa' ? (ETAPA[a.etapa]?.label || '') : (a[k] ?? '');
+    return [...r].sort((x, y) => { const a = val(x), b = val(y); if (a === b) return 0; if (a === '' || a == null) return 1; if (b === '' || b == null) return -1; return (a > b ? 1 : -1) * dir; });
+  }, [searched, cat, sort]);
+  useEffect(() => setLimit(60), [query, cat]);
+  const flagIds = useMemo(() => new Set(assets.filter(a => CHECKS.some(c => (c.sev === 'bad' || c.sev === 'warn') && c.test(a))).map(a => a.id)), [assets]);
+  const removeFilter = f => {
+    const words = norm(query).split(/\s+/).filter(t => { const h = VOCAB_MAP.get(t); return !(h && h.k === f.k && h.v === f.v); });
+    let q = words.join(' ');
+    if (f.k === 'flag') q = q.replace(/sem serial|sem tombamento|sem tomb|parados?|sem apex ?one|sem apex/g, '').trim();
+    setQuery(q);
+  };
+  const exportCsv = async () => {
+    const cols = ['tombamento', 'serial', 'imei', 'categoria', 'tipo', 'configuracao', 'status', 'etapa', 'responsavel', 'projeto', 'secundarias', 'principal', 'reservadoPara', 'antigoDono', 'aprovador', 'centroCusto', 'apexone', 'fornecedor', 'observacoes', 'atualizadoEm'];
+    const esc = v => { const s = v == null ? '' : String(v); return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const csv = '﻿' + [cols.join(';'), ...rows.map(a => cols.map(c => esc(c === 'status' ? STATUS[a[c]]?.label : c === 'etapa' ? ETAPA[a[c]]?.label : c === 'secundarias' ? (a.secundarias || []).join(' / ') : c === 'principal' ? (primaryOf(a)?.tombamento || a.principalExterna) : a[c])).join(';'))].join('\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    const link = document.createElement('a'); link.href = url; link.download = `inventario-apple-${today()}.csv`;
+    document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+  };
+
+  return html`
+    <${PageHead} title="Inventário" sub="Todos os equipamentos em um só lugar. A busca entende termos como “iphone danificado”, “m1 disponível”, “parados” ou “sem serial”.">
+      <button class="btn" onClick=${exportCsv} disabled=${!rows.length}><${Icon} n="down" />Exportar CSV</button>
+    <//>
+    <div class="filters">
+      ${parsed.filters.length > 0 && html`<div class="chips" aria-label="Filtros entendidos da busca">
+        <span class="muted" style=${{ fontSize: '12.5px', alignSelf: 'center' }}>Entendi:</span>
+        ${parsed.filters.map(f => html`<span class="qchip">${FILTER_LABEL[f.k]}: ${valueLabel(f.k, f.v)}<button aria-label="Remover filtro" onClick=${() => removeFilter(f)}>×</button></span>`)}
+        ${parsed.words.length > 0 && html`<span class="qchip">Texto: ${parsed.words.join(' ')}</span>`}
+      </div>`}
+      <div class="toolbar">
+        <div class="chips" role="group" aria-label="Tipo de equipamento">
+          ${['todos', ...Object.keys(CATEG), 'secundarias'].filter(k => k === 'todos' || counts[k]).map(k => html`<button class="chip" aria-pressed=${cat === k} onClick=${() => setCat(k)}>${k === 'todos' ? 'Todos' : k === 'secundarias' ? 'Máquinas secundárias' : CATEG[k]}<span class="n">${counts[k] || 0}</span></button>`)}
+        </div>
+        <label class="chip" style=${{ cursor: 'pointer' }}><input id="mostrar-baixados" type="checkbox" checked=${showBaixados} onChange=${e => setShowBaixados(e.target.checked)} /> Mostrar baixados</label>
+      </div>
+    </div>
+    ${!assets.length ? html`<${EmptyState} />` : !rows.length ? html`<div class="panel empty"><h2>Nada encontrado</h2><p>Nenhum equipamento combina com “${query}”. Tente o tombamento com 6 dígitos, parte do serial ou o nome da pessoa.</p><button class="btn" onClick=${() => { setQuery(''); setCat('todos'); }}>Limpar busca</button></div>` : html`
+    <div class="table-wrap">
+      <table>
+        <thead><tr>${COLS.map(([k, l]) => html`<th aria-sort=${sort[0] === k ? (sort[1] > 0 ? 'ascending' : 'descending') : null}><button onClick=${() => setSort([k, sort[0] === k ? -sort[1] : 1])}>${l}${sort[0] === k ? (sort[1] > 0 ? ' ↑' : ' ↓') : ''}</button></th>`)}</tr></thead>
+        <tbody>
+          ${rows.slice(0, limit).map(a => html`<tr key=${a.id} onClick=${() => open(a.id)} tabindex="0" onKeyDown=${e => e.key === 'Enter' && open(a.id)}>
+            <td class="mono">${a.tombamento || html`<span class="muted">—</span>`}${flagIds.has(a.id) && html`<span class="flag" title="Tem pendência"></span>`}</td>
+            <td><div class="t">${assetName(a)}</div><div class="sub">${[a.configuracao, a.ano].filter(Boolean).join(' · ') || CATEG_ONE[a.categoria]}</div></td>
+            <td><${StatusPill} s=${a.status} /></td>
+            <td><${Stage} a=${a} />${isRepair(a) && a.fornecedor && html`<div class="sub">${a.fornecedor}</div>`}</td>
+            <td>${a.responsavel || (a.reservadoPara ? html`<span class="muted">para </span>${a.reservadoPara}` : html`<span class="muted">—</span>`)}${(a.projeto || isSecondary(a)) && html`<div class="sub">${[isSecondary(a) && 'secundária', a.projeto].filter(Boolean).join(' · ')}</div>`}</td>
+            <td class="mono">${a.serial || (a.imei ? html`<span class="muted">IMEI </span>${a.imei}` : html`<span class="muted">—</span>`)}</td>
+            <td class="muted num" style=${{ whiteSpace: 'nowrap' }}>${fmtDate(a.atualizadoEm)}</td>
+          </tr>`)}
+        </tbody>
+      </table>
+      ${rows.length > limit && html`<div class="more"><button class="btn" onClick=${() => setLimit(limit + 100)}>Mostrar mais (${rows.length - limit} restantes)</button></div>`}
+    </div>
+    <div class="muted num" style=${{ fontSize: '12.5px' }}>${rows.length} de ${base.length} equipamentos</div>`}`;
+}
+
+/* ---------------- Reparos (quadro) ---------------- */
+function Repairs({ assets, open }) {
+  const cols = useMemo(() => REPAIR_STAGES.map(s => ({ s, items: assets.filter(a => a.etapa === s).map(a => ({ a, d: daysSince(stageSince(a)) })).sort((x, y) => (y.d ?? -1) - (x.d ?? -1)) })), [assets]);
+  const total = cols.reduce((t, c) => t + c.items.length, 0);
+  const spend = assets.filter(isRepair).reduce((t, a) => t + (a.reparo?.orcamento || 0), 0);
+  return html`
+    <${PageHead} title="Reparos" sub=${`${total} equipamentos entre orçamento e retirada, somando ${fmtMoney(spend)} em orçamentos. Abra um cartão para avançar a etapa.`} />
+    ${!assets.length ? html`<${EmptyState} />` : html`
+    <div class="board">
+      ${cols.map(c => html`<section class="col" aria-label=${ETAPA[c.s].label}>
+        <div class="col-h"><h3>${ETAPA[c.s].label}</h3><span class="n">${c.items.length}${c.items.some(x => x.a.reparo?.orcamento) ? ' · ' + fmtMoney(c.items.reduce((t, x) => t + (x.a.reparo?.orcamento || 0), 0)) : ''}</span></div>
+        ${c.items.map(({ a, d }) => html`<button class="card" onClick=${() => open(a.id)}>
+          <div class="row"><span class="t" style=${{ fontWeight: 500 }}>${assetName(a)}</span><span class="mono muted">${a.tombamento || ''}</span></div>
+          <div class="muted" style=${{ fontSize: '12.5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>${a.reparo?.defeito || a.observacoes || 'Defeito não descrito'}</div>
+          <div class="row"><span style=${{ fontSize: '12px' }}>${a.fornecedor || 'Assistência?'}${a.reparo?.os ? html` · <span class="mono">OS ${a.reparo.os}</span>` : ''}</span>
+            <span class=${'age' + (d > STALE_DAYS ? ' late' : '')}>${d == null ? 'sem data' : d === 0 ? 'hoje' : d + ' d'}</span></div>
+          ${(a.reparo?.orcamento || a.reparo?.cobertura) && html`<div style=${{ fontSize: '12.5px' }}>${a.reparo.cobertura ? html`<span class="pill plain info">${a.reparo.cobertura}</span>` : html`<span class="num">${fmtMoney(a.reparo.orcamento)}</span>`}</div>`}
+        </button>`)}
+        ${!c.items.length && html`<div class="muted" style=${{ fontSize: '12.5px', padding: '8px 4px' }}>Nenhum equipamento nesta etapa.</div>`}
+      </section>`)}
+    </div>`}`;
+}
+
+/* ---------------- Pendências / qualidade ---------------- */
+function Quality({ assets, open }) {
+  const meta = useStore(s => s.meta);
+  const groups = useMemo(() => CHECKS.map(c => ({ c, items: assets.filter(c.test) })).filter(g => g.items.length), [assets]);
+  const [expanded, setExpanded] = useState({});
+  return html`
+    <${PageHead} title="Pendências" sub="Regras automáticas que apontam equipamentos parados, cadastros incompletos e dados que precisam de confirmação. Corrija abrindo o item." />
+    ${meta && html`<p class="prov">Importado de “${meta.arquivo}” em ${fmtDate(meta.data)}: ${meta.linhasLidas} linhas lidas de ${meta.abas} abas, ${meta.duplicatas} duplicatas mescladas, ${meta.ativos} ativos, ${meta.eventos} eventos de histórico (abas Garantia e Arquivo).</p>`}
+    ${!assets.length ? html`<${EmptyState} />` : html`
+    <div class="qgroups">
+      ${groups.map(({ c, items }) => html`<section class="panel">
+        <div class="panel-h" style=${{ alignItems: 'flex-start' }}><div><h2>${c.title}</h2><div class="muted" style=${{ fontSize: '12.5px', marginTop: '2px' }}>${c.hint}</div></div><span class=${'pill ' + (c.sev === 'bad' ? 'bad' : c.sev === 'warn' ? 'warn' : c.sev === 'info' ? 'info' : 'mute')}>${items.length}</span></div>
+        <div class="list">
+          ${items.slice(0, expanded[c.id] ? 999 : 6).map(a => html`<button class="li" onClick=${() => open(a.id)}><span class=${'sev ' + c.sev}></span><span style=${{ minWidth: 0 }}><div class="t">${assetName(a)} <span class="mono muted">${assetCode(a)}</span></div><div class="d">${c.detail(a)}</div></span><${StatusPill} s=${a.status} /></button>`)}
+        </div>
+        ${items.length > 6 && html`<div class="more" style=${{ borderTop: '1px solid var(--line)' }}><button class="btn ghost sm" onClick=${() => setExpanded({ ...expanded, [c.id]: !expanded[c.id] })}>${expanded[c.id] ? 'Mostrar menos' : `Ver todos os ${items.length}`}</button></div>`}
+      </section>`)}
+    </div>`}`;
+}
+
+/* ---------------- Gaveta de detalhe ---------------- */
+function Drawer({ asset: a, onClose, open }) {
+  const [act, setAct] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const names = useStore(s => s.names);
+  useEffect(() => { setAct(null); setEditing(false); }, [a.id]);
+  useEffect(() => { Repo.resolveNames((a.historico || []).map(e => e.autorId).concat(a.atualizadoPor)); }, [a.id, a.historico?.length]);
+  const actions = ACTIONS.filter(x => x.when(a));
+  const issues = CHECKS.filter(c => c.test(a));
+  const hist = [...(a.historico || [])].reverse();
+  const since = stageSince(a);
+  const rows = [
+    ['Tipo', CATEG_ONE[a.categoria]], ['Configuração', a.configuracao], ['Chip', a.chip], ['Ano', a.ano],
+    ['Com', a.responsavel], ['Reservado para', a.reservadoPara], ['Antigo dono', a.antigoDono], ['Aprovador / gerente', a.aprovador],
+    ['Projeto', a.projeto], ['Centro de custo', a.centroCusto], ['Agente Apex One', a.apexone], ['Tombamentos anteriores', (a.tombamentosAnteriores || []).join(', ')],
+    ['Observações', a.observacoes],
+  ].filter(([, v]) => v != null && v !== '');
+  const allAssets = useStore(s => s.assets);
+  const secs = (a.secundarias || []).map(t => ({ t, x: allAssets.find(y => y.tombamento === t) }));
+  const prim = primaryOf(a);
+  const rp = a.reparo || {};
+  const rrows = [['Assistência', a.fornecedor], ['Defeito', rp.defeito], ['Orçamento', rp.orcamento != null ? fmtMoney(rp.orcamento) : null], ['Cobertura', rp.cobertura], ['O.S.', rp.os], ['Chamado Zeev', rp.chamado], ['Nota fiscal', rp.nf], ['Entrada', rp.entrada && fmtDate(rp.entrada)], ['Retorno', rp.retorno && fmtDate(rp.retorno)], ['Comentário', rp.comentario]].filter(([, v]) => v != null && v !== '');
+
+  return html`
+  <div class="scrim" onClick=${onClose}></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label=${assetName(a)}>
+    <div class="drawer-h">
+      <div class="drawer-top">
+        <div style=${{ minWidth: 0 }}><div class="eyebrow">${CATEG_ONE[a.categoria]}</div><h1 style=${{ fontSize: '21px', marginTop: '2px' }}>${assetName(a)}</h1></div>
+        <button class="btn ghost icon-btn" onClick=${onClose} aria-label="Fechar"><${Icon} n="x" s=${18} /></button>
+      </div>
+      <div class="ids mono">
+        <span><b>Tomb.</b>${a.tombamento || '—'}</span><span><b>S/N</b>${a.serial || '—'}</span>${a.imei && html`<span><b>IMEI</b>${a.imei}</span>`}
+      </div>
+      <div class="chips" style=${{ alignItems: 'center' }}><${StatusPill} s=${a.status} /><span class="pill plain">${ETAPA[a.etapa]?.label}</span>${since && html`<span class="muted" style=${{ fontSize: '12.5px' }}>desde ${fmtDate(since)} (${daysSince(since)} dias)</span>`}</div>
+    </div>
+    <div class="drawer-b">
+      ${issues.length > 0 && html`<div class="stack" style=${{ gap: '6px' }}>${issues.map(c => html`<div class="banner" style=${{ padding: '8px 12px', background: c.sev === 'bad' ? 'var(--bad-soft)' : c.sev === 'mute' ? 'var(--mute-soft)' : c.sev === 'info' ? 'var(--info-soft)' : 'var(--warn-soft)' }}><b style=${{ color: c.sev === 'bad' ? 'var(--bad)' : c.sev === 'info' ? 'var(--info)' : c.sev === 'mute' ? 'var(--fg-2)' : 'var(--warn)' }}>${c.title}.</b><span>${c.hint}</span></div>`)}</div>`}
+      <section>
+        <div class="section-t"><h2>Próximo passo</h2></div>
+        ${act ? html`<${ActionForm} action=${act} asset=${a} onDone=${() => setAct(null)} />` : html`
+        <div class="actions">${actions.map(x => html`<button class=${'btn' + (x.primary ? ' primary' : '') + (x.danger ? ' danger' : '')} onClick=${() => x.fields ? setAct(x) : Repo.commit(a, x.apply(a, {}), x.event(a, {})).then(ok => ok && toast(x.label + ': feito'))}>${x.label}</button>`)}</div>`}
+      </section>
+      <section>
+        <div class="section-t"><h2>Dados</h2><button class="btn ghost sm" onClick=${() => setEditing(!editing)}>${editing ? 'Cancelar' : 'Editar'}</button></div>
+        ${editing ? html`<${EditForm} asset=${a} onDone=${() => setEditing(false)} />` : html`<dl class="dl">${rows.map(([k, v]) => html`<dt>${k}</dt><dd>${v}</dd>`)}</dl>`}
+      </section>
+      ${(secs.length > 0 || prim || a.principalExterna) && html`<section>
+        <div class="section-t"><h2>${secs.length ? 'Máquinas secundárias' : 'Máquina secundária'}</h2></div>
+        ${prim && html`<p style=${{ margin: '0 0 8px', fontSize: '13px' }}>Esta é a máquina secundária de <b>${prim.responsavel || 'colaborador sem nome'}</b>. Principal: <button class="link mono" onClick=${() => open(prim.id)}>${prim.tombamento}</button> (${assetName(prim)}).</p>`}
+        ${!prim && a.principalExterna && html`<p style=${{ margin: '0 0 8px', fontSize: '13px' }}>Máquina secundária. A principal é <b>${a.principalExterna}</b>.</p>`}
+        ${secs.length > 0 && html`<div class="sec-list">${secs.map(({ t, x }) => x
+          ? html`<button class="li" onClick=${() => open(x.id)}><span class="mono">${t}</span><span style=${{ minWidth: 0 }}><div class="t">${assetName(x)}</div><div class="d">${[ETAPA[x.etapa]?.label, x.responsavel && x.responsavel !== a.responsavel ? 'com ' + x.responsavel : null].filter(Boolean).join(' · ')}</div></span><${StatusPill} s=${x.status} /></button>`
+          : html`<div class="li" style=${{ cursor: 'default' }}><span class="mono">${t}</span><span class="muted" style=${{ fontSize: '12.5px' }}>Não cadastrada no inventário</span><span></span></div>`)}</div>`}
+      </section>`}
+      ${rrows.length > 0 && html`<section><div class="section-t"><h2>Reparo atual</h2></div><dl class="dl">${rrows.map(([k, v]) => html`<dt>${k}</dt><dd class=${['O.S.', 'Chamado Zeev', 'Nota fiscal'].includes(k) ? 'mono' : ''}>${v}</dd>`)}</dl></section>`}
+      <section>
+        <div class="section-t"><h2>Histórico</h2><span class="muted num" style=${{ fontSize: '12.5px' }}>${hist.length} registros</span></div>
+        <ol class="timeline">${hist.map(e => html`<li><span class=${'dot ' + e.tipo}></span><div style=${{ minWidth: 0 }}><div class="tt">${e.titulo}</div><div class="tm">${fmtDate(e.data)} · ${authorName(e, names)}${e.valor ? ' · ' + fmtMoney(e.valor) : ''}${e.os ? ' · OS ' + e.os : ''}</div>${e.texto && html`<div class="tx">${e.texto}</div>`}</div></li>`)}</ol>
+      </section>
+    </div>
+  </aside>`;
+}
+
+function ActionForm({ action, asset, onDone }) {
+  const init = Object.fromEntries((action.fields || []).map(f => [f.k, f.def ? f.def(asset) : (f.options ? f.options[0][0] : '')]));
+  const [v, setV] = useState(init); const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
+  const submit = async e => {
+    e.preventDefault();
+    const errs = {}; (action.fields || []).forEach(f => { if (f.req && !String(v[f.k] || '').trim()) errs[f.k] = 'Preencha este campo.'; });
+    Object.assign(errs, action.validate?.(v) || {});
+    setErr(errs); if (Object.keys(errs).length) return;
+    setBusy(true);
+    const ok = await Repo.commit(asset, action.apply(asset, v), action.event(asset, v));
+    setBusy(false); if (ok) { (action.fields || []).filter(f => f.list === 'dl-pessoas' && v[f.k]).forEach(f => Repo.ensurePerson(v[f.k], asset.projeto)); toast(action.label + ': salvo'); onDone(); }
+  };
+  return html`<form class="action-form" onSubmit=${submit} noValidate>
+    <h3>${action.label}</h3>
+    ${(action.fields || []).map(f => html`<${Field} f=${f} id=${'af-' + action.id + '-' + f.k} value=${v[f.k]} err=${err[f.k]} onInput=${x => setV({ ...v, [f.k]: x })} />`)}
+    <div class="actions"><button class=${'btn ' + (action.danger ? 'danger' : 'primary')} type="submit" disabled=${busy}>${busy ? 'Salvando…' : 'Confirmar'}</button><button class="btn ghost" type="button" onClick=${onDone}>Voltar</button></div>
+  </form>`;
+}
+function Field({ f, id, value, err, onInput }) {
+  return html`<div class="field"><label for=${id}>${f.label}${f.req ? ' *' : ''}</label>
+    ${f.type === 'select' ? html`<select id=${id} value=${value} onChange=${e => onInput(e.target.value)}>${f.options.map(([val, l]) => html`<option value=${val}>${l}</option>`)}</select>`
+      : f.type === 'textarea' ? html`<textarea id=${id} value=${value} onInput=${e => onInput(e.target.value)}></textarea>`
+      : html`<input id=${id} type=${f.type === 'number' ? 'number' : 'text'} inputmode=${f.type === 'number' ? 'decimal' : null} list=${f.list || null} autocomplete=${f.list ? 'off' : null} placeholder=${f.placeholder || null} value=${value} onInput=${e => onInput(e.target.value)} />`}
+    ${err ? html`<span class="err">${err}</span>` : f.help && html`<span class="muted" style=${{ fontSize: '12px' }}>${f.help}</span>`}</div>`;
+}
+
+/* ---------------- Cadastro e edição ---------------- */
+const EDIT_FIELDS = [
+  { k: 'categoria', label: 'Tipo', type: 'select', options: Object.entries(CATEG_ONE) },
+  { k: 'tipo', label: 'Modelo', req: true }, { k: 'configuracao', label: 'Configuração' },
+  { k: 'tombamento', label: 'Tombamento' }, { k: 'serial', label: 'Número de série' }, { k: 'imei', label: 'IMEI' },
+  { k: 'ano', label: 'Ano', type: 'number' }, { k: 'centroCusto', label: 'Centro de custo' },
+  { k: 'responsavel', label: 'Está com', list: 'dl-pessoas' }, { k: 'projeto', label: 'Projeto', list: 'dl-projetos' },
+  { k: 'antigoDono', label: 'Antigo dono', list: 'dl-pessoas' }, { k: 'aprovador', label: 'Aprovador / gerente', list: 'dl-pessoas' },
+  { k: 'apexone', label: 'Agente Apex One' }, { k: 'secundarias', label: 'Máquinas secundárias', placeholder: 'Ex.: 016235 / 016081', help: 'Tombamentos das máquinas secundárias desta pessoa, separados por /' },
+  { k: 'observacoes', label: 'Observações', type: 'textarea' },
+];
+function validateAsset(v, assets, selfId) {
+  const e = {};
+  if (!String(v.tipo || '').trim()) e.tipo = 'Informe o modelo.';
+  if (v.tombamento && !/^\d{6}$/.test(v.tombamento)) e.tombamento = 'Use 6 dígitos, com zeros à esquerda (ex.: 018880).';
+  if (v.tombamento && assets.some(a => a.id !== selfId && a.tombamento === v.tombamento)) e.tombamento = 'Já existe um equipamento com este tombamento.';
+  if (v.serial && assets.some(a => a.id !== selfId && a.serial && a.serial.toUpperCase() === v.serial.toUpperCase())) e.serial = 'Já existe um equipamento com este serial.';
+  if (!v.tombamento && !v.serial && !v.imei) e.serial = 'Informe ao menos tombamento, serial ou IMEI.';
+  if ((v.secundarias || []).includes(v.tombamento)) e.secundarias = 'A máquina não pode ser secundária dela mesma.';
+  const other = (v.secundarias || []).map(t => [t, SEC_INDEX.get(t)]).find(([, p]) => p && p.id !== selfId);
+  if (other) e.secundarias = `${other[0]} já é secundária de ${other[1].responsavel || other[1].tombamento}.`;
+  return e;
+}
+function tidy(v) {
+  const o = { ...v };
+  ['tipo', 'configuracao', 'tombamento', 'serial', 'imei', 'centroCusto', 'responsavel', 'projeto', 'antigoDono', 'aprovador', 'apexone', 'observacoes'].forEach(k => { o[k] = (o[k] ?? '').toString().trim() || null; });
+  if (o.tombamento && /^\d{1,6}$/.test(o.tombamento)) o.tombamento = o.tombamento.padStart(6, '0');
+  if (o.serial) o.serial = o.serial.toUpperCase();
+  o.ano = o.ano ? Number(o.ano) : null;
+  o.secundarias = parseTombs(o.secundarias); if (!o.secundarias.length) o.secundarias = null;
+  const m = `${o.tipo || ''} ${o.configuracao || ''}`.match(/\bM(\d)\b/i); if (m) o.chip = 'Apple M' + m[1];
+  return o;
+}
+function EditForm({ asset, onDone }) {
+  const assets = useStore(s => s.assets);
+  const [v, setV] = useState(Object.fromEntries(EDIT_FIELDS.map(f => [f.k, f.k === 'secundarias' ? (asset.secundarias || []).join(' / ') : (asset[f.k] ?? '')])));
+  const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
+  const submit = async e => {
+    e.preventDefault();
+    const t = tidy(v); const errs = validateAsset(t, assets, asset.id); setErr(errs); if (Object.keys(errs).length) return;
+    const same = (x, y) => JSON.stringify(x ?? null) === JSON.stringify(y ?? null);
+    const changed = EDIT_FIELDS.filter(f => !same(asset[f.k], t[f.k])).map(f => f.label);
+    if (!changed.length) { onDone(); return; }
+    setBusy(true);
+    const ok = await Repo.commit(asset, t, { tipo: 'edicao', titulo: 'Dados editados', texto: 'Campos: ' + changed.join(', ') });
+    setBusy(false); if (ok) { [t.responsavel, t.antigoDono, t.aprovador].forEach(n => n && Repo.ensurePerson(n, t.projeto)); toast('Dados salvos'); onDone(); }
+  };
+  return html`<form class="stack" onSubmit=${submit} noValidate style=${{ gap: '12px' }}>
+    <div class="grid-2">${EDIT_FIELDS.filter(f => f.type !== 'textarea').map(f => html`<${Field} f=${f} id=${'ed-' + f.k} value=${v[f.k]} err=${err[f.k]} onInput=${x => setV({ ...v, [f.k]: x })} />`)}</div>
+    ${EDIT_FIELDS.filter(f => f.type === 'textarea').map(f => html`<${Field} f=${f} id=${'ed-' + f.k} value=${v[f.k]} err=${err[f.k]} onInput=${x => setV({ ...v, [f.k]: x })} />`)}
+    <div class="actions"><button class="btn primary" disabled=${busy}>${busy ? 'Salvando…' : 'Salvar alterações'}</button><button type="button" class="btn ghost" onClick=${onDone}>Cancelar</button></div>
+  </form>`;
+}
+function CreateDrawer({ assets, onClose, onCreated }) {
+  const [v, setV] = useState({ categoria: 'notebook', tipo: '', configuracao: '', tombamento: '', serial: '', imei: '', ano: '', centroCusto: '', responsavel: '', projeto: '', antigoDono: '', aprovador: '', apexone: '', secundarias: '', observacoes: '', status: 'disponivel' });
+  const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
+  const submit = async e => {
+    e.preventDefault();
+    const t = tidy(v); const errs = validateAsset(t, assets, null); setErr(errs); if (Object.keys(errs).length) return;
+    t.etapa = t.responsavel ? 'colaborador' : 'suporte';
+    if (t.responsavel && t.status === 'disponivel') t.status = 'alocado';
+    setBusy(true); const rec = await Repo.create(t); setBusy(false);
+    if (rec) { [t.responsavel, t.antigoDono, t.aprovador].forEach(n => n && Repo.ensurePerson(n, t.projeto)); toast('Equipamento cadastrado'); onCreated(rec); }
+  };
+  const statusField = { k: 'status', label: 'Status', type: 'select', options: Object.entries(STATUS).filter(([k]) => k !== 'baixado').map(([k, s]) => [k, s.label]) };
+  return html`<div class="scrim" onClick=${onClose}></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label="Novo ativo">
+    <div class="drawer-h"><div class="drawer-top"><div><div class="eyebrow">Cadastro</div><h1 style=${{ fontSize: '21px', marginTop: '2px' }}>Novo equipamento</h1></div><button class="btn ghost icon-btn" onClick=${onClose} aria-label="Fechar"><${Icon} n="x" s=${18} /></button></div></div>
+    <form class="drawer-b" onSubmit=${submit} noValidate>
+      <div class="grid-2">
+        ${[...EDIT_FIELDS.filter(f => f.type !== 'textarea'), statusField].map(f => html`<${Field} f=${f} id=${'nv-' + f.k} value=${v[f.k]} err=${err[f.k]} onInput=${x => setV({ ...v, [f.k]: x })} />`)}
+      </div>
+      <${Field} f=${EDIT_FIELDS.find(f => f.k === 'observacoes')} id="nv-observacoes" value=${v.observacoes} onInput=${x => setV({ ...v, observacoes: x })} />
+      <p class="muted" style=${{ margin: 0, fontSize: '12.5px' }}>O tombamento é salvo sempre com 6 dígitos. O sistema recusa tombamento ou serial já cadastrados.</p>
+      <div class="actions"><button class="btn primary" disabled=${busy}>${busy ? 'Salvando…' : 'Cadastrar'}</button><button type="button" class="btn ghost" onClick=${onClose}>Cancelar</button></div>
+    </form>
+  </aside>`;
+}
+
+/* ---------------- Colaboradores ---------------- */
+function People({ assets, open, setQuery }) {
+  const { people, peopleLoaded, conn } = useStore(s => s);
+  const [nome, setNome] = useState(''); const [projeto, setProjeto] = useState(''); const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false); const [q, setQ] = useState(''); const [limit, setLimit] = useState(150);
+  const [editId, setEditId] = useState(null); const [ev, setEv] = useState({}); const [confirmId, setConfirmId] = useState(null);
+  const byPerson = useMemo(() => { const m = new Map(); assets.filter(a => a.status !== 'baixado' && a.responsavel).forEach(a => { const k = norm(a.responsavel); m.set(k, (m.get(k) || 0) + 1); }); return m; }, [assets]);
+  const rows = useMemo(() => { const t = norm(q).trim(); return t ? people.filter(p => norm(p.nome + ' ' + (p.projeto || '')).includes(t)) : people; }, [people, q]);
+  useEffect(() => setLimit(150), [q]);
+  const add = async e => {
+    e.preventDefault();
+    const n = nome.trim(); if (!n) { setErr('Informe o nome.'); return; }
+    if (people.some(p => norm(p.nome) === norm(n))) { setErr('Esse colaborador já está na lista.'); return; }
+    setErr(''); setBusy(true); const ok = await Repo.addPerson(n, projeto); setBusy(false);
+    if (ok) { toast('Colaborador adicionado'); setNome(''); setProjeto(''); }
+  };
+  const saveEdit = async p => {
+    const n = (ev.nome || '').trim(); if (!n) return;
+    if (people.some(x => x.id !== p.id && norm(x.nome) === norm(n))) { toast('Já existe um colaborador com esse nome.', true); return; }
+    const ok = await Repo.updatePerson(p, { nome: n, projeto: (ev.projeto || '').trim() || null });
+    if (ok) { toast('Colaborador atualizado'); setEditId(null); }
+  };
+  const remove = async p => { if (confirmId !== p.id) { setConfirmId(p.id); return; } setConfirmId(null); if (await Repo.removePerson(p)) toast('Colaborador removido da lista'); };
+  const seeAssets = n => { setQuery(n); go('inventario'); };
+  return html`
+    <${PageHead} title="Colaboradores" sub=${`${people.length} pessoas na lista. É ela que aparece nos campos “Colaborador”, “Está com”, “Antigo dono” e “Aprovador”. Nomes novos digitados nesses campos entram aqui automaticamente.`} />
+    <form class="panel panel-b" onSubmit=${add} noValidate>
+      <div class="people-form">
+        <div class="field"><label for="pessoa-nome">Nome completo *</label><input id="pessoa-nome" value=${nome} onInput=${e => { setNome(e.target.value); setErr(''); }} autocomplete="off" />${err && html`<span class="err">${err}</span>`}</div>
+        <div class="field"><label for="pessoa-projeto">Projeto</label><input id="pessoa-projeto" list="dl-projetos" autocomplete="off" value=${projeto} onInput=${e => setProjeto(e.target.value)} placeholder="Ex.: EUROPA LISBOA (VALERIA)" /></div>
+        <button class="btn primary" disabled=${busy || conn === 'offline'}><${Icon} n="plus" />${busy ? 'Salvando…' : 'Adicionar'}</button>
+      </div>
+    </form>
+    <div class="toolbar">
+      <div class="search" style=${{ maxWidth: '420px' }}><${Icon} n="search" /><input id="busca-colaboradores" type="search" placeholder="Buscar por nome ou projeto" value=${q} onInput=${e => setQ(e.target.value)} aria-label="Buscar colaboradores" /></div>
+      <span class="muted num" style=${{ fontSize: '12.5px' }}>${rows.length} de ${people.length}</span>
+    </div>
+    ${!peopleLoaded && conn !== 'offline' ? html`<${EmptyState} />` : !people.length ? html`<div class="panel empty"><h2>Nenhum colaborador cadastrado</h2><p>Adicione pelo formulário acima.</p></div>` : html`
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nome</th><th>Projeto</th><th style=${{ textAlign: 'right' }}>Equipamentos</th><th></th></tr></thead>
+        <tbody>
+          ${rows.slice(0, limit).map(p => editId === p.id ? html`<tr key=${p.id} class="editing">
+              <td><div class="field"><input aria-label="Nome" value=${ev.nome} onInput=${e => setEv({ ...ev, nome: e.target.value })} /></div></td>
+              <td><div class="field"><input aria-label="Projeto" list="dl-projetos" value=${ev.projeto} onInput=${e => setEv({ ...ev, projeto: e.target.value })} /></div></td>
+              <td></td>
+              <td><div class="actions-inline"><button class="btn primary sm" onClick=${() => saveEdit(p)}>Salvar</button><button class="btn ghost sm" onClick=${() => setEditId(null)}>Cancelar</button></div></td>
+            </tr>` : html`<tr key=${p.id}>
+              <td><div class="t">${p.nome}</div></td>
+              <td class="muted">${p.projeto || '—'}</td>
+              <td class="num" style=${{ textAlign: 'right' }}>${byPerson.get(norm(p.nome)) ? html`<button class="link" onClick=${() => seeAssets(p.nome)}>${byPerson.get(norm(p.nome))}</button>` : html`<span class="muted">0</span>`}</td>
+              <td><div class="actions-inline">
+                <button class="btn ghost sm" onClick=${() => { setEditId(p.id); setEv({ nome: p.nome, projeto: p.projeto || '' }); setConfirmId(null); }}>Editar</button>
+                <button class=${'btn sm ' + (confirmId === p.id ? 'danger' : 'ghost')} onClick=${() => remove(p)} onBlur=${() => setConfirmId(c => c === p.id ? null : c)} aria-label=${'Remover ' + p.nome}>${confirmId === p.id ? 'Confirmar remoção' : html`<${Icon} n="trash" />`}</button>
+              </div></td>
+            </tr>`)}
+        </tbody>
+      </table>
+      ${rows.length > limit && html`<div class="more"><button class="btn" onClick=${() => setLimit(limit + 200)}>Mostrar mais (${rows.length - limit} restantes)</button></div>`}
+    </div>
+    <p class="muted" style=${{ fontSize: '12.5px', margin: 0 }}>Remover alguém da lista não altera os equipamentos que estão com a pessoa.</p>`}`;
+}
+
+/* ================================================================
+   5. BOOT
+   ================================================================ */
+render(html`<${App} />`, document.getElementById('app'));
+Repo.init();
+</script>
+
+</body></html>
