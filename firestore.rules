@@ -1,0 +1,43 @@
+// Regras oficiais do Firestore do Inventário Europa.
+// Publicar com: firebase deploy --only firestore:rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function logado() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('.*@cesar[.]org[.]br$');
+    }
+    function temAcesso() {
+      return logado() && exists(/databases/$(database)/documents/acessos/$(request.auth.token.email));
+    }
+    function papel() {
+      return get(/databases/$(database)/documents/acessos/$(request.auth.token.email)).data.papel;
+    }
+    function podeEditar() { return temAcesso() && papel() in ['editor', 'admin']; }
+    function ehAdmin() { return temAcesso() && papel() == 'admin'; }
+
+    match /acessos/{email} {
+      allow get: if logado() && (request.auth.token.email == email || ehAdmin());
+      allow list, write: if ehAdmin();
+    }
+    match /ativos/{id} {
+      allow read: if temAcesso();
+      allow create, update: if podeEditar();
+      allow delete: if false;
+    }
+    match /zeevs/{id} {
+      allow read: if temAcesso();
+      allow create, update: if podeEditar();
+      allow delete: if false;
+    }
+    match /colaboradores/{id} {
+      allow read: if temAcesso();
+      allow write: if podeEditar();
+    }
+    match /sistema/{id} {
+      allow read: if temAcesso();
+      allow write: if ehAdmin();
+    }
+  }
+}

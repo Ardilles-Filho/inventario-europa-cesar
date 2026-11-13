@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Inventário Apple CESAR</title><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Inventário Europa · CESAR</title><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
 <style>
@@ -294,6 +294,17 @@ td .sub { font-size: 12px; color: var(--muted); }
   .bottom-nav a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 6px; font-size: 11px; color: var(--muted); text-decoration: none; }
   .bottom-nav a[aria-current="page"] { color: var(--accent-strong); }
 }
+/* Zeevs */
+.zfilters { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 10px; align-items: end; }
+.zfilters .field input, .zfilters .field select { height: 38px; }
+.znum { font-family: var(--mono); font-size: 13px; font-weight: 500; white-space: nowrap; }
+.zdesc { max-width: 52ch; }
+.aprov { white-space: nowrap; }
+.aprov.blank { color: var(--muted); }
+td.zdesc .t { font-weight: 500; overflow-wrap: anywhere; }
+.drawer-num { font-family: var(--mono); font-size: 13px; color: var(--accent-strong); font-weight: 500; }
+@media (max-width: 760px) { .zfilters { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 760px) { .bottom-nav a { font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-inline: 2px; } }
 /* Login */
 .login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--surface); }
 .login-card { width: min(420px, 100%); background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 32px 28px; display: flex; flex-direction: column; gap: 18px; box-shadow: var(--shadow); }
@@ -302,6 +313,16 @@ td .sub { font-size: 12px; color: var(--muted); }
 .login-card .err { color: var(--bad); font-size: 13px; }
 .who { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.role-tag { font-size: 11.5px; color: var(--muted); }
+.admin-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.access-form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.6fr) minmax(0, 1.2fr) auto; gap: 10px; align-items: end; }
+.access-form .btn, .backup-row .btn { height: 36px; }
+.roles-help { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 13px; display: grid; gap: 2px; }
+.backup-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.file-pick { position: relative; overflow: hidden; }
+.file-pick input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+td select { height: 30px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); padding: 0 8px; }
+@media (max-width: 860px) { .access-form { grid-template-columns: minmax(0, 1fr); } }
 /* Colaboradores e máquinas secundárias */
 .people-form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr) auto; gap: 10px; align-items: end; }
 .people-form .btn { height: 36px; }
@@ -365,6 +386,15 @@ const FORNECEDORES = ['iPlace', 'Mané', 'iJobe', 'Applecare', 'Outra assistênc
 const STALE_DAYS = 30;
 
 const isRepair = a => !!ETAPA[a.etapa]?.repair;
+/** Papéis de acesso (coleção "acessos", um documento por e-mail). */
+const PAPEIS = {
+  leitor: { label: 'Leitor', desc: 'vê o inventário, sem alterar nada' },
+  editor: { label: 'Editor', desc: 'vê e altera equipamentos e colaboradores' },
+  admin: { label: 'Administrador', desc: 'também libera acessos e cuida do backup' },
+};
+const canEdit = () => ['editor', 'admin'].includes(store.state.role);
+const isAdmin = () => store.state.role === 'admin';
+const BACKUP_DIAS = 7;
 /** Tombamentos de máquinas secundárias -> ativo principal (derivado do campo "secundarias" dos principais). */
 let SEC_INDEX = new Map();
 const buildSecIndex = list => { const m = new Map(); list.forEach(a => (a.secundarias || []).forEach(t => { if (!m.has(t)) m.set(t, a); })); SEC_INDEX = m; };
@@ -479,6 +509,66 @@ const ACTIONS = [
     apply: () => ({}), event: (a, v) => ({ tipo: 'nota', titulo: 'Nota', texto: v.texto }) },
 ];
 
+/* ---------- Zeevs: padrão "#número", descrição, colaborador e "Aprovado por <Gestor>" ---------- */
+const ZSIT = {
+  pendente:  { label: 'Sem aprovação', tone: 'warn' },
+  aprovado:  { label: 'Aprovado', tone: 'ok' },
+  concluido: { label: 'Concluído', tone: 'info' },
+  cancelado: { label: 'Cancelado', tone: 'mute' },
+  rejeitado: { label: 'Rejeitado', tone: 'bad' },
+};
+const ZTIPO = { licenca: 'Licença', equipamento: 'Equipamento', periferico: 'Periférico', reparo: 'Reparo', logistica: 'Envio e coleta', outro: 'Outro' };
+/** Apelidos e variações → nome padrão do gestor (mesma regra usada na importação). */
+const GESTOR_ALIAS = {
+  'mayra': 'Mayra Cerqueira', 'mayra cerqueira': 'Mayra Cerqueira', 'maya cerqueira': 'Mayra Cerqueira', 'murilo': 'Murilo',
+  'gabi cobra': 'Gabriela Cobra', 'gabriela cobra': 'Gabriela Cobra', 'gabi': 'Gabriela Cobra', 'gabriela': 'Gabriela Cobra',
+  'gloria': 'Glória Lima', 'gloria lima': 'Glória Lima', 'pato': 'Luiz Pato', 'luiz pato': 'Luiz Pato', 'luiz henrique': 'Luiz Pato',
+  'thiago carneiro': 'Thiago Carneiro', 'thiago': 'Thiago Carneiro', 'ticiana': 'Ticiana Melo', 'ticiana melo': 'Ticiana Melo', 'tici': 'Ticiana Melo',
+  'jose freitas': 'José Freitas', 'ze freitas': 'José Freitas', 'ze': 'José Freitas', 'valeria': 'Valéria Moura', 'valeria moura': 'Valéria Moura', 'val': 'Valéria Moura',
+  'tutuca': 'Tutuca', 'katia': 'Katia Jordan', 'katia jordan': 'Katia Jordan', 'daniel agra': 'Daniel Agra', 'agra': 'Daniel Agra', 'daniel': 'Daniel Agra',
+  'tatiana': 'Tatiana Mendes', 'tatiana mendes': 'Tatiana Mendes', 'renata': 'Renata Patu', 'renata patu': 'Renata Patu',
+  'flavia': 'Flávia Nascimento', 'flavia nascimento': 'Flávia Nascimento', 'paulo': 'Paulo de Tarso', 'paulo tarso': 'Paulo de Tarso', 'paulo de tarso': 'Paulo de Tarso',
+  'camile': 'Camile Campos', 'camile campos': 'Camile Campos', 'heitor': 'Heitor Santana', 'paloma': 'Paloma Nunes',
+};
+const aliasKey = s => norm(s).replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim();
+const titleCase = s => s.replace(/\S+/g, w => ['de', 'da', 'do', 'dos', 'das', 'e'].includes(w.toLowerCase()) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1));
+/** "gabi / ze freitas" → ["Gabriela Cobra", "José Freitas"] */
+function parseGestores(txt) {
+  const t = (txt || '').replace(/^\s*(aprovado|apovado)\s*(por|po|com)?\s*/i, '');
+  return [...new Set(t.split(/\/|,|\se\s/i).map(p => p.trim()).filter(Boolean).map(p => GESTOR_ALIAS[aliasKey(p)] || titleCase(p.toLowerCase().replace(/\s+/g, ' '))))];
+}
+const aprovacaoTxt = gs => !gs?.length ? '' : 'Aprovado por ' + (gs.length === 1 ? gs[0] : gs.slice(0, -1).join(', ') + ' e ' + gs[gs.length - 1]);
+const normNumero = s => { const d = String(s || '').replace(/\D/g, ''); return d ? '#' + d : null; };
+const zNum = z => Number((z.numero || '').replace(/\D/g, '')) || 0;
+function tipoZeev(desc) {
+  const d = norm(desc);
+  if (/conserto|reparo|troca de (tela|bateria)|garantia/.test(d)) return 'reparo';
+  if (/envio|coleta|frete|entrega|devolucao|transporte/.test(d)) return 'logistica';
+  if (/licen|intellij|sketch|office|parallels|paralells|phpstorm|tableplus|adobe|windows|assinatura|applecare/.test(d)) return 'licenca';
+  if (/macbook|iphone|mac ?mini|notebook|monitor|tablet|ipad|maquina|computador/.test(d)) return 'equipamento';
+  if (/mouse|teclado|keyboard|fone|headset|hub|adaptador|cabo|suporte|carregador|trackpad|material/.test(d)) return 'periferico';
+  return 'outro';
+}
+const ZACTIONS = [
+  { id: 'aprovar', label: 'Registrar aprovação', primary: true, when: z => z.situacao === 'pendente',
+    fields: [{ k: 'gestor', label: 'Aprovado por (gestor)', req: true, list: 'gestores-list' }],
+    apply: (z, v) => { const g = parseGestores(v.gestor); return { situacao: 'aprovado', aprovadores: g, aprovacao: aprovacaoTxt(g) }; },
+    event: (z, v) => ({ tipo: 'aprovacao', titulo: aprovacaoTxt(parseGestores(v.gestor)) }) },
+  { id: 'concluir', label: 'Marcar como concluído', primary: true, when: z => z.situacao === 'aprovado',
+    fields: [{ k: 'nota', label: 'O que foi comprado ou entregue (NF, pedido, data)', type: 'textarea' }],
+    apply: () => ({ situacao: 'concluido' }), event: (z, v) => ({ tipo: 'recebido', titulo: 'Concluído', texto: v.nota }) },
+  { id: 'reabrir', label: 'Reabrir', when: z => ['concluido', 'cancelado', 'rejeitado'].includes(z.situacao),
+    apply: z => ({ situacao: z.aprovadores?.length ? 'aprovado' : 'pendente', decididoPor: null }), event: () => ({ tipo: 'nota', titulo: 'Zeev reaberto' }) },
+  { id: 'cancelar', label: 'Cancelar ou rejeitar', danger: true, when: z => ['pendente', 'aprovado'].includes(z.situacao),
+    fields: [{ k: 'modo', label: 'O que aconteceu', type: 'select', options: [['cancelado', 'Cancelado'], ['rejeitado', 'Rejeitado pelo gestor']] },
+      { k: 'por', label: 'Por quem', list: 'gestores-list' }, { k: 'nota', label: 'Motivo', type: 'textarea' }],
+    apply: (z, v) => ({ situacao: v.modo, decididoPor: v.por ? parseGestores(v.por)[0] : null, aprovadores: [], aprovacao: '' }),
+    event: (z, v) => ({ tipo: 'baixa', titulo: `${v.modo === 'rejeitado' ? 'Rejeitado' : 'Cancelado'}${v.por ? ' por ' + parseGestores(v.por)[0] : ''}`, texto: v.nota }) },
+  { id: 'nota', label: 'Adicionar nota', when: () => true, fields: [{ k: 'texto', label: 'Nota', req: true, type: 'textarea' }],
+    apply: () => ({}), event: (z, v) => ({ tipo: 'nota', titulo: 'Nota', texto: v.texto }) },
+];
+
+
 /* ---------- Busca inteligente: entende status, etapa, categoria e chip ---------- */
 const VOCAB = [
   ...['disponivel', 'disponiveis', 'livre', 'livres'].map(w => [w, 'status', 'disponivel']),
@@ -538,7 +628,7 @@ function applySearch(list, parsed) {
    2. DADOS — repositório sobre o banco compartilhado do artefato
    ================================================================ */
 const store = {
-  state: { authReady: false, authUser: null, authError: null, assets: [], people: [], peopleLoaded: false, conn: 'connecting', connError: null, meId: null, names: {}, meta: null, toasts: [] },
+  state: { authReady: false, authUser: null, authError: null, role: null, roleChecked: false, backupInfo: null, assets: [], people: [], peopleLoaded: false, zeevs: [], zeevsLoaded: false, conn: 'connecting', connError: null, meId: null, names: {}, meta: null, toasts: [] },
   subs: new Set(),
   set(patch) { this.state = { ...this.state, ...patch }; this.subs.forEach(f => f()); },
 };
@@ -567,7 +657,7 @@ const Repo = {
   init() {
     const auth = firebase.auth();
     auth.onAuthStateChanged(async u => {
-      if (!u) { this.stop(); store.set({ authReady: true, authUser: null, assets: [], people: [], peopleLoaded: false, conn: 'connecting' }); return; }
+      if (!u) { this.stopRole(); this.stop(); store.set({ authReady: true, authUser: null, role: null, roleChecked: false, assets: [], people: [], peopleLoaded: false, zeevs: [], zeevsLoaded: false, conn: 'connecting' }); return; }
       const dom = (window.DOMINIO_PERMITIDO || '').toLowerCase();
       if (dom && !(u.email || '').toLowerCase().endsWith('@' + dom)) {
         await auth.signOut();
@@ -575,10 +665,22 @@ const Repo = {
         return;
       }
       const nome = u.displayName || u.email;
-      store.set({ authReady: true, authError: null, authUser: { uid: u.uid, nome, email: u.email }, meId: u.uid, names: { ...store.state.names, [u.uid]: nome }, conn: 'connecting' });
-      this.start();
+      store.set({ authReady: true, authError: null, authUser: { uid: u.uid, nome, email: u.email }, meId: u.uid, names: { ...store.state.names, [u.uid]: nome }, role: null, roleChecked: false, conn: 'connecting' });
+      this.watchRole(u.email.toLowerCase());
     });
   },
+  /** Acompanha o papel do usuário em acessos/{email}; sem documento, sem acesso. Mudanças valem na hora. */
+  watchRole(email) {
+    this.stopRole();
+    this.unsubRole = firebase.firestore().doc('acessos/' + email).onSnapshot(d => {
+      const papel = d.exists ? d.data().papel : null;
+      if (!PAPEIS[papel]) { this.stop(); store.set({ role: null, roleChecked: true, assets: [], people: [] }); return; }
+      const first = !store.state.role;
+      store.set({ role: papel, roleChecked: true });
+      if (first || !this.db) this.start();
+    }, () => { this.stop(); store.set({ role: null, roleChecked: true }); });
+  },
+  stopRole() { this.unsubRole?.(); this.unsubRole = null; },
   async signIn() {
     const provider = new firebase.auth.GoogleAuthProvider();
     if (window.DOMINIO_PERMITIDO) provider.setCustomParameters({ hd: window.DOMINIO_PERMITIDO, prompt: 'select_account' });
@@ -591,7 +693,8 @@ const Repo = {
     }
   },
   signOut() { firebase.auth().signOut(); },
-  stop() { this.unsub?.(); this.unsubPeople?.(); this.unsub = this.unsubPeople = null; this.db = null; },
+  readOnly() { toast('Seu acesso é só de leitura. Peça a um administrador para virar editor.', true); },
+  stop() { this.unsub?.(); this.unsubPeople?.(); this.unsubBackup?.(); this.unsubZ?.(); this.unsub = this.unsubPeople = this.unsubBackup = this.unsubZ = null; this.db = null; },
   start() {
     this.stop();
     const db = firebase.firestore(); this.db = db;
@@ -604,21 +707,28 @@ const Repo = {
       buildSecIndex(list);
       store.set({ assets: list, conn: 'live' });
     }, err => { clearTimeout(timer); store.set({ conn: 'error', connError: friendly(err) }); });
+    this.unsubZ = db.collection('zeevs').onSnapshot(snap => {
+      const list = docsFrom(snap).map(z => ({ ...z, historico: z.historico || [], aprovadores: z.aprovadores || [] }));
+      store.set({ zeevs: list, zeevsLoaded: true });
+    }, () => store.set({ zeevsLoaded: true }));
     this.unsubPeople = db.collection('colaboradores').onSnapshot(snap => {
       const list = docsFrom(snap).filter(p => p.nome).sort((x, y) => x.nome.localeCompare(y.nome, 'pt-BR'));
       store.set({ people: list, peopleLoaded: true });
     }, () => store.set({ peopleLoaded: true }));
+    this.unsubBackup = db.doc('sistema/backup').onSnapshot(d => store.set({ backupInfo: d.exists ? d.data() : null }), () => {});
     db.doc('sistema/importacao').get().then(m => { const data = m.exists ? m.data() : null; if (data && (data.linhasLidas || data.arquivo)) store.set({ meta: data }); }).catch(() => {});
   },
   resolveNames() {},
   /** Aplica uma mudança + evento de histórico, com atualização otimista. */
   async commit(asset, patch, ev) {
+    if (!canEdit()) { this.readOnly(); return false; }
     if (!this.db) { toast('Sem conexão com o banco: a alteração não foi salva.', true); return false; }
     if (this.writing.get(asset.id)) { toast('Aguarde: a alteração anterior deste item ainda está sendo salva.'); return false; }
     const before = store.state.assets;
     const de = { status: asset.status, etapa: asset.etapa };
     const restore = () => { buildSecIndex(before); store.set({ assets: before }); };
     const next = { ...asset, ...patch, atualizadoEm: nowIso(), atualizadoPor: store.state.meId || null };
+    delete next._hay;
     if (ev) next.historico = [...(asset.historico || []), { data: nowIso(), autorId: store.state.meId || null, autorNome: store.state.authUser?.nome || null, de, para: { status: next.status, etapa: next.etapa }, ...Object.fromEntries(Object.entries(ev).filter(([, v]) => v != null && v !== '')) }];
     const after = [next, ...before.filter(a => a.id !== asset.id)];
     buildSecIndex(after); store.set({ assets: after });
@@ -633,31 +743,105 @@ const Repo = {
   /** Cadastra o colaborador na lista, se ainda não existir (comparação sem acento e sem caixa). */
   async ensurePerson(nome, projeto) {
     const n = (nome || '').trim().replace(/\s+/g, ' ');
-    if (!n || !this.db) return;
+    if (!n || !this.db || !canEdit()) return;
     if (store.state.people.some(p => norm(p.nome) === norm(n))) return;
     try { await this.db.collection('colaboradores').add({ nome: n, projeto: projeto || null, origem: 'manual', criadoEm: nowIso(), criadoPor: store.state.authUser?.email || null }); } catch (e) {}
   },
   async addPerson(nome, projeto) {
     const n = (nome || '').trim().replace(/\s+/g, ' ');
+    if (!canEdit()) { this.readOnly(); return false; }
     if (!this.db) { toast('Sem conexão com o banco: o colaborador não foi salvo.', true); return false; }
     if (store.state.people.some(p => norm(p.nome) === norm(n))) { toast('Esse colaborador já está na lista.', true); return false; }
     try { await this.db.collection('colaboradores').add({ nome: n, projeto: (projeto || '').trim() || null, origem: 'manual', criadoEm: nowIso(), criadoPor: store.state.authUser?.email || null }); return true; }
     catch (e) { toast(/not_granted|permission|denied|forbidden/i.test(String(e?.code || e?.message)) ? 'Você só tem acesso de leitura a este inventário.' : `Não foi possível salvar: ${e?.message || e}`, true); return false; }
   },
   async updatePerson(p, patch) {
+    if (!canEdit()) { this.readOnly(); return false; }
     if (!this.db) return false;
     try { await this.db.doc('colaboradores/' + p.id).update(patch); return true; }
     catch (e) { toast(`Não foi possível salvar: ${e?.message || e}`, true); return false; }
   },
   async removePerson(p) {
+    if (!canEdit()) { this.readOnly(); return false; }
     if (!this.db) return false;
     try { await this.db.doc('colaboradores/' + p.id).delete(); return true; }
     catch (e) { toast(`Não foi possível remover: ${e?.message || e}`, true); return false; }
+  },
+  /** Mesma lógica de commit, para a coleção de Zeevs. */
+  async commitZeev(z, patch, ev) {
+    if (!canEdit()) { this.readOnly(); return false; }
+    if (!this.db) { toast('Sem conexão com o banco: a alteração não foi salva.', true); return false; }
+    if (this.writing.get(z.id)) { toast('Aguarde: a alteração anterior ainda está sendo salva.'); return false; }
+    const before = store.state.zeevs;
+    const next = { ...z, ...patch, atualizadoEm: nowIso(), atualizadoPor: store.state.meId || null };
+    delete next._hay;
+    if (ev) next.historico = [...(z.historico || []), { data: nowIso(), autorId: store.state.meId || null, autorNome: store.state.authUser?.nome || null, ...Object.fromEntries(Object.entries(ev).filter(([, v]) => v != null && v !== '')) }];
+    store.set({ zeevs: [next, ...before.filter(x => x.id !== z.id)] });
+    this.writing.set(z.id, true);
+    try { await this.db.doc('zeevs/' + z.id).set(clean(next)); return true; }
+    catch (e) {
+      store.set({ zeevs: before });
+      toast(/not_granted|permission|denied|forbidden/i.test(String(e?.code || e?.message)) ? 'Você só tem acesso de leitura.' : `Não foi possível salvar: ${e?.message || e}`, true);
+      return false;
+    } finally { this.writing.delete(z.id); }
+  },
+  async createZeev(z) {
+    if (!canEdit()) { this.readOnly(); return null; }
+    if (!this.db) { toast('Sem conexão com o banco: o Zeev não foi salvo.', true); return null; }
+    const id = 'z-' + (crypto.randomUUID?.() || Math.random().toString(36).slice(2)).replace(/-/g, '').slice(0, 12);
+    const rec = { ...z, id, ordem: Date.now(), criadoEm: nowIso(), atualizadoEm: nowIso(), atualizadoPor: store.state.meId || null,
+      historico: [{ tipo: 'cadastro', data: nowIso(), titulo: 'Zeev registrado no sistema', autorId: store.state.meId || null, autorNome: store.state.authUser?.nome || null }] };
+    try { await this.db.doc('zeevs/' + id).set(clean(rec)); store.set({ zeevs: [rec, ...store.state.zeevs] }); return rec; }
+    catch (e) { toast(`Não foi possível registrar: ${e?.message || e}`, true); return null; }
+  },
+  /** Acessos (só administradores). */
+  async setAccess(email, data) {
+    if (!isAdmin()) { toast('Só administradores liberam acessos.', true); return false; }
+    try { await this.db.doc('acessos/' + email).set(data, { merge: true }); return true; }
+    catch (e) { toast(`Não foi possível salvar o acesso: ${e?.message || e}`, true); return false; }
+  },
+  async removeAccess(email) {
+    if (!isAdmin()) return false;
+    try { await this.db.doc('acessos/' + email).delete(); return true; }
+    catch (e) { toast(`Não foi possível remover o acesso: ${e?.message || e}`, true); return false; }
+  },
+  /** Gera o arquivo de backup a partir dos dados carregados e registra a data. */
+  async backup(acessos) {
+    const dados = {
+      formato: 'inventario-europa', versao: 1, geradoEm: nowIso(), geradoPor: store.state.authUser?.email || null,
+      ativos: store.state.assets.map(clean),
+      colaboradores: store.state.people.map(clean),
+      zeevs: store.state.zeevs.map(clean),
+      acessos: (acessos || []).map(clean),
+    };
+    const nome = `backup-inventario-${today()}.json`;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(dados, null, 1)], { type: 'application/json' }));
+    const link = document.createElement('a'); link.href = url; link.download = nome;
+    document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+    try { await this.db.doc('sistema/backup').set({ ultimo: dados.geradoEm, por: dados.geradoPor, ativos: dados.ativos.length, colaboradores: dados.colaboradores.length }); } catch (e) {}
+    return nome;
+  },
+  /** Restaura ativos e colaboradores de um arquivo de backup (substitui os itens com o mesmo código). */
+  async restore(dados, onProgress) {
+    if (!isAdmin()) { toast('Só administradores restauram backup.', true); return false; }
+    const escritas = [
+      ...dados.ativos.map(a => ['ativos', a.id, a]),
+      ...dados.colaboradores.map(c => ['colaboradores', c.id, c]),
+      ...(dados.zeevs || []).map(z => ['zeevs', z.id, z]),
+    ].map(([col, id, d]) => { const { id: _i, ...rest } = d; return [col, String(id), col === 'colaboradores' ? rest : { ...rest, id: String(id) }]; });
+    for (let i = 0; i < escritas.length; i += 400) {
+      const lote = this.db.batch();
+      escritas.slice(i, i + 400).forEach(([col, id, d]) => lote.set(this.db.collection(col).doc(id), clean(d)));
+      await lote.commit();
+      onProgress?.(Math.min(i + 400, escritas.length), escritas.length);
+    }
+    return escritas.length;
   },
   async create(asset) {
     const id = 'a-' + (crypto.randomUUID?.() || Math.random().toString(36).slice(2)).replace(/-/g, '').slice(0, 12);
     const rec = { ...asset, id, criadoEm: nowIso(), atualizadoEm: nowIso(), atualizadoPor: store.state.meId || null,
       historico: [{ tipo: 'cadastro', data: nowIso(), titulo: 'Cadastrado no sistema', autorId: store.state.meId || null, autorNome: store.state.authUser?.nome || null, para: { status: asset.status, etapa: asset.etapa } }] };
+    if (!canEdit()) { this.readOnly(); return null; }
     if (!this.db) { toast('Sem conexão com o banco: o cadastro não foi salvo.', true); return null; }
     try { await this.db.doc('ativos/' + id).set(clean(rec)); const list = [rec, ...store.state.assets]; buildSecIndex(list); store.set({ assets: list }); return rec; }
     catch (e) { toast(`Não foi possível cadastrar: ${e?.message || e}`, true); return null; }
@@ -667,7 +851,7 @@ const Repo = {
 /* ================================================================
    3. ROTEAMENTO por hash (#painel, #inventario, #reparos ...)
    ================================================================ */
-const ROUTES = ['painel', 'inventario', 'reparos', 'qualidade', 'colaboradores'];
+const ROUTES = ['painel', 'inventario', 'reparos', 'zeevs', 'qualidade', 'colaboradores', 'admin'];
 function useRoute() {
   const get = () => { const h = location.hash.replace('#', ''); return ROUTES.includes(h) ? h : 'painel'; };
   const [r, setR] = useState(get());
@@ -687,6 +871,9 @@ const Icon = ({ n, s = 16 }) => {
     qualidade: 'M12 3l8 4v5c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V7zM9 12l2 2 4-4',
     colaboradores: 'M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM21 19v-1a4 4 0 0 0-3-3.9M15.5 4.1a3 3 0 0 1 0 5.8',
     trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
+    zeevs: 'M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5M10 8h1',
+    admin: 'M12 3l8 3v5.5c0 4.6-3.4 8.6-8 9.5-4.6-.9-8-4.9-8-9.5V6zM12 8.5a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM8.5 16.5c.6-1.6 2-2.5 3.5-2.5s2.9.9 3.5 2.5',
+    upload: 'M12 20V8M6 14l6-6 6 6M4 4h16',
     assistente: 'M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9zM19 15l.9 2.1 2.1.9-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z',
     search: 'M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14zM21 21l-5-5',
     plus: 'M12 5v14M5 12h14', x: 'M6 6l12 12M18 6L6 18', down: 'M12 4v12M6 10l6 6 6-6',
@@ -701,7 +888,7 @@ function Login() {
   const { authReady, authError } = useStore(s => s);
   const [busy, setBusy] = useState(false);
   return html`<div class="login"><div class="login-card">
-    <div class="brand" style=${{ padding: 0 }}><div class="brand-mark"><i></i><i></i></div><div><b>Inventário Apple</b><span>Suporte · CESAR</span></div></div>
+    <div class="brand" style=${{ padding: 0 }}><div class="brand-mark"><i></i><i></i></div><div><b>Inventário Europa</b><span>Suporte · CESAR</span></div></div>
     <h1 style=${{ fontSize: '22px' }}>Entre para ver o inventário</h1>
     <p>Use sua conta Google @${window.DOMINIO_PERMITIDO || 'da empresa'}. Só a equipe com acesso consegue ver e editar os equipamentos.</p>
     <button class="btn primary" disabled=${!authReady || busy} onClick=${async () => { setBusy(true); await Repo.signIn(); setBusy(false); }}>${!authReady ? 'Carregando…' : busy ? 'Abrindo o Google…' : 'Entrar com Google'}</button>
@@ -709,17 +896,35 @@ function Login() {
   </div></div>`;
 }
 
+function NoAccess() {
+  const { authUser } = useStore(s => s);
+  return html`<div class="login"><div class="login-card">
+    <div class="brand" style=${{ padding: 0 }}><div class="brand-mark"><i></i><i></i></div><div><b>Inventário Europa</b><span>Suporte · CESAR</span></div></div>
+    <h1 style=${{ fontSize: '22px' }}>Seu acesso ainda não foi liberado</h1>
+    <p>Você entrou como <b>${authUser.email}</b>. Peça a um administrador do inventário, na equipe de suporte, para liberar esse e-mail. Depois disso, a página abre sozinha.</p>
+    <button class="btn" onClick=${() => Repo.signOut()}>Entrar com outra conta</button>
+  </div></div>`;
+}
+
 function App() {
-  const { authReady, authUser } = useStore(s => s);
+  const { authReady, authUser, role, roleChecked } = useStore(s => s);
   if (!authReady || !authUser) return html`<${Login} />`;
+  if (!roleChecked) return html`<div class="login"><p class="muted">Verificando seu acesso…</p></div>`;
+  if (!role) return html`<${NoAccess} />`;
   return html`<${Shell} />`;
 }
 
 function Shell() {
-  const route = useRoute();
-  const { assets, conn, toasts, people, authUser } = useStore(s => s);
+  const rawRoute = useRoute();
+  const { assets, conn, toasts, people, authUser, role, zeevs } = useStore(s => s);
+  const route = rawRoute === 'admin' && role !== 'admin' ? 'painel' : rawRoute;
+  const editor = role === 'editor' || role === 'admin';
   const [openId, setOpenId] = useState(null);
   const [creating, setCreating] = useState(false);
+  const [openZeevId, setOpenZeevId] = useState(null);
+  const [creatingZeev, setCreatingZeev] = useState(false);
+  const zPend = useMemo(() => zeevs.filter(z => z.situacao === 'pendente').length, [zeevs]);
+  const gestores = useMemo(() => [...new Set([...Object.values(GESTOR_ALIAS), ...zeevs.flatMap(z => z.aprovadores || [])])].sort((a, b) => a.localeCompare(b, 'pt-BR')), [zeevs]);
   const [query, setQuery] = useState('');
   const searchRef = useRef();
   const open = useCallback(id => setOpenId(id), []);
@@ -730,28 +935,31 @@ function Shell() {
   useEffect(() => {
     const k = e => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); searchRef.current?.focus(); }
-      if (e.key === 'Escape') { setOpenId(null); setCreating(false); }
+      if (e.key === 'Escape') { setOpenId(null); setCreating(false); setOpenZeevId(null); setCreatingZeev(false); }
     };
     addEventListener('keydown', k); return () => removeEventListener('keydown', k);
   }, []);
   const onSearch = v => { setQuery(v); if (route !== 'inventario' && v.trim()) go('inventario'); };
   const openAsset = assets.find(a => a.id === openId);
+  const openZeev = useCallback(id => setOpenZeevId(id), []);
+  const openZeevObj = zeevs.find(z => z.id === openZeevId);
   const nav = [
     ['painel', 'Painel', null], ['inventario', 'Inventário', active.length],
-    ['reparos', 'Reparos', repairCount], ['qualidade', 'Pendências', flags], ['colaboradores', 'Colaboradores', people.length],
+    ['reparos', 'Reparos', repairCount], ['zeevs', 'Zeevs', zPend], ['qualidade', 'Pendências', flags], ['colaboradores', 'Colaboradores', people.length],
+    ...(role === 'admin' ? [['admin', 'Administração', null]] : []),
   ];
 
   return html`
   <div class="shell">
     <aside class="side">
-      <div class="brand"><div class="brand-mark"><i></i><i></i></div><div><b>Inventário Apple</b><span>Suporte · CESAR</span></div></div>
+      <div class="brand"><div class="brand-mark"><i></i><i></i></div><div><b>Inventário Europa</b><span>Suporte · CESAR</span></div></div>
       <nav class="nav" aria-label="Seções">
         ${nav.map(([id, label, n]) => html`<a href=${'#' + id} aria-current=${route === id ? 'page' : null}><${Icon} n=${id} />${label}${n != null && n > 0 && html`<span class=${'count' + (id === 'qualidade' ? ' hot' : '')}>${n}</span>`}</a>`)}
       </nav>
       <div class="side-foot">
         <span class=${'conn ' + conn}>${{ live: 'Sincronizado ao vivo', connecting: 'Conectando…', offline: 'Sem conexão com o banco', error: 'Erro de conexão', timeout: 'Conexão lenta' }[conn]}</span>
         <span>Atalho: <span class="mono">Ctrl K</span> busca</span>
-        <div class="who" title=${authUser.email}><span>${authUser.nome}</span><button class="btn ghost sm" onClick=${() => Repo.signOut()}>Sair</button></div>
+        <div class="who" title=${authUser.email}><span>${authUser.nome}<br /><span class="role-tag">${PAPEIS[role]?.label}</span></span><button class="btn ghost sm" onClick=${() => Repo.signOut()}>Sair</button></div>
       </div>
     </aside>
     <div class="main">
@@ -761,7 +969,7 @@ function Shell() {
           <input id="busca-global" ref=${searchRef} type="search" placeholder="Busque por tombamento, serial, pessoa… ou “m1 disponível”" value=${query} onInput=${e => onSearch(e.target.value)} aria-label="Buscar no inventário" />
           <kbd>Ctrl K</kbd>
         </div>
-        <button class="btn primary" onClick=${() => setCreating(true)}><${Icon} n="plus" /><span class="new-label">Novo ativo</span></button>
+        ${editor && html`<button class="btn primary" onClick=${() => setCreating(true)}><${Icon} n="plus" /><span class="new-label">Novo ativo</span></button>`}
       </header>
       <main class="content">
         <${ConnBanner} conn=${conn} />
@@ -769,16 +977,21 @@ function Shell() {
         ${route === 'inventario' && html`<${Inventory} assets=${assets} open=${open} query=${query} setQuery=${setQuery} />`}
         ${route === 'reparos' && html`<${Repairs} assets=${assets} open=${open} />`}
         ${route === 'qualidade' && html`<${Quality} assets=${assets} open=${open} />`}
+        ${route === 'zeevs' && html`<${Zeevs} zeevs=${zeevs} gestores=${gestores} open=${openZeev} onNew=${() => setCreatingZeev(true)} />`}
         ${route === 'colaboradores' && html`<${People} assets=${assets} open=${open} setQuery=${setQuery} />`}
+        ${route === 'admin' && html`<${Admin} />`}
       </main>
     </div>
   </div>
-  <nav class="bottom-nav" aria-label="Seções">
+  <nav class="bottom-nav" aria-label="Seções" style=${{ gridTemplateColumns: `repeat(${nav.length}, 1fr)` }}>
     ${nav.map(([id, label]) => html`<a href=${'#' + id} aria-current=${route === id ? 'page' : null}><${Icon} n=${id} s=${20} />${label}</a>`)}
   </nav>
   ${openAsset && html`<${Drawer} asset=${openAsset} onClose=${() => setOpenId(null)} open=${open} />`}
-  ${creating && html`<${CreateDrawer} assets=${assets} onClose=${() => setCreating(false)} onCreated=${a => { setCreating(false); setOpenId(a.id); }} />`}
+  ${creating && editor && html`<${CreateDrawer} assets=${assets} onClose=${() => setCreating(false)} onCreated=${a => { setCreating(false); setOpenId(a.id); }} />`}
   <${Datalists} assets=${assets} people=${people} />
+  ${openZeevObj && html`<${ZeevDrawer} z=${openZeevObj} zeevs=${zeevs} open=${openZeev} onClose=${() => setOpenZeevId(null)} />`}
+  ${creatingZeev && editor && html`<${ZeevCreate} zeevs=${zeevs} onClose=${() => setCreatingZeev(false)} onCreated=${z => { setCreatingZeev(false); setOpenZeevId(z.id); }} />`}
+  <datalist id="gestores-list">${gestores.map(g => html`<option value=${g} />`)}</datalist>
   <div class="toasts" role="status" aria-live="polite">${toasts.map(t => html`<div class=${'toast' + (t.err ? ' err' : '')} key=${t.id}>${t.text}</div>`)}</div>`;
 }
 
@@ -823,12 +1036,13 @@ function Dashboard({ assets, open, setQuery }) {
   }, [assets]);
   useEffect(() => { Repo.resolveNames(m.events.map(x => x.e.autorId)); }, [m.events]);
   const names = useStore(s => s.names);
-  if (!assets.length) return html`<${PageHead} title="Painel" sub="Visão geral do parque Apple do suporte." /><${EmptyState} />`;
+  if (!assets.length) return html`<${PageHead} title="Painel" sub="Visão geral dos equipamentos do suporte." /><${EmptyState} />`;
   const maxCat = Math.max(...m.byCat.map(c => c.n));
   const toInv = q => { setQuery(q); go('inventario'); };
 
   return html`
     <${PageHead} title="Painel" sub=${`${m.act.length} equipamentos ativos. Os números se atualizam sozinhos quando alguém muda um item.`} />
+    <${BackupNudge} />
     <section class="kpis" aria-label="Indicadores">
       <button class="kpi accent" onClick=${() => toInv('disponivel')}><span class="l">Prontos para entrega</span><span class="v">${m.ready.length}</span><span class="s">${m.readyByCat.map(([k, n]) => `${n} ${CATEG[k].toLowerCase()}`).join(' · ') || 'nenhum'}</span></button>
       <button class="kpi" onClick=${() => toInv('colaborador')}><span class="l">Com colaboradores</span><span class="v">${m.withPeople.length}</span><span class="s">alocados ou emprestados</span></button>
@@ -913,7 +1127,7 @@ function Inventory({ assets, open, query, setQuery }) {
     const esc = v => { const s = v == null ? '' : String(v); return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
     const csv = '﻿' + [cols.join(';'), ...rows.map(a => cols.map(c => esc(c === 'status' ? STATUS[a[c]]?.label : c === 'etapa' ? ETAPA[a[c]]?.label : c === 'secundarias' ? (a.secundarias || []).join(' / ') : c === 'principal' ? (primaryOf(a)?.tombamento || a.principalExterna) : a[c])).join(';'))].join('\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-    const link = document.createElement('a'); link.href = url; link.download = `inventario-apple-${today()}.csv`;
+    const link = document.createElement('a'); link.href = url; link.download = `inventario-europa-${today()}.csv`;
     document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
 
@@ -1036,13 +1250,13 @@ function Drawer({ asset: a, onClose, open }) {
     </div>
     <div class="drawer-b">
       ${issues.length > 0 && html`<div class="stack" style=${{ gap: '6px' }}>${issues.map(c => html`<div class="banner" style=${{ padding: '8px 12px', background: c.sev === 'bad' ? 'var(--bad-soft)' : c.sev === 'mute' ? 'var(--mute-soft)' : c.sev === 'info' ? 'var(--info-soft)' : 'var(--warn-soft)' }}><b style=${{ color: c.sev === 'bad' ? 'var(--bad)' : c.sev === 'info' ? 'var(--info)' : c.sev === 'mute' ? 'var(--fg-2)' : 'var(--warn)' }}>${c.title}.</b><span>${c.hint}</span></div>`)}</div>`}
-      <section>
+      ${canEdit() ? html`<section>
         <div class="section-t"><h2>Próximo passo</h2></div>
         ${act ? html`<${ActionForm} action=${act} asset=${a} onDone=${() => setAct(null)} />` : html`
         <div class="actions">${actions.map(x => html`<button class=${'btn' + (x.primary ? ' primary' : '') + (x.danger ? ' danger' : '')} onClick=${() => x.fields ? setAct(x) : Repo.commit(a, x.apply(a, {}), x.event(a, {})).then(ok => ok && toast(x.label + ': feito'))}>${x.label}</button>`)}</div>`}
-      </section>
+      </section>` : html`<p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Seu acesso é de leitura: você vê os dados, mas não altera.</p>`}
       <section>
-        <div class="section-t"><h2>Dados</h2><button class="btn ghost sm" onClick=${() => setEditing(!editing)}>${editing ? 'Cancelar' : 'Editar'}</button></div>
+        <div class="section-t"><h2>Dados</h2>${canEdit() && html`<button class="btn ghost sm" onClick=${() => setEditing(!editing)}>${editing ? 'Cancelar' : 'Editar'}</button>`}</div>
         ${editing ? html`<${EditForm} asset=${a} onDone=${() => setEditing(false)} />` : html`<dl class="dl">${rows.map(([k, v]) => html`<dt>${k}</dt><dd>${v}</dd>`)}</dl>`}
       </section>
       ${(secs.length > 0 || prim || a.principalExterna) && html`<section>
@@ -1062,7 +1276,7 @@ function Drawer({ asset: a, onClose, open }) {
   </aside>`;
 }
 
-function ActionForm({ action, asset, onDone }) {
+function ActionForm({ action, asset, onDone, commit }) {
   const init = Object.fromEntries((action.fields || []).map(f => [f.k, f.def ? f.def(asset) : (f.options ? f.options[0][0] : '')]));
   const [v, setV] = useState(init); const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
   const submit = async e => {
@@ -1071,7 +1285,7 @@ function ActionForm({ action, asset, onDone }) {
     Object.assign(errs, action.validate?.(v) || {});
     setErr(errs); if (Object.keys(errs).length) return;
     setBusy(true);
-    const ok = await Repo.commit(asset, action.apply(asset, v), action.event(asset, v));
+    const ok = await (commit || ((a, p, e) => Repo.commit(a, p, e)))(asset, action.apply(asset, v), action.event(asset, v));
     setBusy(false); if (ok) { (action.fields || []).filter(f => f.list === 'dl-pessoas' && v[f.k]).forEach(f => Repo.ensurePerson(v[f.k], asset.projeto)); toast(action.label + ': salvo'); onDone(); }
   };
   return html`<form class="action-form" onSubmit=${submit} noValidate>
@@ -1193,13 +1407,13 @@ function People({ assets, open, setQuery }) {
   const seeAssets = n => { setQuery(n); go('inventario'); };
   return html`
     <${PageHead} title="Colaboradores" sub=${`${people.length} pessoas na lista. É ela que aparece nos campos “Colaborador”, “Está com”, “Antigo dono” e “Aprovador”. Nomes novos digitados nesses campos entram aqui automaticamente.`} />
-    <form class="panel panel-b" onSubmit=${add} noValidate>
+    ${canEdit() && html`<form class="panel panel-b" onSubmit=${add} noValidate>
       <div class="people-form">
         <div class="field"><label for="pessoa-nome">Nome completo *</label><input id="pessoa-nome" value=${nome} onInput=${e => { setNome(e.target.value); setErr(''); }} autocomplete="off" />${err && html`<span class="err">${err}</span>`}</div>
         <div class="field"><label for="pessoa-projeto">Projeto</label><input id="pessoa-projeto" list="dl-projetos" autocomplete="off" value=${projeto} onInput=${e => setProjeto(e.target.value)} placeholder="Ex.: EUROPA LISBOA (VALERIA)" /></div>
         <button class="btn primary" disabled=${busy || conn === 'offline'}><${Icon} n="plus" />${busy ? 'Salvando…' : 'Adicionar'}</button>
       </div>
-    </form>
+    </form>`}
     <div class="toolbar">
       <div class="search" style=${{ maxWidth: '420px' }}><${Icon} n="search" /><input id="busca-colaboradores" type="search" placeholder="Buscar por nome ou projeto" value=${q} onInput=${e => setQ(e.target.value)} aria-label="Buscar colaboradores" /></div>
       <span class="muted num" style=${{ fontSize: '12.5px' }}>${rows.length} de ${people.length}</span>
@@ -1218,16 +1432,308 @@ function People({ assets, open, setQuery }) {
               <td><div class="t">${p.nome}</div></td>
               <td class="muted">${p.projeto || '—'}</td>
               <td class="num" style=${{ textAlign: 'right' }}>${byPerson.get(norm(p.nome)) ? html`<button class="link" onClick=${() => seeAssets(p.nome)}>${byPerson.get(norm(p.nome))}</button>` : html`<span class="muted">0</span>`}</td>
-              <td><div class="actions-inline">
+              <td>${canEdit() && html`<div class="actions-inline">
                 <button class="btn ghost sm" onClick=${() => { setEditId(p.id); setEv({ nome: p.nome, projeto: p.projeto || '' }); setConfirmId(null); }}>Editar</button>
                 <button class=${'btn sm ' + (confirmId === p.id ? 'danger' : 'ghost')} onClick=${() => remove(p)} onBlur=${() => setConfirmId(c => c === p.id ? null : c)} aria-label=${'Remover ' + p.nome}>${confirmId === p.id ? 'Confirmar remoção' : html`<${Icon} n="trash" />`}</button>
-              </div></td>
+              </div>`}</td>
             </tr>`)}
         </tbody>
       </table>
       ${rows.length > limit && html`<div class="more"><button class="btn" onClick=${() => setLimit(limit + 200)}>Mostrar mais (${rows.length - limit} restantes)</button></div>`}
     </div>
     <p class="muted" style=${{ fontSize: '12.5px', margin: 0 }}>Remover alguém da lista não altera os equipamentos que estão com a pessoa.</p>`}`;
+}
+
+/* ---------------- Zeevs ---------------- */
+const zHay = z => norm([z.numero, z.descricao, z.colaborador, z.aprovacao, z.observacao, z.decididoPor, ZTIPO[z.tipo]].filter(Boolean).join(' '));
+const ZCOLS = [['numero', 'Nº Zeev'], ['descricao', 'Descrição'], ['colaborador', 'Colaborador'], ['aprovacao', 'Aprovação'], ['situacao', 'Situação'], ['tipo', 'Tipo']];
+function Zeevs({ zeevs, gestores, open, onNew }) {
+  const loaded = useStore(s => s.zeevsLoaded);
+  const conn = useStore(s => s.conn);
+  const [q, setQ] = useState('');
+  const [sit, setSit] = useState('todos');
+  const [tipo, setTipo] = useState('todos');
+  const [gestor, setGestor] = useState('');
+  const [sort, setSort] = useState(['numero', -1]);
+  const [limit, setLimit] = useState(80);
+  const dupNums = useMemo(() => { const c = {}; zeevs.forEach(z => z.numero && (c[z.numero] = (c[z.numero] || 0) + 1)); return new Set(Object.keys(c).filter(k => c[k] > 1)); }, [zeevs]);
+  const byGestor = useMemo(() => { const c = {}; zeevs.forEach(z => (z.aprovadores || []).forEach(g => c[g] = (c[g] || 0) + 1)); return c; }, [zeevs]);
+  const searched = useMemo(() => {
+    const words = norm(q).split(/\s+/).filter(Boolean);
+    return zeevs.filter(z => (!gestor || (gestor === '__sem' ? !z.aprovadores?.length : (z.aprovadores || []).includes(gestor)))
+      && words.every(w => (z._hay ||= zHay(z)).includes(w.replace(/^#\s*/, '#'))));
+  }, [zeevs, q, gestor]);
+  const sitCounts = useMemo(() => { const c = { todos: searched.length }; searched.forEach(z => c[z.situacao] = (c[z.situacao] || 0) + 1); return c; }, [searched]);
+  const tipoCounts = useMemo(() => { const c = {}; searched.filter(z => sit === 'todos' || z.situacao === sit).forEach(z => c[z.tipo] = (c[z.tipo] || 0) + 1); return c; }, [searched, sit]);
+  const rows = useMemo(() => {
+    const r = searched.filter(z => (sit === 'todos' || z.situacao === sit) && (tipo === 'todos' || z.tipo === tipo));
+    const [k, dir] = sort;
+    const val = z => k === 'numero' ? zNum(z) : k === 'situacao' ? Object.keys(ZSIT).indexOf(z.situacao) : k === 'tipo' ? (ZTIPO[z.tipo] || '') : norm(z[k] || '');
+    return [...r].sort((x, y) => { const a = val(x), b = val(y); if (a === b) return (y.ordem || 0) - (x.ordem || 0); if (a === '' || a === 0) return 1; if (b === '' || b === 0) return -1; return (a > b ? 1 : -1) * dir; });
+  }, [searched, sit, tipo, sort]);
+  useEffect(() => setLimit(80), [q, sit, tipo, gestor]);
+  const head = html`<${PageHead} title="Zeevs" sub="Tudo o que o time pediu no Zeev: número, o que foi pedido, quem abriu e qual gestor aprovou. Abra um Zeev para registrar a aprovação ou marcar como concluído.">
+    ${canEdit() && html`<button class="btn primary" onClick=${onNew}><${Icon} n="plus" />Registrar Zeev</button>`}<//>`;
+  if (!zeevs.length) return html`${head}${(!loaded && conn !== 'offline') ? html`<${EmptyState} />` : html`<div class="panel empty"><h2>Nenhum Zeev registrado</h2><p>Os Zeevs importados da planilha aparecem aqui quando o banco carregar. Para registrar um novo, use “Registrar Zeev”.</p></div>`}`;
+  return html`${head}
+    <div class="zfilters">
+      <div class="field"><label for="busca-zeev">Buscar</label><input id="busca-zeev" type="search" value=${q} onInput=${e => setQ(e.target.value)} placeholder="Número, descrição, colaborador ou gestor (ex.: #53490, sketch, Heitor)" /></div>
+      <div class="field"><label for="filtro-gestor">Aprovado por</label>
+        <select id="filtro-gestor" value=${gestor} onChange=${e => setGestor(e.target.value)}>
+          <option value="">Todos os gestores</option><option value="__sem">Sem gestor registrado</option>
+          ${gestores.filter(g => byGestor[g]).map(g => html`<option value=${g}>${g} (${byGestor[g]})</option>`)}
+        </select></div>
+    </div>
+    <div class="toolbar">
+      <div class="chips" role="group" aria-label="Situação">
+        ${['todos', ...Object.keys(ZSIT)].filter(k => k === 'todos' || sitCounts[k]).map(k => html`<button class="chip" aria-pressed=${sit === k} onClick=${() => setSit(k)}>${k === 'todos' ? 'Todas' : ZSIT[k].label}<span class="n">${sitCounts[k] || 0}</span></button>`)}
+      </div>
+      <div class="chips" role="group" aria-label="Tipo de pedido">
+        ${['todos', ...Object.keys(ZTIPO)].filter(k => k === 'todos' || tipoCounts[k]).map(k => html`<button class="chip" aria-pressed=${tipo === k} onClick=${() => setTipo(k)}>${k === 'todos' ? 'Todos os tipos' : ZTIPO[k]}${k !== 'todos' && html`<span class="n">${tipoCounts[k]}</span>`}</button>`)}
+      </div>
+    </div>
+    ${!rows.length ? html`<div class="panel empty"><h2>Nenhum Zeev encontrado</h2><p>Tente outro termo ou limpe os filtros.</p><button class="btn" onClick=${() => { setQ(''); setSit('todos'); setTipo('todos'); setGestor(''); }}>Limpar filtros</button></div>` : html`
+    <div class="table-wrap">
+      <table>
+        <thead><tr>${ZCOLS.map(([k, l]) => html`<th aria-sort=${sort[0] === k ? (sort[1] > 0 ? 'ascending' : 'descending') : null}><button onClick=${() => setSort([k, sort[0] === k ? -sort[1] : (k === 'numero' ? -1 : 1)])}>${l}${sort[0] === k ? (sort[1] > 0 ? ' ↑' : ' ↓') : ''}</button></th>`)}</tr></thead>
+        <tbody>
+          ${rows.slice(0, limit).map(z => html`<tr key=${z.id} onClick=${() => open(z.id)} tabindex="0" onKeyDown=${e => e.key === 'Enter' && open(z.id)}>
+            <td class="znum">${z.numero || html`<span class="muted">sem nº</span>`}${(!z.numero || dupNums.has(z.numero)) && html`<span class="flag" title=${z.numero ? 'Número repetido em outro registro' : 'Sem número'}></span>`}</td>
+            <td class="zdesc"><div class="t">${z.descricao || html`<span class="muted">Sem descrição</span>`}</div>${z.observacao && html`<div class="sub">${z.observacao}</div>`}</td>
+            <td style=${{ whiteSpace: 'nowrap' }}>${z.colaborador || html`<span class="muted">—</span>`}</td>
+            <td class=${'aprov' + (z.aprovacao ? '' : ' blank')}>${z.aprovacao || ''}</td>
+            <td><span class=${'pill ' + (ZSIT[z.situacao]?.tone || 'mute')}>${ZSIT[z.situacao]?.label || z.situacao}</span></td>
+            <td class="stage">${ZTIPO[z.tipo] || 'Outro'}</td>
+          </tr>`)}
+        </tbody>
+      </table>
+      ${rows.length > limit && html`<div class="more"><button class="btn" onClick=${() => setLimit(limit + 150)}>Mostrar mais (${rows.length - limit} restantes)</button></div>`}
+    </div>
+    <div class="muted num" style=${{ fontSize: '12.5px' }}>${rows.length} de ${zeevs.length} Zeevs</div>`}`;
+}
+
+function ZeevDrawer({ z, zeevs, open, onClose }) {
+  const [act, setAct] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const names = useStore(s => s.names);
+  useEffect(() => { setAct(null); setEditing(false); }, [z.id]);
+  useEffect(() => { Repo.resolveNames((z.historico || []).map(e => e.autorId)); }, [z.id, z.historico?.length]);
+  const twins = z.numero ? zeevs.filter(x => x.id !== z.id && x.numero === z.numero) : [];
+  const actions = ZACTIONS.filter(a => a.when(z));
+  const commit = (a, p, e) => Repo.commitZeev(a, p, e);
+  const rows = [['Colaborador', z.colaborador], ['Aprovação', z.aprovacao || null], [z.situacao === 'rejeitado' ? 'Rejeitado por' : 'Cancelado por', ['cancelado', 'rejeitado'].includes(z.situacao) ? z.decididoPor : null],
+    ['Tipo', ZTIPO[z.tipo]], ['Valor', z.valor ? fmtMoney(z.valor) : null], ['Observação', z.observacao], ['Origem', z.origem]].filter(([, v]) => v);
+  return html`
+  <div class="scrim" onClick=${onClose}></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label=${'Zeev ' + (z.numero || '')}>
+    <div class="drawer-h">
+      <div class="drawer-top">
+        <div style=${{ minWidth: 0 }}><div class="drawer-num">${z.numero || 'Zeev sem número'}</div><h1 style=${{ fontSize: '19px', marginTop: '4px' }}>${z.descricao || 'Sem descrição'}</h1></div>
+        <button class="btn ghost icon-btn" onClick=${onClose} aria-label="Fechar"><${Icon} n="x" s=${18} /></button>
+      </div>
+      <div class="chips" style=${{ alignItems: 'center' }}><span class=${'pill ' + ZSIT[z.situacao]?.tone}>${ZSIT[z.situacao]?.label}</span>${z.aprovacao && html`<span class="muted" style=${{ fontSize: '13px' }}>${z.aprovacao}</span>`}</div>
+    </div>
+    <div class="drawer-b">
+      ${!z.numero && html`<div class="banner"><b>Sem número.</b><span>Edite o Zeev e informe o número no padrão #NNNNN.</span></div>`}
+      ${twins.length > 0 && html`<div class="banner"><b>Número repetido.</b><span>Também usado em: ${twins.map((t, i) => html`${i ? ', ' : ''}<button class="ref" style=${{ all: 'unset', cursor: 'pointer', textDecoration: 'underline' }} onClick=${() => open(t.id)}>${t.descricao || 'sem descrição'}</button>`)}. Confira se é o mesmo pedido.</span></div>`}
+      ${canEdit() ? html`<section>
+        <div class="section-t"><h2>Próximo passo</h2></div>
+        ${act ? html`<${ActionForm} action=${act} asset=${z} commit=${commit} onDone=${() => setAct(null)} />` : html`
+        <div class="actions">${actions.map(x => html`<button class=${'btn' + (x.primary ? ' primary' : '') + (x.danger ? ' danger' : '')} onClick=${() => x.fields ? setAct(x) : commit(z, x.apply(z, {}), x.event(z, {})).then(ok => ok && toast(x.label + ': feito'))}>${x.label}</button>`)}</div>`}
+      </section>` : html`<p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Seu acesso é de leitura: você vê os dados, mas não altera.</p>`}
+      <section>
+        <div class="section-t"><h2>Dados do Zeev</h2>${canEdit() && html`<button class="btn ghost sm" onClick=${() => setEditing(!editing)}>${editing ? 'Cancelar' : 'Editar'}</button>`}</div>
+        ${editing ? html`<${ZeevForm} z=${z} zeevs=${zeevs} onDone=${() => setEditing(false)} />` : html`<dl class="dl">${rows.map(([k, v]) => html`<dt>${k}</dt><dd>${v}</dd>`)}</dl>`}
+      </section>
+      <section>
+        <div class="section-t"><h2>Histórico</h2><span class="muted num" style=${{ fontSize: '12.5px' }}>${(z.historico || []).length} registros</span></div>
+        <ol class="timeline">${[...(z.historico || [])].reverse().map(e => html`<li><span class=${'dot ' + e.tipo}></span><div style=${{ minWidth: 0 }}><div class="tt">${e.titulo}</div><div class="tm">${fmtDate(e.data)} · ${authorName(e, names)}</div>${e.texto && html`<div class="tx">${e.texto}</div>`}</div></li>`)}</ol>
+      </section>
+    </div>
+  </aside>`;
+}
+
+const ZFIELDS = [
+  { k: 'numero', label: 'Número do Zeev', req: true, placeholder: '#53490', help: 'Salvo sempre como #NNNNN.' },
+  { k: 'tipo', label: 'Tipo de pedido', type: 'select', options: Object.entries(ZTIPO) },
+  { k: 'descricao', label: 'Descrição do Zeev', req: true, type: 'textarea' },
+  { k: 'colaborador', label: 'Colaborador (quem abriu)', req: true, list: 'dl-pessoas' },
+  { k: 'gestor', label: 'Aprovado por (gestor)', list: 'gestores-list', placeholder: 'Deixe em branco se ainda não aprovou', help: 'Fica registrado como “Aprovado por <Gestor>”. Para mais de um, separe com “e”.' },
+  { k: 'valor', label: 'Valor (R$)', type: 'number' },
+  { k: 'observacao', label: 'Observação', type: 'textarea' },
+];
+function validateZeev(v, zeevs, selfId, oldNumero) {
+  const e = {};
+  ZFIELDS.forEach(f => { if (f.req && !String(v[f.k] || '').trim()) e[f.k] = 'Preencha este campo.'; });
+  const n = normNumero(v.numero);
+  if (v.numero && !n) e.numero = 'Use só números, como #53490.';
+  if (n && n !== oldNumero) { const dup = zeevs.find(z => z.id !== selfId && z.numero === n); if (dup) e.numero = `O ${n} já está registrado: “${dup.descricao || 'sem descrição'}”.`; }
+  return e;
+}
+function zeevFromForm(v, prev = {}) {
+  const g = parseGestores(v.gestor);
+  let situacao = prev.situacao || 'pendente';
+  if (g.length && situacao === 'pendente') situacao = 'aprovado';
+  if (!g.length && situacao === 'aprovado') situacao = 'pendente';
+  return { numero: normNumero(v.numero), tipo: v.tipo || tipoZeev(v.descricao), descricao: v.descricao.trim().replace(/\s+/g, ' '), colaborador: v.colaborador.trim(),
+    aprovadores: g, aprovacao: aprovacaoTxt(g), valor: Number(v.valor) > 0 ? Number(v.valor) : null, observacao: (v.observacao || '').trim() || null, situacao };
+}
+function ZeevForm({ z, zeevs, onDone }) {
+  const [v, setV] = useState({ numero: z.numero || '', tipo: z.tipo || 'outro', descricao: z.descricao || '', colaborador: z.colaborador || '', gestor: (z.aprovadores || []).join(' e '), valor: z.valor || '', observacao: z.observacao || '' });
+  const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
+  const submit = async e => {
+    e.preventDefault(); const errs = validateZeev(v, zeevs, z.id, z.numero); setErr(errs); if (Object.keys(errs).length) return;
+    const next = zeevFromForm(v, z);
+    const changed = ZFIELDS.filter(f => JSON.stringify(f.k === 'gestor' ? z.aprovacao || '' : z[f.k] ?? null) !== JSON.stringify(f.k === 'gestor' ? next.aprovacao : next[f.k] ?? null)).map(f => f.label);
+    if (!changed.length) { onDone(); return; }
+    setBusy(true); const ok = await Repo.commitZeev(z, next, { tipo: 'edicao', titulo: 'Dados editados', texto: 'Campos: ' + changed.join(', ') }); setBusy(false);
+    if (ok) { toast('Zeev salvo'); onDone(); }
+  };
+  return html`<form class="stack" style=${{ gap: '12px' }} onSubmit=${submit} noValidate>
+    ${ZFIELDS.map(f => html`<${Field} f=${f} id=${'ze-' + f.k} value=${v[f.k]} err=${err[f.k]} onInput=${x => setV({ ...v, [f.k]: x, ...(f.k === 'descricao' && !z.tipo ? { tipo: tipoZeev(x) } : {}) })} />`)}
+    <div class="actions"><button class="btn primary" disabled=${busy}>${busy ? 'Salvando…' : 'Salvar'}</button><button type="button" class="btn ghost" onClick=${onDone}>Cancelar</button></div>
+  </form>`;
+}
+function ZeevCreate({ zeevs, onClose, onCreated }) {
+  const [v, setV] = useState({ numero: '', tipo: 'outro', descricao: '', colaborador: '', gestor: '', valor: '', observacao: '' });
+  const [touchedTipo, setTouchedTipo] = useState(false);
+  const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
+  const preview = aprovacaoTxt(parseGestores(v.gestor));
+  const submit = async e => {
+    e.preventDefault(); const errs = validateZeev(v, zeevs, null, null); setErr(errs); if (Object.keys(errs).length) return;
+    setBusy(true); const rec = await Repo.createZeev(zeevFromForm(v)); setBusy(false);
+    if (rec) { toast(`Zeev ${rec.numero} registrado`); onCreated(rec); }
+  };
+  return html`<div class="scrim" onClick=${onClose}></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label="Registrar Zeev">
+    <div class="drawer-h"><div class="drawer-top"><div><div class="eyebrow">Zeevs</div><h1 style=${{ fontSize: '21px', marginTop: '2px' }}>Registrar Zeev</h1></div><button class="btn ghost icon-btn" onClick=${onClose} aria-label="Fechar"><${Icon} n="x" s=${18} /></button></div></div>
+    <form class="drawer-b" onSubmit=${submit} noValidate>
+      ${ZFIELDS.map(f => html`<${Field} f=${f} id=${'zn-' + f.k} value=${v[f.k]} err=${err[f.k]} onInput=${x => { if (f.k === 'tipo') setTouchedTipo(true); setV({ ...v, [f.k]: x, ...(f.k === 'descricao' && !touchedTipo ? { tipo: tipoZeev(x) } : {}) }); }} />`)}
+      <div class="banner" style=${{ background: 'var(--surface)' }}><span>Vai aparecer assim: <b class="mono" style=${{ color: 'var(--fg)' }}>${normNumero(v.numero) || '#—'}</b> · ${v.descricao.trim() || 'descrição'} · ${v.colaborador.trim() || 'colaborador'} · <b style=${{ color: 'var(--fg)' }}>${preview || '(aprovação em branco)'}</b></span></div>
+      <div class="actions"><button class="btn primary" disabled=${busy}>${busy ? 'Salvando…' : 'Registrar'}</button><button type="button" class="btn ghost" onClick=${onClose}>Cancelar</button></div>
+    </form>
+  </aside>`;
+}
+
+
+/* ---------------- Administração: acessos e backup ---------------- */
+const diasDesde = iso => iso ? Math.floor((Date.now() - new Date(iso).getTime()) / 864e5) : null;
+function BackupNudge() {
+  const { role, backupInfo } = useStore(s => s);
+  if (role !== 'admin') return null;
+  const d = diasDesde(backupInfo?.ultimo);
+  if (d != null && d < BACKUP_DIAS) return null;
+  return html`<div class="banner"><b>${d == null ? 'Nenhum backup feito ainda.' : `Último backup há ${d} dias.`}</b><span>Baixe um backup por semana para não perder dados se algo for apagado por engano. <a href="#admin">Fazer backup agora</a></span></div>`;
+}
+
+function Admin() {
+  const { authUser, assets, people, zeevs, backupInfo } = useStore(s => s);
+  const me = (authUser.email || '').toLowerCase();
+  const dom = window.DOMINIO_PERMITIDO || '';
+  const [acessos, setAcessos] = useState(null);
+  const [loadErr, setLoadErr] = useState(null);
+  const [f, setF] = useState({ email: '', nome: '', papel: 'editor' });
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [confirmId, setConfirmId] = useState(null);
+  const [arquivo, setArquivo] = useState(null);
+  const [restoreMsg, setRestoreMsg] = useState('');
+  const [restoring, setRestoring] = useState(false);
+  const [confirmRestore, setConfirmRestore] = useState(false);
+
+  useEffect(() => {
+    if (!Repo.db) return;
+    const unsub = Repo.db.collection('acessos').onSnapshot(
+      snap => setAcessos(docsFrom(snap).sort((x, y) => (x.nome || x.id).localeCompare(y.nome || y.id, 'pt-BR'))),
+      e => setLoadErr(e?.message || String(e)));
+    return unsub;
+  }, []);
+
+  const liberar = async e => {
+    e.preventDefault();
+    const email = f.email.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+$/.test(email)) { setErr('Informe um e-mail válido.'); return; }
+    if (dom && !email.endsWith('@' + dom)) { setErr(`Use um e-mail @${dom}.`); return; }
+    if (acessos?.some(a => a.id === email)) { setErr('Esse e-mail já tem acesso. Mude o papel na lista abaixo.'); return; }
+    setErr(''); setBusy(true);
+    const ok = await Repo.setAccess(email, { papel: f.papel, nome: f.nome.trim() || null, criadoEm: nowIso(), criadoPor: authUser.email });
+    setBusy(false);
+    if (ok) { toast(`Acesso liberado para ${email}`); setF({ email: '', nome: '', papel: 'editor' }); }
+  };
+  const mudarPapel = async (a, papel) => { if (await Repo.setAccess(a.id, { papel, alteradoEm: nowIso(), alteradoPor: authUser.email })) toast(`${a.nome || a.id} agora é ${PAPEIS[papel].label.toLowerCase()}`); };
+  const remover = async a => { if (confirmId !== a.id) { setConfirmId(a.id); return; } setConfirmId(null); if (await Repo.removeAccess(a.id)) toast(`Acesso removido: ${a.id}`); };
+
+  const baixar = async () => { const nome = await Repo.backup(acessos); toast(`Backup baixado: ${nome}`); };
+  const escolher = async e => {
+    const file = e.target.files?.[0]; e.target.value = ''; setConfirmRestore(false); setRestoreMsg('');
+    if (!file) return;
+    try {
+      const d = JSON.parse(await file.text());
+      const ok = Array.isArray(d.ativos) && Array.isArray(d.colaboradores) && d.ativos.every(a => a && a.id && !String(a.id).includes('/')) && d.colaboradores.every(c => c && c.id && !String(c.id).includes('/')) && (d.zeevs == null || (Array.isArray(d.zeevs) && d.zeevs.every(z => z && z.id && !String(z.id).includes('/'))));
+      if (!ok) throw new Error('formato');
+      setArquivo({ nome: file.name, dados: d });
+    } catch (x) { setArquivo(null); setRestoreMsg('Esse arquivo não é um backup do inventário. Use o arquivo .json gerado pelo botão “Baixar backup”.'); }
+  };
+  const restaurar = async () => {
+    if (!confirmRestore) { setConfirmRestore(true); return; }
+    setRestoring(true); setRestoreMsg('Restaurando…');
+    try {
+      const n = await Repo.restore(arquivo.dados, (i, t) => setRestoreMsg(`Gravando… ${i} de ${t}`));
+      setRestoreMsg(`Backup restaurado: ${n} registros gravados.`); setArquivo(null);
+    } catch (e) { setRestoreMsg(`A restauração parou: ${e?.message || e}. Tente de novo; o que já foi gravado não duplica.`); }
+    setRestoring(false); setConfirmRestore(false);
+  };
+  const d = diasDesde(backupInfo?.ultimo);
+  const admins = (acessos || []).filter(a => a.papel === 'admin').length;
+
+  return html`
+    <${PageHead} title="Administração" sub="Quem pode usar o inventário e cópias de segurança dos dados. Só administradores veem esta página." />
+    <div class="admin-grid">
+      <section class="panel">
+        <div class="panel-h"><h2>Acessos</h2><span class="muted num">${acessos ? acessos.length + ' pessoas' : ''}</span></div>
+        <div class="panel-b stack">
+          <ul class="roles-help">${Object.entries(PAPEIS).map(([k, p]) => html`<li><b>${p.label}</b>: ${p.desc}.</li>`)}</ul>
+          <form class="access-form" onSubmit=${liberar} noValidate>
+            <div class="field"><label for="ac-email">E-mail *</label><input id="ac-email" type="email" autocomplete="off" placeholder=${'nome@' + (dom || 'empresa.com')} value=${f.email} onInput=${e => { setF({ ...f, email: e.target.value }); setErr(''); }} />${err && html`<span class="err">${err}</span>`}</div>
+            <div class="field"><label for="ac-nome">Nome</label><input id="ac-nome" list="dl-pessoas" autocomplete="off" value=${f.nome} onInput=${e => setF({ ...f, nome: e.target.value })} /></div>
+            <div class="field"><label for="ac-papel">Papel</label><select id="ac-papel" value=${f.papel} onChange=${e => setF({ ...f, papel: e.target.value })}>${Object.entries(PAPEIS).map(([k, p]) => html`<option value=${k}>${p.label}</option>`)}</select></div>
+            <button class="btn primary" disabled=${busy}><${Icon} n="plus" />${busy ? 'Salvando…' : 'Liberar acesso'}</button>
+          </form>
+        </div>
+        ${loadErr ? html`<div class="panel-b"><div class="banner"><b>Não foi possível carregar os acessos.</b><span>${loadErr}</span></div></div>` : !acessos ? html`<div class="panel-b"><div class="skeleton"></div></div>` : html`
+        <div class="table-wrap" style=${{ border: 0, borderTop: '1px solid var(--line)', borderRadius: 0 }}>
+          <table>
+            <thead><tr><th>Pessoa</th><th>Papel</th><th>Liberado em</th><th></th></tr></thead>
+            <tbody>${acessos.map(a => html`<tr key=${a.id}>
+              <td><div class="t">${a.nome || a.id}${a.id === me ? ' (você)' : ''}</div>${a.nome && html`<div class="sub">${a.id}</div>`}</td>
+              <td>${a.id === me ? html`<span>${PAPEIS[a.papel]?.label || a.papel}</span>` : html`<select aria-label=${'Papel de ' + (a.nome || a.id)} value=${a.papel} onChange=${e => mudarPapel(a, e.target.value)}>${Object.entries(PAPEIS).map(([k, p]) => html`<option value=${k}>${p.label}</option>`)}</select>`}</td>
+              <td class="muted num">${fmtDate(a.criadoEm)}</td>
+              <td>${a.id !== me && html`<div class="actions-inline"><button class=${'btn sm ' + (confirmId === a.id ? 'danger' : 'ghost')} onClick=${() => remover(a)} onBlur=${() => setConfirmId(c => c === a.id ? null : c)} aria-label=${'Remover acesso de ' + (a.nome || a.id)}>${confirmId === a.id ? 'Confirmar remoção' : html`<${Icon} n="trash" />`}</button></div>`}</td>
+            </tr>`)}</tbody>
+          </table>
+        </div>
+        <div class="panel-b"><p class="muted" style=${{ margin: 0, fontSize: '12.5px' }}>Você não pode mudar o próprio papel nem se remover, para a equipe não ficar sem administrador.${admins < 2 ? ' Vale ter pelo menos dois administradores, por exemplo você e seu gestor.' : ''}</p></div>`}
+      </section>
+
+      <section class="panel">
+        <div class="panel-h"><h2>Backup</h2><span class=${'pill ' + (d != null && d < BACKUP_DIAS ? 'ok' : 'warn')}>${d == null ? 'nunca feito' : d === 0 ? 'feito hoje' : `há ${d} dias`}</span></div>
+        <div class="panel-b stack">
+          <p style=${{ margin: 0 }}>O backup baixa um arquivo com os ${assets.length} equipamentos, os ${people.length} colaboradores, os ${zeevs.length} Zeevs e a lista de acessos. Guarde em um lugar seguro da empresa, como o drive da equipe, porque ele tem dados pessoais. Recomendado: uma vez por semana.</p>
+          ${backupInfo?.ultimo && html`<p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Último backup: ${fmtDate(backupInfo.ultimo)}, por ${backupInfo.por || 'alguém da equipe'}.</p>`}
+          <div class="backup-row"><button class="btn primary" onClick=${baixar} disabled=${!assets.length}><${Icon} n="down" />Baixar backup</button></div>
+        </div>
+        <div class="panel-b stack" style=${{ borderTop: '1px solid var(--line)' }}>
+          <h3>Restaurar um backup</h3>
+          <p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Grava de volta os equipamentos, colaboradores e Zeevs do arquivo, substituindo os que têm o mesmo código. Itens criados depois do backup continuam como estão. A lista de acessos não é restaurada.</p>
+          <div class="backup-row">
+            <label class="btn file-pick"><${Icon} n="upload" />Escolher arquivo<input type="file" accept=".json,application/json" onChange=${escolher} /></label>
+            ${arquivo && html`<span class="muted" style=${{ fontSize: '13px' }}>${arquivo.nome}: ${arquivo.dados.ativos.length} equipamentos, ${arquivo.dados.colaboradores.length} colaboradores e ${(arquivo.dados.zeevs || []).length} Zeevs${arquivo.dados.geradoEm ? `, de ${fmtDate(arquivo.dados.geradoEm)}` : ''}.</span>`}
+          </div>
+          ${arquivo && html`<div class="backup-row"><button class=${'btn ' + (confirmRestore ? 'danger' : 'primary')} onClick=${restaurar} disabled=${restoring}>${restoring ? 'Restaurando…' : confirmRestore ? 'Confirmar: substituir pelos dados do arquivo' : 'Restaurar backup'}</button>${confirmRestore && !restoring && html`<button class="btn ghost" onClick=${() => setConfirmRestore(false)}>Cancelar</button>`}</div>`}
+          ${restoreMsg && html`<p role="status" style=${{ margin: 0, fontSize: '13px' }}>${restoreMsg}</p>`}
+        </div>
+      </section>
+    </div>`;
 }
 
 /* ================================================================
