@@ -1,6 +1,6 @@
 # Inventário Europa
 
-Sistema do suporte de TI do CESAR para controlar equipamentos (Macs, iPhones, iPads e monitores), colaboradores, máquinas secundárias e solicitações do Zeev.
+Sistema do suporte de TI do CESAR para controlar equipamentos (Macs, iPhones, iPads e monitores), colaboradores, máquinas secundárias, solicitações do Zeev e licenças de software.
 
 ## Estrutura
 
@@ -42,6 +42,12 @@ Quem pode entrar fica na coleção `acessos` do Firestore, um documento por e-ma
 - `admin`: também libera acessos e faz backup, pela página Administração.
 
 O primeiro administrador é cadastrado pelo console do Firebase. Os demais, pela própria página.
+
+## Licenças e Zeevs
+
+- Cada licença tem programa, edição, assentos, prazo e expiração. A situação (ativa, vence em breve, vencida, fora de uso) é calculada pela data.
+- As chaves ficam na coleção `licencas_chaves`, que só administradores leem e gravam.
+- Quando um Zeev do tipo Licença é aprovado, cada licença ligada a ele ganha mais um ano a partir da expiração atual (ou da data da aprovação, se já venceu). Se o Zeev for cancelado, rejeitado ou a licença for desmarcada, a extensão é desfeita. O mesmo Zeev nunca estende a mesma licença duas vezes.
 
 ## Dados
 

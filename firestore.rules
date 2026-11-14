@@ -35,6 +35,14 @@ service cloud.firestore {
       allow read: if temAcesso();
       allow write: if podeEditar();
     }
+    match /licencas/{id} {
+      allow read: if temAcesso();
+      allow create, update: if podeEditar();
+      allow delete: if false;
+    }
+    match /licencas_chaves/{id} {
+      allow read, write: if ehAdmin();
+    }
     match /sistema/{id} {
       allow read: if temAcesso();
       allow write: if ehAdmin();

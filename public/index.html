@@ -305,6 +305,44 @@ td.zdesc .t { font-weight: 500; overflow-wrap: anywhere; }
 .drawer-num { font-family: var(--mono); font-size: 13px; color: var(--accent-strong); font-weight: 500; }
 @media (max-width: 760px) { .zfilters { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 760px) { .bottom-nav a { font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-inline: 2px; } }
+/* Licenças */
+.prog-badge { display: inline-grid; place-items: center; flex: none; border-radius: 9px; background: hsl(var(--h) 62% 44%); color: #fff; font-weight: 700; letter-spacing: .02em; line-height: 1; }
+.prog-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+.prog-chip { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-size: 13px; color: var(--fg); }
+.prog-chip i { width: 10px; height: 10px; border-radius: 3px; background: hsl(var(--h) 62% 48%); }
+.prog-chip .n { opacity: .65; font-size: 12px; font-variant-numeric: tabular-nums; }
+.prog-chip.on { border-color: hsl(var(--h, 24) 62% 48%); box-shadow: inset 0 0 0 1px hsl(var(--h, 24) 62% 48%); font-weight: 600; }
+.prog-chip.fora { opacity: .7; }
+.prog-chip:focus-visible, .link-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.prog-list { display: flex; flex-direction: column; gap: 14px; }
+.prog-card { border: 1px solid var(--line); border-left: 4px solid hsl(var(--h) 62% 48%); border-radius: var(--r); background: var(--bg); overflow: hidden; }
+.prog-card > header { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: hsl(var(--h) 62% 48% / .07); flex-wrap: wrap; }
+.prog-card > header h2 { margin: 0; font-size: 16px; }
+.prog-card > header .sub { font-size: 12.5px; color: var(--muted); }
+.prog-card > header > .btn { margin-left: auto; }
+.prog-card.fora { border-left-style: dashed; }
+.prog-card.fora > header { background: var(--surface); }
+.prog-card.fora .prog-badge { filter: grayscale(.6); opacity: .75; }
+.prog-tally { margin-left: auto; display: flex; flex-wrap: wrap; gap: 6px; }
+.lic-table { border: 0; border-radius: 0; border-top: 1px solid var(--line); }
+.lic-table .key-cell { display: inline-block; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; font-size: 12.5px; }
+.fora-sep { display: flex; flex-direction: column; gap: 2px; padding: 10px 2px 0; border-top: 1px dashed var(--line); margin-top: 6px; }
+.fora-sep span { color: var(--muted); font-size: 13px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; padding: 3px; gap: 3px; background: var(--surface); align-self: flex-start; }
+.seg button { border: 0; background: transparent; padding: 6px 12px; border-radius: 7px; cursor: pointer; font-size: 13.5px; color: var(--fg-2); }
+.seg button[aria-selected="true"] { background: var(--bg); color: var(--fg); font-weight: 600; box-shadow: var(--shadow); }
+.renew-list { border-top: 1px solid var(--line); }
+.renew-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 9px 14px; border-top: 1px solid var(--line); }
+.renew-row:first-child { border-top: 0; }
+.link-row { all: unset; cursor: pointer; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.link-row .t { font-weight: 500; }
+.lic-pick { max-height: 260px; overflow: auto; border: 1px solid var(--line); border-radius: var(--r); }
+.lic-opt { display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 9px; align-items: center; padding: 7px 10px; border-top: 1px solid var(--line); cursor: pointer; font-size: 13px; }
+.lic-opt:first-child { border-top: 0; }
+.lic-opt .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.key-box { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.key-box code { font-size: 13px; overflow-wrap: anywhere; }
+@media (max-width: 760px) { .prog-tally { margin-left: 0; } .renew-row { grid-template-columns: auto minmax(0, 1fr); } }
 /* Login */
 .login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--surface); }
 .login-card { width: min(420px, 100%); background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 32px 28px; display: flex; flex-direction: column; gap: 18px; box-shadow: var(--shadow); }
@@ -569,6 +607,73 @@ const ZACTIONS = [
 ];
 
 
+/* ---------- Licenças ---------- */
+const PRAZO = { anual: 'Anual', perpetua: 'Perpétua', mensal: 'Mensal', indefinido: 'A confirmar' };
+const todayIso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+/** Soma um ano a uma data AAAA-MM-DD (29/02 vira 28/02). */
+function addYear(iso) { const [y, m, d] = iso.split('-').map(Number); const last = new Date(Date.UTC(y + 1, m, 0)).getUTCDate(); return `${y + 1}-${String(m).padStart(2, '0')}-${String(Math.min(d, last)).padStart(2, '0')}`; }
+const diasAte = iso => Math.round((Date.parse(iso + 'T00:00:00Z') - Date.parse(todayIso() + 'T00:00:00Z')) / 864e5);
+const fmtDay = iso => iso ? iso.split('-').reverse().join('/') : 'sem data';
+const LIC_ST = {
+  ativa: { label: 'Ativa', tone: 'ok' }, vence: { label: 'Vence em breve', tone: 'warn' }, vencida: { label: 'Vencida', tone: 'bad' },
+  semdata: { label: 'Sem data', tone: 'warn' }, perpetua: { label: 'Perpétua', tone: 'info' }, mensal: { label: 'Mensal', tone: 'info' }, fora: { label: 'Fora de uso', tone: 'mute' },
+};
+function licStatus(l) {
+  if (l.foraDeUso) return 'fora';
+  if (l.prazo === 'perpetua') return 'perpetua';
+  if (l.prazo === 'mensal') return 'mensal';
+  if (!l.expiracao) return 'semdata';
+  const d = diasAte(l.expiracao);
+  return d < 0 ? 'vencida' : d <= 30 ? 'vence' : 'ativa';
+}
+const licNome = l => l.programa + (l.edicao ? ' · ' + l.edicao : '');
+const licPrazoTxt = l => {
+  if (l.prazo === 'perpetua') return 'Não expira';
+  if (l.prazo === 'mensal') return 'Cobrança mensal';
+  if (!l.expiracao) return 'Expiração a confirmar';
+  const d = diasAte(l.expiracao);
+  return d < 0 ? `Venceu há ${-d} dia${d === -1 ? '' : 's'}` : d === 0 ? 'Vence hoje' : `Vence em ${d} dia${d === 1 ? '' : 's'}`;
+};
+/** Cada programa tem uma cor fixa para ser reconhecido de longe. */
+const PROG_HUES = { 'Microsoft': 210, 'Docker': 196, 'Parallels Desktop': 4, 'IntelliJ IDEA': 268, 'Sketch': 36, 'Aqua': 172, 'TablePlus': 22, 'PhpStorm': 300, 'Cadence': 146, 'Loopback': 330, 'Adobe': 352, 'A Cloud Guru': 112, 'Apple One Familiar': 228, 'Fork': 250 };
+const progHue = p => PROG_HUES[p] ?? ([...(p || '?')].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7));
+const progInitials = p => (p || '?').split(/\s+/).filter(w => /^[0-9A-Za-zÀ-ÿ]/.test(w)).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '?';
+const ProgBadge = ({ p, s = 32 }) => html`<span class="prog-badge" style=${{ '--h': progHue(p), width: s + 'px', height: s + 'px', fontSize: Math.round(s * 0.38) + 'px' }} aria-hidden="true">${progInitials(p)}</span>`;
+
+/**
+ * Regras do Zeev de licença:
+ * - aprovado (ou concluído): cada licença ligada ganha +1 ano a partir da expiração atual (ou de hoje, se já venceu);
+ * - cancelado, rejeitado, voltou para "sem aprovação" ou licença desmarcada: a extensão é desfeita;
+ * - o mesmo Zeev nunca estende a mesma licença duas vezes.
+ */
+function planLicencas(prev, next, licencas) {
+  const ext = { ...(prev.extensoes || {}) };
+  const ups = new Map();
+  const aprovado = ['aprovado', 'concluido'].includes(next.situacao);
+  const ids = next.tipo === 'licenca' ? (next.licencas || []) : [];
+  const hoje = todayIso(); const num = next.numero || 'sem número';
+  const find = id => licencas.find(x => x.id === id);
+  if (aprovado) for (const id of ids) {
+    const e = ext[id]; if (e && !e.revertido) continue;
+    const l = find(id); if (!l || l.prazo === 'perpetua') continue;
+    const base = l.expiracao && l.expiracao >= hoje ? l.expiracao : hoje;
+    const para = addYear(base);
+    ext[id] = { de: l.expiracao || null, para, data: nowIso() };
+    ups.set(id, { l, patch: { expiracao: para, prazo: 'anual', foraDeUso: false, zeevs: [...new Set([...(l.zeevs || []), next.id])] },
+      ev: { tipo: 'renovacao', titulo: `Renovada pelo Zeev ${num}`, texto: `Expiração: ${fmtDay(l.expiracao)} → ${fmtDay(para)}` } });
+  }
+  for (const [id, e] of Object.entries(ext)) {
+    if (e.revertido || (aprovado && ids.includes(id))) continue;
+    const l = find(id); ext[id] = { ...e, revertido: true }; if (!l) continue;
+    const motivo = ids.includes(id) ? `Zeev ${num} ${(ZSIT[next.situacao]?.label || 'alterado').toLowerCase()}` : `licença desmarcada do Zeev ${num}`;
+    ups.set(id, l.expiracao === e.para
+      ? { l, patch: { expiracao: e.de }, ev: { tipo: 'nota', titulo: 'Renovação desfeita: ' + motivo, texto: `Expiração volta para ${fmtDay(e.de)}` } }
+      : { l, patch: {}, ev: { tipo: 'nota', titulo: 'Renovação não desfeita: ' + motivo, texto: 'A data foi alterada depois da renovação. Confira a expiração desta licença.' } });
+  }
+  for (const id of ids) { const l = find(id); if (l && !ups.has(id) && !(l.zeevs || []).includes(next.id)) ups.set(id, { l, patch: { zeevs: [...(l.zeevs || []), next.id] }, ev: null }); }
+  return { extensoes: ext, ups: [...ups.values()] };
+}
+
 /* ---------- Busca inteligente: entende status, etapa, categoria e chip ---------- */
 const VOCAB = [
   ...['disponivel', 'disponiveis', 'livre', 'livres'].map(w => [w, 'status', 'disponivel']),
@@ -628,7 +733,7 @@ function applySearch(list, parsed) {
    2. DADOS — repositório sobre o banco compartilhado do artefato
    ================================================================ */
 const store = {
-  state: { authReady: false, authUser: null, authError: null, role: null, roleChecked: false, backupInfo: null, assets: [], people: [], peopleLoaded: false, zeevs: [], zeevsLoaded: false, conn: 'connecting', connError: null, meId: null, names: {}, meta: null, toasts: [] },
+  state: { authReady: false, authUser: null, authError: null, role: null, roleChecked: false, backupInfo: null, assets: [], people: [], peopleLoaded: false, zeevs: [], zeevsLoaded: false, licencas: [], licencasLoaded: false, chaves: {}, conn: 'connecting', connError: null, meId: null, names: {}, meta: null, toasts: [] },
   subs: new Set(),
   set(patch) { this.state = { ...this.state, ...patch }; this.subs.forEach(f => f()); },
 };
@@ -657,7 +762,7 @@ const Repo = {
   init() {
     const auth = firebase.auth();
     auth.onAuthStateChanged(async u => {
-      if (!u) { this.stopRole(); this.stop(); store.set({ authReady: true, authUser: null, role: null, roleChecked: false, assets: [], people: [], peopleLoaded: false, zeevs: [], zeevsLoaded: false, conn: 'connecting' }); return; }
+      if (!u) { this.stopRole(); this.stop(); store.set({ authReady: true, authUser: null, role: null, roleChecked: false, assets: [], people: [], peopleLoaded: false, zeevs: [], zeevsLoaded: false, licencas: [], licencasLoaded: false, chaves: {}, conn: 'connecting' }); return; }
       const dom = (window.DOMINIO_PERMITIDO || '').toLowerCase();
       if (dom && !(u.email || '').toLowerCase().endsWith('@' + dom)) {
         await auth.signOut();
@@ -694,7 +799,7 @@ const Repo = {
   },
   signOut() { firebase.auth().signOut(); },
   readOnly() { toast('Seu acesso é só de leitura. Peça a um administrador para virar editor.', true); },
-  stop() { this.unsub?.(); this.unsubPeople?.(); this.unsubBackup?.(); this.unsubZ?.(); this.unsub = this.unsubPeople = this.unsubBackup = this.unsubZ = null; this.db = null; },
+  stop() { this.unsub?.(); this.unsubPeople?.(); this.unsubBackup?.(); this.unsubZ?.(); this.unsubL?.(); this.unsub = this.unsubPeople = this.unsubBackup = this.unsubZ = this.unsubL = null; this.db = null; },
   start() {
     this.stop();
     const db = firebase.firestore(); this.db = db;
@@ -707,6 +812,10 @@ const Repo = {
       buildSecIndex(list);
       store.set({ assets: list, conn: 'live' });
     }, err => { clearTimeout(timer); store.set({ conn: 'error', connError: friendly(err) }); });
+    this.unsubL = db.collection('licencas').onSnapshot(snap => {
+      const list = docsFrom(snap).map(l => ({ ...l, historico: l.historico || [], zeevs: l.zeevs || [] }));
+      store.set({ licencas: list, licencasLoaded: true });
+    }, () => store.set({ licencasLoaded: true }));
     this.unsubZ = db.collection('zeevs').onSnapshot(snap => {
       const list = docsFrom(snap).map(z => ({ ...z, historico: z.historico || [], aprovadores: z.aprovadores || [] }));
       store.set({ zeevs: list, zeevsLoaded: true });
@@ -776,11 +885,21 @@ const Repo = {
     const next = { ...z, ...patch, atualizadoEm: nowIso(), atualizadoPor: store.state.meId || null };
     delete next._hay;
     if (ev) next.historico = [...(z.historico || []), { data: nowIso(), autorId: store.state.meId || null, autorNome: store.state.authUser?.nome || null, ...Object.fromEntries(Object.entries(ev).filter(([, v]) => v != null && v !== '')) }];
-    store.set({ zeevs: [next, ...before.filter(x => x.id !== z.id)] });
+    const plan = planLicencas(z, next, store.state.licencas);
+    if (Object.keys(plan.extensoes).length) next.extensoes = plan.extensoes; else delete next.extensoes;
+    const licNext = plan.ups.map(u => this.licRecord(u.l, u.patch, u.ev));
+    const licBefore = store.state.licencas;
+    store.set({ zeevs: [next, ...before.filter(x => x.id !== z.id)], licencas: this.mergeLic(licNext) });
     this.writing.set(z.id, true);
-    try { await this.db.doc('zeevs/' + z.id).set(clean(next)); return true; }
+    try {
+      const b = this.db.batch();
+      b.set(this.db.doc('zeevs/' + z.id), clean(next));
+      licNext.forEach(l => b.set(this.db.doc('licencas/' + l.id), clean(l)));
+      await b.commit();
+      this.avisoLic(plan); return true;
+    }
     catch (e) {
-      store.set({ zeevs: before });
+      store.set({ zeevs: before, licencas: licBefore });
       toast(/not_granted|permission|denied|forbidden/i.test(String(e?.code || e?.message)) ? 'Você só tem acesso de leitura.' : `Não foi possível salvar: ${e?.message || e}`, true);
       return false;
     } finally { this.writing.delete(z.id); }
@@ -791,8 +910,73 @@ const Repo = {
     const id = 'z-' + (crypto.randomUUID?.() || Math.random().toString(36).slice(2)).replace(/-/g, '').slice(0, 12);
     const rec = { ...z, id, ordem: Date.now(), criadoEm: nowIso(), atualizadoEm: nowIso(), atualizadoPor: store.state.meId || null,
       historico: [{ tipo: 'cadastro', data: nowIso(), titulo: 'Zeev registrado no sistema', autorId: store.state.meId || null, autorNome: store.state.authUser?.nome || null }] };
-    try { await this.db.doc('zeevs/' + id).set(clean(rec)); store.set({ zeevs: [rec, ...store.state.zeevs] }); return rec; }
+    const plan = planLicencas({}, rec, store.state.licencas);
+    if (Object.keys(plan.extensoes).length) rec.extensoes = plan.extensoes;
+    const licNext = plan.ups.map(u => this.licRecord(u.l, u.patch, u.ev));
+    try {
+      const b = this.db.batch();
+      b.set(this.db.doc('zeevs/' + id), clean(rec));
+      licNext.forEach(l => b.set(this.db.doc('licencas/' + l.id), clean(l)));
+      await b.commit();
+      store.set({ zeevs: [rec, ...store.state.zeevs], licencas: this.mergeLic(licNext) });
+      this.avisoLic(plan); return rec;
+    }
     catch (e) { toast(`Não foi possível registrar: ${e?.message || e}`, true); return null; }
+  },
+  avisoLic(plan) {
+    const ren = plan.ups.filter(u => u.ev?.tipo === 'renovacao').length, desf = plan.ups.filter(u => u.ev?.titulo?.startsWith('Renovação')).length;
+    if (ren) setTimeout(() => toast(`${ren} ${ren === 1 ? 'licença renovada' : 'licenças renovadas'} por mais um ano`), 400);
+    if (desf) setTimeout(() => toast(`Renovação ajustada em ${desf} ${desf === 1 ? 'licença' : 'licenças'}. Confira o histórico.`), 400);
+  },
+  /** Monta o registro de licença com a mudança e o evento de histórico. */
+  licRecord(l, patch, ev) {
+    const next = { ...l, ...patch, atualizadoEm: nowIso(), atualizadoPor: store.state.authUser?.email || null };
+    delete next._hay;
+    if (ev) next.historico = [...(l.historico || []), { data: nowIso(), autorId: store.state.meId || null, autorNome: store.state.authUser?.nome || null, ...Object.fromEntries(Object.entries(ev).filter(([, v]) => v != null && v !== '')) }];
+    return next;
+  },
+  mergeLic(list) { const ids = new Set(list.map(l => l.id)); return [...list, ...store.state.licencas.filter(l => !ids.has(l.id))]; },
+  async commitLic(l, patch, ev) {
+    if (!canEdit()) { this.readOnly(); return false; }
+    if (!this.db) { toast('Sem conexão com o banco: a alteração não foi salva.', true); return false; }
+    const before = store.state.licencas; const next = this.licRecord(l, patch, ev);
+    store.set({ licencas: this.mergeLic([next]) });
+    try { await this.db.doc('licencas/' + l.id).set(clean(next)); return true; }
+    catch (e) { store.set({ licencas: before }); toast(`Não foi possível salvar: ${e?.message || e}`, true); return false; }
+  },
+  async createLic(data, chave) {
+    if (!canEdit()) { this.readOnly(); return null; }
+    if (!this.db) { toast('Sem conexão com o banco: a licença não foi salva.', true); return null; }
+    const id = 'l-' + (crypto.randomUUID?.() || Math.random().toString(36).slice(2)).replace(/-/g, '').slice(0, 12);
+    const temChave = !!(chave && isAdmin());
+    const rec = { ...data, id, temChave, zeevs: [], criadoEm: nowIso(), atualizadoEm: nowIso(), atualizadoPor: store.state.authUser?.email || null,
+      historico: [{ tipo: 'cadastro', data: nowIso(), titulo: 'Licença cadastrada', autorId: store.state.meId || null, autorNome: store.state.authUser?.nome || null }] };
+    try {
+      const b = this.db.batch();
+      b.set(this.db.doc('licencas/' + id), clean(rec));
+      if (temChave) b.set(this.db.doc('licencas_chaves/' + id), { chave: chave.trim(), atualizadoEm: nowIso(), por: store.state.authUser?.email || null });
+      await b.commit(); store.set({ licencas: this.mergeLic([rec]) }); return rec;
+    } catch (e) { toast(`Não foi possível cadastrar: ${e?.message || e}`, true); return null; }
+  },
+  /** Chaves: coleção separada, lida e gravada só por administradores. */
+  watchChaves() {
+    if (!this.db) return () => {};
+    const unsub = this.db.collection('licencas_chaves').onSnapshot(snap => {
+      const m = {}; docsFrom(snap).forEach(d => { m[d.id] = d; }); store.set({ chaves: m });
+    }, () => {});
+    return () => { unsub(); store.set({ chaves: {} }); };
+  },
+  async setChave(l, chave) {
+    if (!isAdmin()) { toast('Só administradores alteram chaves.', true); return false; }
+    const c = (chave || '').trim();
+    try {
+      const b = this.db.batch();
+      if (c) b.set(this.db.doc('licencas_chaves/' + l.id), { chave: c, atualizadoEm: nowIso(), por: store.state.authUser?.email || null });
+      else b.delete(this.db.doc('licencas_chaves/' + l.id));
+      const next = this.licRecord(l, { temChave: !!c }, { tipo: 'edicao', titulo: c ? (l.temChave ? 'Chave alterada' : 'Chave cadastrada') : 'Chave removida' });
+      b.set(this.db.doc('licencas/' + l.id), clean(next));
+      await b.commit(); store.set({ licencas: this.mergeLic([next]) }); return true;
+    } catch (e) { toast(`Não foi possível salvar a chave: ${e?.message || e}`, true); return false; }
   },
   /** Acessos (só administradores). */
   async setAccess(email, data) {
@@ -812,6 +996,8 @@ const Repo = {
       ativos: store.state.assets.map(clean),
       colaboradores: store.state.people.map(clean),
       zeevs: store.state.zeevs.map(clean),
+      licencas: store.state.licencas.map(clean),
+      licencasChaves: Object.entries(store.state.chaves).map(([id, c]) => ({ id, chave: c.chave })),
       acessos: (acessos || []).map(clean),
     };
     const nome = `backup-inventario-${today()}.json`;
@@ -828,7 +1014,9 @@ const Repo = {
       ...dados.ativos.map(a => ['ativos', a.id, a]),
       ...dados.colaboradores.map(c => ['colaboradores', c.id, c]),
       ...(dados.zeevs || []).map(z => ['zeevs', z.id, z]),
-    ].map(([col, id, d]) => { const { id: _i, ...rest } = d; return [col, String(id), col === 'colaboradores' ? rest : { ...rest, id: String(id) }]; });
+      ...(dados.licencas || []).map(l => ['licencas', l.id, l]),
+      ...(dados.licencasChaves || []).map(c => ['licencas_chaves', c.id, { chave: c.chave }]),
+    ].map(([col, id, d]) => { const { id: _i, ...rest } = d; return [col, String(id), ['colaboradores', 'licencas_chaves'].includes(col) ? rest : { ...rest, id: String(id) }]; });
     for (let i = 0; i < escritas.length; i += 400) {
       const lote = this.db.batch();
       escritas.slice(i, i + 400).forEach(([col, id, d]) => lote.set(this.db.collection(col).doc(id), clean(d)));
@@ -851,7 +1039,7 @@ const Repo = {
 /* ================================================================
    3. ROTEAMENTO por hash (#painel, #inventario, #reparos ...)
    ================================================================ */
-const ROUTES = ['painel', 'inventario', 'reparos', 'zeevs', 'qualidade', 'colaboradores', 'admin'];
+const ROUTES = ['painel', 'inventario', 'reparos', 'zeevs', 'licencas', 'qualidade', 'colaboradores', 'admin'];
 function useRoute() {
   const get = () => { const h = location.hash.replace('#', ''); return ROUTES.includes(h) ? h : 'painel'; };
   const [r, setR] = useState(get());
@@ -872,6 +1060,8 @@ const Icon = ({ n, s = 16 }) => {
     colaboradores: 'M16 19v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM21 19v-1a4 4 0 0 0-3-3.9M15.5 4.1a3 3 0 0 1 0 5.8',
     trash: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
     zeevs: 'M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5M10 8h1',
+    licencas: 'M14.5 4a5.5 5.5 0 0 0-5.2 7.3L3 17.6V21h3.4v-2.3h2.3v-2.3h2.3l1.3-1.3A5.5 5.5 0 1 0 14.5 4zM16 8.2h.01',
+    lock: 'M6 11h12v10H6zM8.5 11V7.5a3.5 3.5 0 0 1 7 0V11',
     admin: 'M12 3l8 3v5.5c0 4.6-3.4 8.6-8 9.5-4.6-.9-8-4.9-8-9.5V6zM12 8.5a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM8.5 16.5c.6-1.6 2-2.5 3.5-2.5s2.9.9 3.5 2.5',
     upload: 'M12 20V8M6 14l6-6 6 6M4 4h16',
     assistente: 'M12 3l1.9 4.6L18.5 9.5 13.9 11.4 12 16l-1.9-4.6L5.5 9.5l4.6-1.9zM19 15l.9 2.1 2.1.9-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z',
@@ -916,13 +1106,18 @@ function App() {
 
 function Shell() {
   const rawRoute = useRoute();
-  const { assets, conn, toasts, people, authUser, role, zeevs } = useStore(s => s);
+  const { assets, conn, toasts, people, authUser, role, zeevs, licencas } = useStore(s => s);
   const route = rawRoute === 'admin' && role !== 'admin' ? 'painel' : rawRoute;
   const editor = role === 'editor' || role === 'admin';
   const [openId, setOpenId] = useState(null);
   const [creating, setCreating] = useState(false);
   const [openZeevId, setOpenZeevId] = useState(null);
   const [creatingZeev, setCreatingZeev] = useState(false);
+  const [zeevPreset, setZeevPreset] = useState(null);
+  const [openLicId, setOpenLicId] = useState(null);
+  const [creatingLic, setCreatingLic] = useState(false);
+  useEffect(() => { if (role === 'admin') return Repo.watchChaves(); }, [role]);
+  const licVence = useMemo(() => licencas.filter(l => licStatus(l) === 'vence').reduce((s, l) => s + (l.quantidade || 1), 0), [licencas]);
   const zPend = useMemo(() => zeevs.filter(z => z.situacao === 'pendente').length, [zeevs]);
   const gestores = useMemo(() => [...new Set([...Object.values(GESTOR_ALIAS), ...zeevs.flatMap(z => z.aprovadores || [])])].sort((a, b) => a.localeCompare(b, 'pt-BR')), [zeevs]);
   const [query, setQuery] = useState('');
@@ -935,17 +1130,26 @@ function Shell() {
   useEffect(() => {
     const k = e => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); searchRef.current?.focus(); }
-      if (e.key === 'Escape') { setOpenId(null); setCreating(false); setOpenZeevId(null); setCreatingZeev(false); }
+      if (e.key === 'Escape') { setOpenId(null); setCreating(false); setOpenZeevId(null); setCreatingZeev(false); setOpenLicId(null); setCreatingLic(false); }
     };
     addEventListener('keydown', k); return () => removeEventListener('keydown', k);
   }, []);
   const onSearch = v => { setQuery(v); if (route !== 'inventario' && v.trim()) go('inventario'); };
   const openAsset = assets.find(a => a.id === openId);
-  const openZeev = useCallback(id => setOpenZeevId(id), []);
+  const openZeev = useCallback(id => { setOpenLicId(null); setOpenZeevId(id); }, []);
+  const openLic = useCallback(id => { setOpenZeevId(null); setOpenLicId(id); }, []);
+  const openLicObj = licencas.find(l => l.id === openLicId);
+  const renovar = useCallback((lics, mesLabel) => {
+    const p = [...new Set(lics.map(l => l.programa))].join(', ');
+    const n = lics.reduce((s, l) => s + (l.quantidade || 1), 0);
+    const venc = mesLabel && mesLabel !== 'Já vencidas' ? ` com vencimento em ${mesLabel}` : '';
+    setZeevPreset({ tipo: 'licenca', descricao: `Renovação de ${n} ${n === 1 ? 'licença' : 'licenças'} ${p}${venc}`, licencas: lics.map(l => l.id) });
+    setOpenLicId(null); setCreatingZeev(true);
+  }, []);
   const openZeevObj = zeevs.find(z => z.id === openZeevId);
   const nav = [
     ['painel', 'Painel', null], ['inventario', 'Inventário', active.length],
-    ['reparos', 'Reparos', repairCount], ['zeevs', 'Zeevs', zPend], ['qualidade', 'Pendências', flags], ['colaboradores', 'Colaboradores', people.length],
+    ['reparos', 'Reparos', repairCount], ['zeevs', 'Zeevs', zPend], ['licencas', 'Licenças', licVence || null], ['qualidade', 'Pendências', flags], ['colaboradores', 'Colaboradores', people.length],
     ...(role === 'admin' ? [['admin', 'Administração', null]] : []),
   ];
 
@@ -977,7 +1181,8 @@ function Shell() {
         ${route === 'inventario' && html`<${Inventory} assets=${assets} open=${open} query=${query} setQuery=${setQuery} />`}
         ${route === 'reparos' && html`<${Repairs} assets=${assets} open=${open} />`}
         ${route === 'qualidade' && html`<${Quality} assets=${assets} open=${open} />`}
-        ${route === 'zeevs' && html`<${Zeevs} zeevs=${zeevs} gestores=${gestores} open=${openZeev} onNew=${() => setCreatingZeev(true)} />`}
+        ${route === 'zeevs' && html`<${Zeevs} zeevs=${zeevs} gestores=${gestores} open=${openZeev} onNew=${() => { setZeevPreset(null); setCreatingZeev(true); }} />`}
+        ${route === 'licencas' && html`<${Licencas} licencas=${licencas} zeevs=${zeevs} openLic=${openLic} onNew=${() => setCreatingLic(true)} onRenew=${renovar} />`}
         ${route === 'colaboradores' && html`<${People} assets=${assets} open=${open} setQuery=${setQuery} />`}
         ${route === 'admin' && html`<${Admin} />`}
       </main>
@@ -989,8 +1194,11 @@ function Shell() {
   ${openAsset && html`<${Drawer} asset=${openAsset} onClose=${() => setOpenId(null)} open=${open} />`}
   ${creating && editor && html`<${CreateDrawer} assets=${assets} onClose=${() => setCreating(false)} onCreated=${a => { setCreating(false); setOpenId(a.id); }} />`}
   <${Datalists} assets=${assets} people=${people} />
-  ${openZeevObj && html`<${ZeevDrawer} z=${openZeevObj} zeevs=${zeevs} open=${openZeev} onClose=${() => setOpenZeevId(null)} />`}
-  ${creatingZeev && editor && html`<${ZeevCreate} zeevs=${zeevs} onClose=${() => setCreatingZeev(false)} onCreated=${z => { setCreatingZeev(false); setOpenZeevId(z.id); }} />`}
+  ${openZeevObj && html`<${ZeevDrawer} z=${openZeevObj} zeevs=${zeevs} open=${openZeev} openLic=${openLic} onClose=${() => setOpenZeevId(null)} />`}
+  ${openLicObj && html`<${LicDrawer} l=${openLicObj} zeevs=${zeevs} openZeev=${openZeev} onRenew=${renovar} onClose=${() => setOpenLicId(null)} />`}
+  ${creatingZeev && editor && html`<${ZeevCreate} key=${zeevPreset ? 'p' + zeevPreset.licencas.join() : 'novo'} zeevs=${zeevs} preset=${zeevPreset} onClose=${() => { setCreatingZeev(false); setZeevPreset(null); }} onCreated=${z => { setCreatingZeev(false); setZeevPreset(null); setOpenZeevId(z.id); }} />`}
+  ${creatingLic && editor && html`<${LicCreate} onClose=${() => setCreatingLic(false)} onCreated=${l => { setCreatingLic(false); setOpenLicId(l.id); }} />`}
+  <datalist id="dl-programas">${[...new Set(licencas.map(l => l.programa))].sort().map(p => html`<option value=${p} />`)}</datalist>
   <datalist id="gestores-list">${gestores.map(g => html`<option value=${g} />`)}</datalist>
   <div class="toasts" role="status" aria-live="polite">${toasts.map(t => html`<div class=${'toast' + (t.err ? ' err' : '')} key=${t.id}>${t.text}</div>`)}</div>`;
 }
@@ -1043,6 +1251,7 @@ function Dashboard({ assets, open, setQuery }) {
   return html`
     <${PageHead} title="Painel" sub=${`${m.act.length} equipamentos ativos. Os números se atualizam sozinhos quando alguém muda um item.`} />
     <${BackupNudge} />
+    <${LicNudge} />
     <section class="kpis" aria-label="Indicadores">
       <button class="kpi accent" onClick=${() => toInv('disponivel')}><span class="l">Prontos para entrega</span><span class="v">${m.ready.length}</span><span class="s">${m.readyByCat.map(([k, n]) => `${n} ${CATEG[k].toLowerCase()}`).join(' · ') || 'nenhum'}</span></button>
       <button class="kpi" onClick=${() => toInv('colaborador')}><span class="l">Com colaboradores</span><span class="v">${m.withPeople.length}</span><span class="s">alocados ou emprestados</span></button>
@@ -1298,7 +1507,7 @@ function Field({ f, id, value, err, onInput }) {
   return html`<div class="field"><label for=${id}>${f.label}${f.req ? ' *' : ''}</label>
     ${f.type === 'select' ? html`<select id=${id} value=${value} onChange=${e => onInput(e.target.value)}>${f.options.map(([val, l]) => html`<option value=${val}>${l}</option>`)}</select>`
       : f.type === 'textarea' ? html`<textarea id=${id} value=${value} onInput=${e => onInput(e.target.value)}></textarea>`
-      : html`<input id=${id} type=${f.type === 'number' ? 'number' : 'text'} inputmode=${f.type === 'number' ? 'decimal' : null} list=${f.list || null} autocomplete=${f.list ? 'off' : null} placeholder=${f.placeholder || null} value=${value} onInput=${e => onInput(e.target.value)} />`}
+      : html`<input id=${id} type=${f.type === 'number' ? 'number' : f.type === 'date' ? 'date' : 'text'} inputmode=${f.type === 'number' ? 'decimal' : null} list=${f.list || null} autocomplete=${f.list ? 'off' : null} placeholder=${f.placeholder || null} value=${value} onInput=${e => onInput(e.target.value)} />`}
     ${err ? html`<span class="err">${err}</span>` : f.help && html`<span class="muted" style=${{ fontSize: '12px' }}>${f.help}</span>`}</div>`;
 }
 
@@ -1512,7 +1721,9 @@ function Zeevs({ zeevs, gestores, open, onNew }) {
     <div class="muted num" style=${{ fontSize: '12.5px' }}>${rows.length} de ${zeevs.length} Zeevs</div>`}`;
 }
 
-function ZeevDrawer({ z, zeevs, open, onClose }) {
+function ZeevDrawer({ z, zeevs, open, onClose, openLic }) {
+  const todasLic = useStore(s => s.licencas);
+  const licsZ = (z.licencas || []).map(id => todasLic.find(l => l.id === id)).filter(Boolean);
   const [act, setAct] = useState(null);
   const [editing, setEditing] = useState(false);
   const names = useStore(s => s.names);
@@ -1541,6 +1752,11 @@ function ZeevDrawer({ z, zeevs, open, onClose }) {
         ${act ? html`<${ActionForm} action=${act} asset=${z} commit=${commit} onDone=${() => setAct(null)} />` : html`
         <div class="actions">${actions.map(x => html`<button class=${'btn' + (x.primary ? ' primary' : '') + (x.danger ? ' danger' : '')} onClick=${() => x.fields ? setAct(x) : commit(z, x.apply(z, {}), x.event(z, {})).then(ok => ok && toast(x.label + ': feito'))}>${x.label}</button>`)}</div>`}
       </section>` : html`<p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Seu acesso é de leitura: você vê os dados, mas não altera.</p>`}
+      ${(licsZ.length > 0 || z.tipo === 'licenca') && html`<section>
+        <div class="section-t"><h2>Licenças</h2><span class="muted num" style=${{ fontSize: '12.5px' }}>${licsZ.length}</span></div>
+        ${licsZ.length ? html`<div class="sec-list">${licsZ.map(l => { const e = z.extensoes?.[l.id]; return html`<button class="li" onClick=${() => openLic(l.id)}><${ProgBadge} p=${l.programa} s=${24} /><span style=${{ minWidth: 0 }}><div class="t">${licNome(l)}</div><div class="d">${e && !e.revertido ? `Renovada: ${fmtDay(e.de)} → ${fmtDay(e.para)}` : ['aprovado', 'concluido'].includes(z.situacao) ? 'Sem renovação (perpétua ou não aplicável)' : 'Ganha mais um ano quando o Zeev for aprovado'}</div></span><span class=${'pill ' + LIC_ST[licStatus(l)].tone}>${fmtDay(l.expiracao)}</span></button>`; })}</div>`
+          : html`<p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Nenhuma licença ligada. Edite o Zeev e marque as licenças que ele renova.</p>`}
+      </section>`}
       <section>
         <div class="section-t"><h2>Dados do Zeev</h2>${canEdit() && html`<button class="btn ghost sm" onClick=${() => setEditing(!editing)}>${editing ? 'Cancelar' : 'Editar'}</button>`}</div>
         ${editing ? html`<${ZeevForm} z=${z} zeevs=${zeevs} onDone=${() => setEditing(false)} />` : html`<dl class="dl">${rows.map(([k, v]) => html`<dt>${k}</dt><dd>${v}</dd>`)}</dl>`}
@@ -1576,27 +1792,30 @@ function zeevFromForm(v, prev = {}) {
   if (g.length && situacao === 'pendente') situacao = 'aprovado';
   if (!g.length && situacao === 'aprovado') situacao = 'pendente';
   return { numero: normNumero(v.numero), tipo: v.tipo || tipoZeev(v.descricao), descricao: v.descricao.trim().replace(/\s+/g, ' '), colaborador: v.colaborador.trim(),
-    aprovadores: g, aprovacao: aprovacaoTxt(g), valor: Number(v.valor) > 0 ? Number(v.valor) : null, observacao: (v.observacao || '').trim() || null, situacao };
+    aprovadores: g, aprovacao: aprovacaoTxt(g), valor: Number(v.valor) > 0 ? Number(v.valor) : null, observacao: (v.observacao || '').trim() || null, situacao,
+    licencas: (v.tipo || tipoZeev(v.descricao)) === 'licenca' ? (v.licencas || []) : [] };
 }
 function ZeevForm({ z, zeevs, onDone }) {
-  const [v, setV] = useState({ numero: z.numero || '', tipo: z.tipo || 'outro', descricao: z.descricao || '', colaborador: z.colaborador || '', gestor: (z.aprovadores || []).join(' e '), valor: z.valor || '', observacao: z.observacao || '' });
+  const [v, setV] = useState({ numero: z.numero || '', tipo: z.tipo || 'outro', descricao: z.descricao || '', colaborador: z.colaborador || '', gestor: (z.aprovadores || []).join(' e '), valor: z.valor || '', observacao: z.observacao || '', licencas: z.licencas || [] });
   const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
   const submit = async e => {
     e.preventDefault(); const errs = validateZeev(v, zeevs, z.id, z.numero); setErr(errs); if (Object.keys(errs).length) return;
     const next = zeevFromForm(v, z);
     const changed = ZFIELDS.filter(f => JSON.stringify(f.k === 'gestor' ? z.aprovacao || '' : z[f.k] ?? null) !== JSON.stringify(f.k === 'gestor' ? next.aprovacao : next[f.k] ?? null)).map(f => f.label);
+    if (JSON.stringify([...(z.licencas || [])].sort()) !== JSON.stringify([...next.licencas].sort())) changed.push('Licenças');
     if (!changed.length) { onDone(); return; }
     setBusy(true); const ok = await Repo.commitZeev(z, next, { tipo: 'edicao', titulo: 'Dados editados', texto: 'Campos: ' + changed.join(', ') }); setBusy(false);
     if (ok) { toast('Zeev salvo'); onDone(); }
   };
   return html`<form class="stack" style=${{ gap: '12px' }} onSubmit=${submit} noValidate>
     ${ZFIELDS.map(f => html`<${Field} f=${f} id=${'ze-' + f.k} value=${v[f.k]} err=${err[f.k]} onInput=${x => setV({ ...v, [f.k]: x, ...(f.k === 'descricao' && !z.tipo ? { tipo: tipoZeev(x) } : {}) })} />`)}
+    ${v.tipo === 'licenca' && html`<${LicPicker} value=${v.licencas} onChange=${x => setV({ ...v, licencas: x })} />`}
     <div class="actions"><button class="btn primary" disabled=${busy}>${busy ? 'Salvando…' : 'Salvar'}</button><button type="button" class="btn ghost" onClick=${onDone}>Cancelar</button></div>
   </form>`;
 }
-function ZeevCreate({ zeevs, onClose, onCreated }) {
-  const [v, setV] = useState({ numero: '', tipo: 'outro', descricao: '', colaborador: '', gestor: '', valor: '', observacao: '' });
-  const [touchedTipo, setTouchedTipo] = useState(false);
+function ZeevCreate({ zeevs, onClose, onCreated, preset }) {
+  const [v, setV] = useState({ numero: '', tipo: 'outro', descricao: '', colaborador: '', gestor: '', valor: '', observacao: '', licencas: [], ...(preset || {}) });
+  const [touchedTipo, setTouchedTipo] = useState(!!preset);
   const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
   const preview = aprovacaoTxt(parseGestores(v.gestor));
   const submit = async e => {
@@ -1609,12 +1828,235 @@ function ZeevCreate({ zeevs, onClose, onCreated }) {
     <div class="drawer-h"><div class="drawer-top"><div><div class="eyebrow">Zeevs</div><h1 style=${{ fontSize: '21px', marginTop: '2px' }}>Registrar Zeev</h1></div><button class="btn ghost icon-btn" onClick=${onClose} aria-label="Fechar"><${Icon} n="x" s=${18} /></button></div></div>
     <form class="drawer-b" onSubmit=${submit} noValidate>
       ${ZFIELDS.map(f => html`<${Field} f=${f} id=${'zn-' + f.k} value=${v[f.k]} err=${err[f.k]} onInput=${x => { if (f.k === 'tipo') setTouchedTipo(true); setV({ ...v, [f.k]: x, ...(f.k === 'descricao' && !touchedTipo ? { tipo: tipoZeev(x) } : {}) }); }} />`)}
+      ${v.tipo === 'licenca' && html`<${LicPicker} value=${v.licencas} onChange=${x => setV({ ...v, licencas: x })} />`}
       <div class="banner" style=${{ background: 'var(--surface)' }}><span>Vai aparecer assim: <b class="mono" style=${{ color: 'var(--fg)' }}>${normNumero(v.numero) || '#—'}</b> · ${v.descricao.trim() || 'descrição'} · ${v.colaborador.trim() || 'colaborador'} · <b style=${{ color: 'var(--fg)' }}>${preview || '(aprovação em branco)'}</b></span></div>
       <div class="actions"><button class="btn primary" disabled=${busy}>${busy ? 'Salvando…' : 'Registrar'}</button><button type="button" class="btn ghost" onClick=${onClose}>Cancelar</button></div>
     </form>
   </aside>`;
 }
 
+
+/* ---------------- Licenças ---------------- */
+const LIC_FILTROS = ['todas', 'ativa', 'vence', 'vencida', 'semdata', 'perpetua', 'mensal', 'fora'];
+const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const mesKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
+const licHay = l => norm([l.programa, l.edicao, l.prazo && PRAZO[l.prazo], LIC_ST[licStatus(l)].label, l.expiracao && fmtDay(l.expiracao), l.origem].filter(Boolean).join(' '));
+const zeevsDaLic = (l, zeevs) => zeevs.filter(z => (z.licencas || []).includes(l.id) || (l.zeevs || []).includes(z.id));
+
+function Licencas({ licencas, zeevs, openLic, onNew, onRenew }) {
+  const loaded = useStore(s => s.licencasLoaded);
+  const role = useStore(s => s.role);
+  const chaves = useStore(s => s.chaves);
+  const [view, setView] = useState('programas');
+  const [q, setQ] = useState('');
+  const [st, setSt] = useState('todas');
+  const [prog, setProg] = useState('');
+  const editor = canEdit();
+  const searched = useMemo(() => { const w = norm(q).split(/\s+/).filter(Boolean); return licencas.filter(l => w.every(x => (l._hay ||= licHay(l)).includes(x))); }, [licencas, q]);
+  const counts = useMemo(() => { const c = { todas: 0 }; searched.forEach(l => { const k = licStatus(l); c[k] = (c[k] || 0) + (l.quantidade || 1); c.todas += l.quantidade || 1; }); return c; }, [searched]);
+  const programas = useMemo(() => {
+    const m = new Map();
+    licencas.forEach(l => { const g = m.get(l.programa) || { nome: l.programa, itens: [], assentos: 0, fora: true }; g.itens.push(l); g.assentos += l.quantidade || 1; g.fora = g.fora && !!l.foraDeUso; m.set(l.programa, g); });
+    return [...m.values()].sort((a, b) => (a.fora - b.fora) || a.nome.localeCompare(b.nome, 'pt-BR'));
+  }, [licencas]);
+  const grupos = useMemo(() => {
+    const vis = searched.filter(l => (st === 'todas' || licStatus(l) === st) && (!prog || l.programa === prog));
+    const ord = l => { const s = licStatus(l); return s === 'fora' ? '9' : (l.expiracao || '8'); };
+    return programas.map(g => ({ ...g, vis: vis.filter(l => l.programa === g.nome).sort((a, b) => ord(a).localeCompare(ord(b)) || (a.edicao || '').localeCompare(b.edicao || '')) })).filter(g => g.vis.length);
+  }, [searched, st, prog, programas]);
+  const head = html`<${PageHead} title="Licenças" sub="Todas as licenças por programa, com expiração e situação. Quando um Zeev de licença é aprovado, as licenças ligadas a ele ganham mais um ano.">
+    ${editor && html`<button class="btn primary" onClick=${onNew}><${Icon} n="plus" />Nova licença</button>`}<//>`;
+  if (!licencas.length) return html`${head}${!loaded ? html`<${EmptyState} />` : html`<div class="panel empty"><h2>Nenhuma licença cadastrada</h2><p>Importe a planilha pela página Administração ou cadastre em “Nova licença”.</p></div>`}`;
+  const keyCell = l => !l.temChave ? html`<span class="muted">Sem chave</span>`
+    : role === 'admin' ? html`<span class="mono key-cell" title=${chaves[l.id]?.chave || ''}>${chaves[l.id]?.chave || '…'}</span>`
+    : html`<span class="muted" title="Visível só para administradores">•••••• <${Icon} n="lock" s=${12} /></span>`;
+  const tabela = (g) => html`<div class="table-wrap lic-table"><table>
+      <thead><tr><th>Licença</th><th class="num">Qtd.</th><th>Expiração</th><th>Situação</th><th>Chave</th><th>Zeev</th></tr></thead>
+      <tbody>${g.vis.map(l => { const s = licStatus(l); const zs = zeevsDaLic(l, zeevs); const pend = zs.find(z => z.situacao === 'pendente'); return html`<tr key=${l.id} tabindex="0" onClick=${() => openLic(l.id)} onKeyDown=${e => e.key === 'Enter' && openLic(l.id)}>
+        <td><div class="t">${l.edicao || l.programa}</div>${l.origem && html`<div class="sub">${l.origem.replace('Controle de licenças Europa · ', '')}</div>`}</td>
+        <td class="num">${l.quantidade || 1}</td>
+        <td style=${{ whiteSpace: 'nowrap' }}>${l.expiracao ? fmtDay(l.expiracao) : html`<span class="muted">${PRAZO[l.prazo] || '—'}</span>`}${l.expiracao && s !== 'fora' && html`<div class="sub">${licPrazoTxt(l)}</div>`}</td>
+        <td><span class=${'pill ' + LIC_ST[s].tone}>${LIC_ST[s].label}</span></td>
+        <td>${keyCell(l)}</td>
+        <td class="znum">${pend ? html`<span title="Zeev aberto, aguardando aprovação">${pend.numero || 'sem nº'} <span class="muted">pendente</span></span>` : zs.length ? html`<span class="muted">${zs.sort((a, b) => zNum(b) - zNum(a))[0].numero || ''}</span>` : ''}</td>
+      </tr>`; })}</tbody></table></div>`;
+  return html`${head}
+    <div class="seg" role="tablist" aria-label="Visão">
+      <button role="tab" aria-selected=${view === 'programas'} onClick=${() => setView('programas')}>Por programa</button>
+      <button role="tab" aria-selected=${view === 'renovacoes'} onClick=${() => setView('renovacoes')}>Renovações do mês</button>
+    </div>
+    ${view === 'renovacoes' ? html`<${Renovacoes} licencas=${licencas} zeevs=${zeevs} openLic=${openLic} onRenew=${onRenew} />` : html`
+    <div class="prog-strip" role="group" aria-label="Programas">
+      <button class=${'prog-chip' + (!prog ? ' on' : '')} onClick=${() => setProg('')}>Todos os programas</button>
+      ${programas.map(g => html`<button class=${'prog-chip' + (prog === g.nome ? ' on' : '') + (g.fora ? ' fora' : '')} style=${{ '--h': progHue(g.nome) }} onClick=${() => setProg(prog === g.nome ? '' : g.nome)}><i></i>${g.nome}<span class="n">${g.assentos}</span></button>`)}
+    </div>
+    <div class="toolbar">
+      <div class="search" style=${{ maxWidth: '360px' }}><${Icon} n="search" /><input type="search" placeholder="Buscar programa, edição ou data" value=${q} onInput=${e => setQ(e.target.value)} aria-label="Buscar licenças" /></div>
+      <div class="chips" role="group" aria-label="Situação">${LIC_FILTROS.filter(k => k === 'todas' || counts[k]).map(k => html`<button class="chip" aria-pressed=${st === k} onClick=${() => setSt(k)}>${k === 'todas' ? 'Todas' : LIC_ST[k].label}<span class="n">${counts[k] || 0}</span></button>`)}</div>
+    </div>
+    ${!grupos.length ? html`<div class="panel empty"><h2>Nenhuma licença encontrada</h2><p>Tente outro termo ou limpe os filtros.</p><button class="btn" onClick=${() => { setQ(''); setSt('todas'); setProg(''); }}>Limpar filtros</button></div>` : html`
+    <div class="prog-list">
+      ${grupos.map((g, i) => html`${g.fora && !(grupos[i - 1]?.fora) && html`<div class="fora-sep"><b>Fora de uso</b><span>Programas sem renovação. Continuam funcionando, mas não recebem atualizações. Ficam aqui para o caso de renovar depois.</span></div>`}
+        <section class=${'prog-card' + (g.fora ? ' fora' : '')} style=${{ '--h': progHue(g.nome) }} aria-label=${g.nome}>
+          <header>
+            <${ProgBadge} p=${g.nome} s=${36} />
+            <div style=${{ minWidth: 0 }}><h2>${g.nome}</h2><div class="sub">${g.itens.length} ${g.itens.length === 1 ? 'licença' : 'licenças'} · ${g.assentos} ${g.assentos === 1 ? 'assento' : 'assentos'}${(() => { const prox = g.itens.filter(l => ['ativa', 'vence'].includes(licStatus(l))).map(l => l.expiracao).sort()[0]; return prox ? ` · próxima expiração ${fmtDay(prox)}` : ''; })()}</div></div>
+            <div class="prog-tally">${['vence', 'vencida', 'ativa', 'fora'].map(k => { const n = g.itens.filter(l => licStatus(l) === k).reduce((s, l) => s + (l.quantidade || 1), 0); return n ? html`<span class=${'pill ' + LIC_ST[k].tone}>${n} ${LIC_ST[k].label.toLowerCase()}</span>` : null; })}</div>
+          </header>
+          ${tabela(g)}
+        </section>`)}
+    </div>`}`}`;
+}
+
+function Renovacoes({ licencas, zeevs, openLic, onRenew }) {
+  const now = new Date();
+  const opts = [-1, 0, 1, 2].map(o => { const d = new Date(now.getFullYear(), now.getMonth() + o, 1); return { k: mesKey(d.getFullYear(), d.getMonth()), label: o === -1 ? 'Já vencidas' : `${MESES[d.getMonth()]}/${d.getFullYear()}` }; });
+  const [mes, setMes] = useState(opts[1].k);
+  const [sel, setSel] = useState({});
+  const editor = canEdit();
+  const lista = useMemo(() => licencas.filter(l => !l.foraDeUso && l.prazo !== 'perpetua' && l.prazo !== 'mensal' && l.expiracao && (mes === opts[0].k ? l.expiracao < todayIso() : l.expiracao.startsWith(mes))).sort((a, b) => a.expiracao.localeCompare(b.expiracao)), [licencas, mes]);
+  const porProg = useMemo(() => { const m = new Map(); lista.forEach(l => m.set(l.programa, [...(m.get(l.programa) || []), l])); return [...m.entries()]; }, [lista]);
+  useEffect(() => setSel({}), [mes]);
+  const pendente = l => zeevsDaLic(l, zeevs).find(z => z.situacao === 'pendente');
+  const label = opts.find(o => o.k === mes)?.label;
+  return html`
+    <div class="chips" role="group" aria-label="Mês">${opts.map(o => html`<button class="chip" aria-pressed=${mes === o.k} onClick=${() => setMes(o.k)}>${o.label}</button>`)}</div>
+    <p class="muted" style=${{ margin: 0, fontSize: '13px' }}>${mes === opts[0].k ? 'Licenças anuais que já venceram e não estão marcadas como fora de uso.' : `Licenças anuais que vencem em ${label}.`} Marque as que vão ser renovadas e abra um Zeev por programa. Quando o Zeev for aprovado, cada licença ganha mais um ano.</p>
+    ${!porProg.length ? html`<div class="panel empty"><h2>Nada para renovar ${mes === opts[0].k ? 'entre as vencidas' : 'em ' + label}</h2><p>Escolha outro mês.</p></div>` : porProg.map(([p, ls]) => {
+      const marcadas = ls.filter(l => sel[l.id] ?? !pendente(l));
+      return html`<section class="prog-card" style=${{ '--h': progHue(p) }}>
+        <header><${ProgBadge} p=${p} s=${32} /><div style=${{ minWidth: 0 }}><h2>${p}</h2><div class="sub">${ls.length} ${ls.length === 1 ? 'licença' : 'licenças'} · ${ls.reduce((s, l) => s + (l.quantidade || 1), 0)} assentos</div></div>
+          ${editor && html`<button class="btn primary sm" disabled=${!marcadas.length} onClick=${() => onRenew(marcadas, label)}>Abrir Zeev de renovação (${marcadas.length})</button>`}</header>
+        <div class="renew-list">${ls.map(l => { const z = pendente(l); return html`<div class="renew-row">
+          ${editor && html`<input type="checkbox" aria-label=${'Renovar ' + licNome(l)} checked=${sel[l.id] ?? !z} onChange=${e => setSel({ ...sel, [l.id]: e.target.checked })} />`}
+          <button class="link-row" onClick=${() => openLic(l.id)}><span class="t">${l.edicao || l.programa}</span><span class="muted"> · ${l.quantidade || 1} ${l.quantidade > 1 ? 'assentos' : 'assento'}</span></button>
+          <span class="num" style=${{ whiteSpace: 'nowrap' }}>${fmtDay(l.expiracao)}</span>
+          ${z ? html`<span class="pill warn">Zeev ${z.numero || ''} aberto</span>` : html`<span class=${'pill ' + LIC_ST[licStatus(l)].tone}>${licPrazoTxt(l)}</span>`}
+        </div>`; })}</div>
+      </section>`; })}`;
+}
+
+const LIC_FIELDS = [
+  { k: 'programa', label: 'Programa', req: true, list: 'dl-programas', placeholder: 'Ex.: IntelliJ IDEA' },
+  { k: 'edicao', label: 'Edição ou plano', placeholder: 'Ex.: Office 365, Windows 11 Pro' },
+  { k: 'quantidade', label: 'Quantidade de assentos', type: 'number' },
+  { k: 'prazo', label: 'Tipo de prazo', type: 'select', options: Object.entries(PRAZO) },
+  { k: 'expiracao', label: 'Data de expiração', type: 'date', help: 'Deixe em branco se ainda não souber.' },
+  { k: 'uso', label: 'Uso', type: 'select', options: [['em-uso', 'Em uso'], ['fora', 'Fora de uso (não renovada)']] },
+];
+const licFromForm = v => ({ programa: v.programa.trim().replace(/\s+/g, ' '), edicao: (v.edicao || '').trim() || null, quantidade: Math.max(1, Number(v.quantidade) || 1),
+  prazo: v.prazo || 'anual', expiracao: v.prazo === 'perpetua' ? null : (v.expiracao || null), foraDeUso: v.uso === 'fora' });
+const licToForm = l => ({ programa: l.programa || '', edicao: l.edicao || '', quantidade: l.quantidade || 1, prazo: l.prazo || 'anual', expiracao: l.expiracao || '', uso: l.foraDeUso ? 'fora' : 'em-uso' });
+function validateLic(v) { const e = {}; if (!v.programa.trim()) e.programa = 'Informe o programa.'; if (v.expiracao && !/^\d{4}-\d{2}-\d{2}$/.test(v.expiracao)) e.expiracao = 'Data inválida.'; return e; }
+
+function LicForm({ l, onDone }) {
+  const [v, setV] = useState(licToForm(l)); const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
+  const submit = async e => {
+    e.preventDefault(); const errs = validateLic(v); setErr(errs); if (Object.keys(errs).length) return;
+    const t = licFromForm(v); const labels = { programa: 'Programa', edicao: 'Edição', quantidade: 'Quantidade', prazo: 'Prazo', expiracao: 'Expiração', foraDeUso: 'Uso' };
+    const changed = Object.keys(labels).filter(k => JSON.stringify(l[k] ?? null) !== JSON.stringify(t[k] ?? null));
+    if (!changed.length) { onDone(); return; }
+    setBusy(true); const ok = await Repo.commitLic(l, t, { tipo: 'edicao', titulo: 'Dados editados', texto: changed.map(k => k === 'expiracao' ? `Expiração: ${fmtDay(l.expiracao)} → ${fmtDay(t.expiracao)}` : labels[k]).join('; ') }); setBusy(false);
+    if (ok) { toast('Licença salva'); onDone(); }
+  };
+  return html`<form class="stack" style=${{ gap: '12px' }} onSubmit=${submit} noValidate>
+    ${LIC_FIELDS.map(f => html`<${Field} f=${f} id=${'le-' + f.k} value=${v[f.k]} err=${err[f.k]} onInput=${x => setV({ ...v, [f.k]: x })} />`)}
+    <div class="actions"><button class="btn primary" disabled=${busy}>${busy ? 'Salvando…' : 'Salvar'}</button><button type="button" class="btn ghost" onClick=${onDone}>Cancelar</button></div>
+  </form>`;
+}
+
+function LicCreate({ onClose, onCreated }) {
+  const [v, setV] = useState({ programa: '', edicao: '', quantidade: 1, prazo: 'anual', expiracao: '', uso: 'em-uso', chave: '' });
+  const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
+  const submit = async e => {
+    e.preventDefault(); const errs = validateLic(v); setErr(errs); if (Object.keys(errs).length) return;
+    setBusy(true); const rec = await Repo.createLic(licFromForm(v), v.chave); setBusy(false);
+    if (rec) { toast('Licença cadastrada'); onCreated(rec); }
+  };
+  return html`<div class="scrim" onClick=${onClose}></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label="Nova licença">
+    <div class="drawer-h"><div class="drawer-top"><div><div class="eyebrow">Licenças</div><h1 style=${{ fontSize: '21px', marginTop: '2px' }}>Nova licença</h1></div><button class="btn ghost icon-btn" onClick=${onClose} aria-label="Fechar"><${Icon} n="x" s=${18} /></button></div></div>
+    <form class="drawer-b" onSubmit=${submit} noValidate>
+      ${LIC_FIELDS.map(f => html`<${Field} f=${f} id=${'ln-' + f.k} value=${v[f.k]} err=${err[f.k]} onInput=${x => setV({ ...v, [f.k]: x })} />`)}
+      ${isAdmin() ? html`<${Field} f=${{ k: 'chave', label: 'Chave da licença', help: 'Fica guardada à parte e só administradores veem.' }} id="ln-chave" value=${v.chave} onInput=${x => setV({ ...v, chave: x })} />`
+        : html`<p class="muted" style=${{ margin: 0, fontSize: '13px' }}>A chave é cadastrada por um administrador, depois.</p>`}
+      <div class="actions"><button class="btn primary" disabled=${busy}>${busy ? 'Salvando…' : 'Cadastrar'}</button><button type="button" class="btn ghost" onClick=${onClose}>Cancelar</button></div>
+    </form>
+  </aside>`;
+}
+
+function ChaveBox({ l }) {
+  const chaves = useStore(s => s.chaves);
+  const atual = chaves[l.id]?.chave || '';
+  const [edit, setEdit] = useState(false); const [v, setV] = useState(''); const [busy, setBusy] = useState(false);
+  useEffect(() => { setEdit(false); }, [l.id]);
+  const copiar = async () => { try { await navigator.clipboard.writeText(atual); toast('Chave copiada'); } catch (e) { toast('Não foi possível copiar. Selecione e copie manualmente.', true); } };
+  const salvar = async e => { e.preventDefault(); setBusy(true); const ok = await Repo.setChave(l, v); setBusy(false); if (ok) { toast(v.trim() ? 'Chave salva' : 'Chave removida'); setEdit(false); } };
+  if (edit) return html`<form class="stack" style=${{ gap: '10px' }} onSubmit=${salvar}>
+    <${Field} f=${{ k: 'chave', label: 'Chave da licença', help: 'Deixe em branco e salve para remover a chave.' }} id="lc-chave" value=${v} onInput=${setV} />
+    <div class="actions"><button class="btn primary" disabled=${busy}>${busy ? 'Salvando…' : 'Salvar chave'}</button><button type="button" class="btn ghost" onClick=${() => setEdit(false)}>Cancelar</button></div></form>`;
+  return html`<div class="key-box">${atual ? html`<code class="mono">${atual}</code>` : html`<span class="muted">${l.temChave ? 'Carregando…' : 'Nenhuma chave cadastrada.'}</span>`}
+    <div class="actions">${atual && html`<button class="btn sm" onClick=${copiar}>Copiar</button>`}<button class="btn ghost sm" onClick=${() => { setV(atual); setEdit(true); }}>${atual ? 'Alterar' : 'Cadastrar chave'}</button></div></div>`;
+}
+
+function LicDrawer({ l, zeevs, openZeev, onClose, onRenew }) {
+  const [editing, setEditing] = useState(false);
+  const names = useStore(s => s.names); const role = useStore(s => s.role);
+  useEffect(() => setEditing(false), [l.id]);
+  const s = licStatus(l); const zs = zeevsDaLic(l, zeevs).sort((a, b) => zNum(b) - zNum(a));
+  const editor = canEdit();
+  const pend = zs.find(z => z.situacao === 'pendente');
+  const rows = [['Programa', l.programa], ['Edição ou plano', l.edicao], ['Assentos', String(l.quantidade || 1)], ['Prazo', PRAZO[l.prazo]], ['Expiração', l.expiracao ? `${fmtDay(l.expiracao)} (${licPrazoTxt(l).toLowerCase()})` : licPrazoTxt(l)], ['Origem', l.origem]].filter(([, v]) => v);
+  return html`<div class="scrim" onClick=${onClose}></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label=${licNome(l)}>
+    <div class="drawer-h">
+      <div class="drawer-top">
+        <div style=${{ display: 'flex', gap: '12px', alignItems: 'center', minWidth: 0 }}><${ProgBadge} p=${l.programa} s=${40} /><div style=${{ minWidth: 0 }}><div class="eyebrow">${l.programa}</div><h1 style=${{ fontSize: '19px', marginTop: '2px' }}>${l.edicao || 'Licença ' + l.programa}</h1></div></div>
+        <button class="btn ghost icon-btn" onClick=${onClose} aria-label="Fechar"><${Icon} n="x" s=${18} /></button>
+      </div>
+      <div class="chips" style=${{ alignItems: 'center' }}><span class=${'pill ' + LIC_ST[s].tone}>${LIC_ST[s].label}</span><span class="muted" style=${{ fontSize: '13px' }}>${s === 'fora' ? 'Funciona sem atualizações' : licPrazoTxt(l)}</span></div>
+    </div>
+    <div class="drawer-b">
+      ${editor && html`<section><div class="section-t"><h2>Próximo passo</h2></div><div class="actions">
+        ${pend ? html`<button class="btn" onClick=${() => openZeev(pend.id)}>Ver Zeev ${pend.numero || ''} aberto</button>` : l.prazo !== 'perpetua' && html`<button class="btn primary" onClick=${() => onRenew([l])}>Abrir Zeev de renovação</button>`}
+        <button class="btn" onClick=${() => Repo.commitLic(l, { foraDeUso: !l.foraDeUso }, { tipo: 'nota', titulo: l.foraDeUso ? 'Voltou a ser usada' : 'Marcada como fora de uso' }).then(ok => ok && toast('Licença atualizada'))}>${l.foraDeUso ? 'Voltar a usar' : 'Marcar como fora de uso'}</button>
+      </div></section>`}
+      <section><div class="section-t"><h2>Dados</h2>${editor && html`<button class="btn ghost sm" onClick=${() => setEditing(!editing)}>${editing ? 'Cancelar' : 'Editar'}</button>`}</div>
+        ${editing ? html`<${LicForm} l=${l} onDone=${() => setEditing(false)} />` : html`<dl class="dl">${rows.map(([k, v]) => html`<dt>${k}</dt><dd>${v}</dd>`)}</dl>`}</section>
+      <section><div class="section-t"><h2>Chave</h2>${role !== 'admin' && html`<span class="muted" style=${{ fontSize: '12.5px' }}><${Icon} n="lock" s=${12} /> só administradores</span>`}</div>
+        ${role === 'admin' ? html`<${ChaveBox} l=${l} />` : html`<p class="muted" style=${{ margin: 0, fontSize: '13px' }}>${l.temChave ? 'Esta licença tem chave cadastrada. Peça a um administrador se precisar dela.' : 'Nenhuma chave cadastrada.'}</p>`}</section>
+      <section><div class="section-t"><h2>Zeevs</h2><span class="muted num" style=${{ fontSize: '12.5px' }}>${zs.length}</span></div>
+        ${zs.length ? html`<div class="sec-list">${zs.map(z => html`<button class="li" onClick=${() => openZeev(z.id)}><span class="znum">${z.numero || 'sem nº'}</span><span style=${{ minWidth: 0 }}><div class="t">${z.descricao || 'Sem descrição'}</div><div class="d">${z.extensoes?.[l.id] && !z.extensoes[l.id].revertido ? 'Renovou até ' + fmtDay(z.extensoes[l.id].para) : z.aprovacao || ''}</div></span><span class=${'pill ' + (ZSIT[z.situacao]?.tone || 'mute')}>${ZSIT[z.situacao]?.label}</span></button>`)}</div>`
+          : html`<p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Nenhum Zeev ligado a esta licença.</p>`}</section>
+      <section><div class="section-t"><h2>Histórico</h2><span class="muted num" style=${{ fontSize: '12.5px' }}>${(l.historico || []).length} registros</span></div>
+        <ol class="timeline">${[...(l.historico || [])].reverse().map(e => html`<li><span class=${'dot ' + e.tipo}></span><div style=${{ minWidth: 0 }}><div class="tt">${e.titulo}</div><div class="tm">${fmtDate(e.data)} · ${authorName(e, names)}</div>${e.texto && html`<div class="tx">${e.texto}</div>`}</div></li>`)}</ol></section>
+    </div>
+  </aside>`;
+}
+
+/** Seleção de licenças dentro do formulário de Zeev. */
+function LicPicker({ value, onChange }) {
+  const licencas = useStore(s => s.licencas);
+  const [q, setQ] = useState('');
+  const sel = new Set(value || []);
+  const lista = useMemo(() => { const w = norm(q).split(/\s+/).filter(Boolean); return licencas.filter(l => w.every(x => (l._hay ||= licHay(l)).includes(x))).sort((a, b) => a.programa.localeCompare(b.programa, 'pt-BR') || (a.expiracao || '9').localeCompare(b.expiracao || '9')); }, [licencas, q]);
+  const toggle = id => onChange(sel.has(id) ? [...sel].filter(x => x !== id) : [...sel, id]);
+  const escolhidas = licencas.filter(l => sel.has(l.id));
+  return html`<div class="field"><label for="lic-busca">Licenças que este Zeev renova</label>
+    ${escolhidas.length > 0 && html`<div class="chips">${escolhidas.map(l => html`<button type="button" class="chip" aria-pressed="true" onClick=${() => toggle(l.id)} title="Remover"><${ProgBadge} p=${l.programa} s=${16} />${licNome(l)} · ${fmtDay(l.expiracao)} ×</button>`)}</div>`}
+    <input id="lic-busca" type="search" placeholder="Buscar licença por programa, edição ou data" value=${q} onInput=${e => setQ(e.target.value)} />
+    <div class="lic-pick">${lista.slice(0, 60).map(l => html`<label class="lic-opt"><input type="checkbox" checked=${sel.has(l.id)} onChange=${() => toggle(l.id)} /><${ProgBadge} p=${l.programa} s=${20} /><span class="t">${licNome(l)}</span><span class="muted num">${l.quantidade > 1 ? l.quantidade + ' assentos · ' : ''}${l.expiracao ? fmtDay(l.expiracao) : PRAZO[l.prazo]}</span></label>`)}
+      ${lista.length > 60 && html`<div class="muted" style=${{ padding: '8px 10px', fontSize: '12.5px' }}>Mostrando 60 de ${lista.length}. Refine a busca.</div>`}</div>
+    <span class="muted" style=${{ fontSize: '12px' }}>Quando o Zeev for aprovado, cada licença marcada ganha mais um ano a partir da expiração atual.</span>
+  </div>`;
+}
+
+function LicNudge() {
+  const licencas = useStore(s => s.licencas);
+  const n = licencas.filter(l => licStatus(l) === 'vence').reduce((s, l) => s + (l.quantidade || 1), 0);
+  if (!n) return null;
+  return html`<div class="banner"><b>${n} ${n === 1 ? 'licença vence' : 'licenças vencem'} nos próximos 30 dias.</b><span>Veja em Licenças → Renovações do mês e abra o Zeev de renovação. <a href="#licencas">Abrir licenças</a></span></div>`;
+}
 
 /* ---------------- Administração: acessos e backup ---------------- */
 const diasDesde = iso => iso ? Math.floor((Date.now() - new Date(iso).getTime()) / 864e5) : null;
@@ -1627,7 +2069,7 @@ function BackupNudge() {
 }
 
 function Admin() {
-  const { authUser, assets, people, zeevs, backupInfo } = useStore(s => s);
+  const { authUser, assets, people, zeevs, licencas, backupInfo } = useStore(s => s);
   const me = (authUser.email || '').toLowerCase();
   const dom = window.DOMINIO_PERMITIDO || '';
   const [acessos, setAcessos] = useState(null);
@@ -1669,7 +2111,7 @@ function Admin() {
     if (!file) return;
     try {
       const d = JSON.parse(await file.text());
-      const ok = Array.isArray(d.ativos) && Array.isArray(d.colaboradores) && d.ativos.every(a => a && a.id && !String(a.id).includes('/')) && d.colaboradores.every(c => c && c.id && !String(c.id).includes('/')) && (d.zeevs == null || (Array.isArray(d.zeevs) && d.zeevs.every(z => z && z.id && !String(z.id).includes('/'))));
+      const ok = Array.isArray(d.ativos) && Array.isArray(d.colaboradores) && d.ativos.every(a => a && a.id && !String(a.id).includes('/')) && d.colaboradores.every(c => c && c.id && !String(c.id).includes('/')) && ['zeevs', 'licencas', 'licencasChaves'].every(k => d[k] == null || (Array.isArray(d[k]) && d[k].every(x => x && x.id && !String(x.id).includes('/'))));
       if (!ok) throw new Error('formato');
       setArquivo({ nome: file.name, dados: d });
     } catch (x) { setArquivo(null); setRestoreMsg('Esse arquivo não é um backup do inventário. Use o arquivo .json gerado pelo botão “Baixar backup”.'); }
@@ -1718,16 +2160,16 @@ function Admin() {
       <section class="panel">
         <div class="panel-h"><h2>Backup</h2><span class=${'pill ' + (d != null && d < BACKUP_DIAS ? 'ok' : 'warn')}>${d == null ? 'nunca feito' : d === 0 ? 'feito hoje' : `há ${d} dias`}</span></div>
         <div class="panel-b stack">
-          <p style=${{ margin: 0 }}>O backup baixa um arquivo com os ${assets.length} equipamentos, os ${people.length} colaboradores, os ${zeevs.length} Zeevs e a lista de acessos. Guarde em um lugar seguro da empresa, como o drive da equipe, porque ele tem dados pessoais. Recomendado: uma vez por semana.</p>
+          <p style=${{ margin: 0 }}>O backup baixa um arquivo com os ${assets.length} equipamentos, os ${people.length} colaboradores, os ${zeevs.length} Zeevs, as ${licencas.length} licenças (com as chaves) e a lista de acessos. Guarde em um lugar seguro da empresa, como o drive da equipe, porque ele tem dados pessoais. Recomendado: uma vez por semana.</p>
           ${backupInfo?.ultimo && html`<p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Último backup: ${fmtDate(backupInfo.ultimo)}, por ${backupInfo.por || 'alguém da equipe'}.</p>`}
           <div class="backup-row"><button class="btn primary" onClick=${baixar} disabled=${!assets.length}><${Icon} n="down" />Baixar backup</button></div>
         </div>
         <div class="panel-b stack" style=${{ borderTop: '1px solid var(--line)' }}>
           <h3>Restaurar um backup</h3>
-          <p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Grava de volta os equipamentos, colaboradores e Zeevs do arquivo, substituindo os que têm o mesmo código. Itens criados depois do backup continuam como estão. A lista de acessos não é restaurada.</p>
+          <p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Grava de volta os equipamentos, colaboradores, Zeevs e licenças do arquivo, substituindo os que têm o mesmo código. Itens criados depois do backup continuam como estão. A lista de acessos não é restaurada.</p>
           <div class="backup-row">
             <label class="btn file-pick"><${Icon} n="upload" />Escolher arquivo<input type="file" accept=".json,application/json" onChange=${escolher} /></label>
-            ${arquivo && html`<span class="muted" style=${{ fontSize: '13px' }}>${arquivo.nome}: ${arquivo.dados.ativos.length} equipamentos, ${arquivo.dados.colaboradores.length} colaboradores e ${(arquivo.dados.zeevs || []).length} Zeevs${arquivo.dados.geradoEm ? `, de ${fmtDate(arquivo.dados.geradoEm)}` : ''}.</span>`}
+            ${arquivo && html`<span class="muted" style=${{ fontSize: '13px' }}>${arquivo.nome}: ${arquivo.dados.ativos.length} equipamentos, ${arquivo.dados.colaboradores.length} colaboradores, ${(arquivo.dados.zeevs || []).length} Zeevs e ${(arquivo.dados.licencas || []).length} licenças${arquivo.dados.geradoEm ? `, de ${fmtDate(arquivo.dados.geradoEm)}` : ''}.</span>`}
           </div>
           ${arquivo && html`<div class="backup-row"><button class=${'btn ' + (confirmRestore ? 'danger' : 'primary')} onClick=${restaurar} disabled=${restoring}>${restoring ? 'Restaurando…' : confirmRestore ? 'Confirmar: substituir pelos dados do arquivo' : 'Restaurar backup'}</button>${confirmRestore && !restoring && html`<button class="btn ghost" onClick=${() => setConfirmRestore(false)}>Cancelar</button>`}</div>`}
           ${restoreMsg && html`<p role="status" style=${{ margin: 0, fontSize: '13px' }}>${restoreMsg}</p>`}
