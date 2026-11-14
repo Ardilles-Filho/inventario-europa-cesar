@@ -343,6 +343,7 @@ td.zdesc .t { font-weight: 500; overflow-wrap: anywhere; }
 .key-box { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
 .key-box code { font-size: 13px; overflow-wrap: anywhere; }
 @media (max-width: 760px) { .prog-tally { margin-left: 0; } .renew-row { grid-template-columns: auto minmax(0, 1fr); } }
+.lic-users { font-size: 13px; line-height: 1.35; min-width: 160px; }
 /* Login */
 .login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--surface); }
 .login-card { width: min(420px, 100%); background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 32px 28px; display: flex; flex-direction: column; gap: 18px; box-shadow: var(--shadow); }
@@ -627,6 +628,7 @@ function licStatus(l) {
   return d < 0 ? 'vencida' : d <= 30 ? 'vence' : 'ativa';
 }
 const licNome = l => l.programa + (l.edicao ? ' · ' + l.edicao : '');
+const usuariosTxt = (l, max = 2) => { const u = l.usuarios || []; return !u.length ? '' : u.slice(0, max).join(', ') + (u.length > max ? ` +${u.length - max}` : ''); };
 const licPrazoTxt = l => {
   if (l.prazo === 'perpetua') return 'Não expira';
   if (l.prazo === 'mensal') return 'Cobrança mensal';
@@ -1016,10 +1018,11 @@ const Repo = {
       ...(dados.zeevs || []).map(z => ['zeevs', z.id, z]),
       ...(dados.licencas || []).map(l => ['licencas', l.id, l]),
       ...(dados.licencasChaves || []).map(c => ['licencas_chaves', c.id, { chave: c.chave }]),
-    ].map(([col, id, d]) => { const { id: _i, ...rest } = d; return [col, String(id), ['colaboradores', 'licencas_chaves'].includes(col) ? rest : { ...rest, id: String(id) }]; });
+    ].filter(([col, id]) => !dados.parcial || ({ ativos: store.state.assets, colaboradores: store.state.people, zeevs: store.state.zeevs, licencas: store.state.licencas }[col] || []).some(x => x.id === String(id)))
+     .map(([col, id, d]) => { const { id: _i, ...rest } = d; return [col, String(id), ['colaboradores', 'licencas_chaves'].includes(col) ? rest : { ...rest, id: String(id) }]; });
     for (let i = 0; i < escritas.length; i += 400) {
       const lote = this.db.batch();
-      escritas.slice(i, i + 400).forEach(([col, id, d]) => lote.set(this.db.collection(col).doc(id), clean(d)));
+      escritas.slice(i, i + 400).forEach(([col, id, d]) => dados.parcial ? lote.set(this.db.collection(col).doc(id), clean(d), { merge: true }) : lote.set(this.db.collection(col).doc(id), clean(d)));
       await lote.commit();
       onProgress?.(Math.min(i + 400, escritas.length), escritas.length);
     }
@@ -1840,7 +1843,7 @@ function ZeevCreate({ zeevs, onClose, onCreated, preset }) {
 const LIC_FILTROS = ['todas', 'ativa', 'vence', 'vencida', 'semdata', 'perpetua', 'mensal', 'fora'];
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 const mesKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
-const licHay = l => norm([l.programa, l.edicao, l.prazo && PRAZO[l.prazo], LIC_ST[licStatus(l)].label, l.expiracao && fmtDay(l.expiracao), l.origem].filter(Boolean).join(' '));
+const licHay = l => norm([l.programa, l.edicao, ...(l.usuarios || []), l.prazo && PRAZO[l.prazo], LIC_ST[licStatus(l)].label, l.expiracao && fmtDay(l.expiracao), l.origem].filter(Boolean).join(' '));
 const zeevsDaLic = (l, zeevs) => zeevs.filter(z => (z.licencas || []).includes(l.id) || (l.zeevs || []).includes(z.id));
 
 function Licencas({ licencas, zeevs, openLic, onNew, onRenew }) {
@@ -1871,9 +1874,10 @@ function Licencas({ licencas, zeevs, openLic, onNew, onRenew }) {
     : role === 'admin' ? html`<span class="mono key-cell" title=${chaves[l.id]?.chave || ''}>${chaves[l.id]?.chave || '…'}</span>`
     : html`<span class="muted" title="Visível só para administradores">•••••• <${Icon} n="lock" s=${12} /></span>`;
   const tabela = (g) => html`<div class="table-wrap lic-table"><table>
-      <thead><tr><th>Licença</th><th class="num">Qtd.</th><th>Expiração</th><th>Situação</th><th>Chave</th><th>Zeev</th></tr></thead>
+      <thead><tr><th>Licença</th><th>Usuários</th><th class="num">Qtd.</th><th>Expiração</th><th>Situação</th><th>Chave</th><th>Zeev</th></tr></thead>
       <tbody>${g.vis.map(l => { const s = licStatus(l); const zs = zeevsDaLic(l, zeevs); const pend = zs.find(z => z.situacao === 'pendente'); return html`<tr key=${l.id} tabindex="0" onClick=${() => openLic(l.id)} onKeyDown=${e => e.key === 'Enter' && openLic(l.id)}>
         <td><div class="t">${l.edicao || l.programa}</div>${l.origem && html`<div class="sub">${l.origem.replace('Controle de licenças Europa · ', '')}</div>`}</td>
+        <td class="lic-users" title=${(l.usuarios || []).join('\n')}>${(l.usuarios || []).length ? (l.usuarios.length <= 3 ? l.usuarios.map(u => html`<div>${u}</div>`) : html`<div>${l.usuarios[0]}</div><div>${l.usuarios[1]}</div><div class="muted">e mais ${l.usuarios.length - 2}</div>`) : html`<span class="muted">Ninguém</span>`}</td>
         <td class="num">${l.quantidade || 1}</td>
         <td style=${{ whiteSpace: 'nowrap' }}>${l.expiracao ? fmtDay(l.expiracao) : html`<span class="muted">${PRAZO[l.prazo] || '—'}</span>`}${l.expiracao && s !== 'fora' && html`<div class="sub">${licPrazoTxt(l)}</div>`}</td>
         <td><span class=${'pill ' + LIC_ST[s].tone}>${LIC_ST[s].label}</span></td>
@@ -1891,7 +1895,7 @@ function Licencas({ licencas, zeevs, openLic, onNew, onRenew }) {
       ${programas.map(g => html`<button class=${'prog-chip' + (prog === g.nome ? ' on' : '') + (g.fora ? ' fora' : '')} style=${{ '--h': progHue(g.nome) }} onClick=${() => setProg(prog === g.nome ? '' : g.nome)}><i></i>${g.nome}<span class="n">${g.assentos}</span></button>`)}
     </div>
     <div class="toolbar">
-      <div class="search" style=${{ maxWidth: '360px' }}><${Icon} n="search" /><input type="search" placeholder="Buscar programa, edição ou data" value=${q} onInput=${e => setQ(e.target.value)} aria-label="Buscar licenças" /></div>
+      <div class="search" style=${{ maxWidth: '360px' }}><${Icon} n="search" /><input type="search" placeholder="Buscar programa, pessoa, edição ou data" value=${q} onInput=${e => setQ(e.target.value)} aria-label="Buscar licenças" /></div>
       <div class="chips" role="group" aria-label="Situação">${LIC_FILTROS.filter(k => k === 'todas' || counts[k]).map(k => html`<button class="chip" aria-pressed=${st === k} onClick=${() => setSt(k)}>${k === 'todas' ? 'Todas' : LIC_ST[k].label}<span class="n">${counts[k] || 0}</span></button>`)}</div>
     </div>
     ${!grupos.length ? html`<div class="panel empty"><h2>Nenhuma licença encontrada</h2><p>Tente outro termo ou limpe os filtros.</p><button class="btn" onClick=${() => { setQ(''); setSt('todas'); setProg(''); }}>Limpar filtros</button></div>` : html`
@@ -1929,7 +1933,7 @@ function Renovacoes({ licencas, zeevs, openLic, onRenew }) {
           ${editor && html`<button class="btn primary sm" disabled=${!marcadas.length} onClick=${() => onRenew(marcadas, label)}>Abrir Zeev de renovação (${marcadas.length})</button>`}</header>
         <div class="renew-list">${ls.map(l => { const z = pendente(l); return html`<div class="renew-row">
           ${editor && html`<input type="checkbox" aria-label=${'Renovar ' + licNome(l)} checked=${sel[l.id] ?? !z} onChange=${e => setSel({ ...sel, [l.id]: e.target.checked })} />`}
-          <button class="link-row" onClick=${() => openLic(l.id)}><span class="t">${l.edicao || l.programa}</span><span class="muted"> · ${l.quantidade || 1} ${l.quantidade > 1 ? 'assentos' : 'assento'}</span></button>
+          <button class="link-row" onClick=${() => openLic(l.id)}><span class="t">${l.edicao || l.programa}</span><span class="muted"> · ${usuariosTxt(l, 3) || ((l.quantidade || 1) + (l.quantidade > 1 ? ' assentos' : ' assento'))}</span></button>
           <span class="num" style=${{ whiteSpace: 'nowrap' }}>${fmtDay(l.expiracao)}</span>
           ${z ? html`<span class="pill warn">Zeev ${z.numero || ''} aberto</span>` : html`<span class=${'pill ' + LIC_ST[licStatus(l)].tone}>${licPrazoTxt(l)}</span>`}
         </div>`; })}</div>
@@ -1939,21 +1943,23 @@ function Renovacoes({ licencas, zeevs, openLic, onRenew }) {
 const LIC_FIELDS = [
   { k: 'programa', label: 'Programa', req: true, list: 'dl-programas', placeholder: 'Ex.: IntelliJ IDEA' },
   { k: 'edicao', label: 'Edição ou plano', placeholder: 'Ex.: Office 365, Windows 11 Pro' },
-  { k: 'quantidade', label: 'Quantidade de assentos', type: 'number' },
+  { k: 'usuarios', label: 'Usuários', type: 'textarea', help: 'Um nome por linha.' },
+  { k: 'quantidade', label: 'Quantidade de assentos', type: 'number', help: 'Se ficar menor que o número de usuários, passa a ser igual a ele.' },
   { k: 'prazo', label: 'Tipo de prazo', type: 'select', options: Object.entries(PRAZO) },
   { k: 'expiracao', label: 'Data de expiração', type: 'date', help: 'Deixe em branco se ainda não souber.' },
   { k: 'uso', label: 'Uso', type: 'select', options: [['em-uso', 'Em uso'], ['fora', 'Fora de uso (não renovada)']] },
 ];
-const licFromForm = v => ({ programa: v.programa.trim().replace(/\s+/g, ' '), edicao: (v.edicao || '').trim() || null, quantidade: Math.max(1, Number(v.quantidade) || 1),
+const parseUsuarios = t => [...new Set(String(t || '').split(/\n|;/).map(x => x.trim().replace(/\s+/g, ' ')).filter(Boolean))];
+const licFromForm = v => ({ programa: v.programa.trim().replace(/\s+/g, ' '), edicao: (v.edicao || '').trim() || null, usuarios: parseUsuarios(v.usuarios), quantidade: Math.max(1, Number(v.quantidade) || 1, parseUsuarios(v.usuarios).length),
   prazo: v.prazo || 'anual', expiracao: v.prazo === 'perpetua' ? null : (v.expiracao || null), foraDeUso: v.uso === 'fora' });
-const licToForm = l => ({ programa: l.programa || '', edicao: l.edicao || '', quantidade: l.quantidade || 1, prazo: l.prazo || 'anual', expiracao: l.expiracao || '', uso: l.foraDeUso ? 'fora' : 'em-uso' });
+const licToForm = l => ({ programa: l.programa || '', edicao: l.edicao || '', usuarios: (l.usuarios || []).join('\n'), quantidade: l.quantidade || 1, prazo: l.prazo || 'anual', expiracao: l.expiracao || '', uso: l.foraDeUso ? 'fora' : 'em-uso' });
 function validateLic(v) { const e = {}; if (!v.programa.trim()) e.programa = 'Informe o programa.'; if (v.expiracao && !/^\d{4}-\d{2}-\d{2}$/.test(v.expiracao)) e.expiracao = 'Data inválida.'; return e; }
 
 function LicForm({ l, onDone }) {
   const [v, setV] = useState(licToForm(l)); const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
   const submit = async e => {
     e.preventDefault(); const errs = validateLic(v); setErr(errs); if (Object.keys(errs).length) return;
-    const t = licFromForm(v); const labels = { programa: 'Programa', edicao: 'Edição', quantidade: 'Quantidade', prazo: 'Prazo', expiracao: 'Expiração', foraDeUso: 'Uso' };
+    const t = licFromForm(v); const labels = { programa: 'Programa', edicao: 'Edição', usuarios: 'Usuários', quantidade: 'Quantidade', prazo: 'Prazo', expiracao: 'Expiração', foraDeUso: 'Uso' };
     const changed = Object.keys(labels).filter(k => JSON.stringify(l[k] ?? null) !== JSON.stringify(t[k] ?? null));
     if (!changed.length) { onDone(); return; }
     setBusy(true); const ok = await Repo.commitLic(l, t, { tipo: 'edicao', titulo: 'Dados editados', texto: changed.map(k => k === 'expiracao' ? `Expiração: ${fmtDay(l.expiracao)} → ${fmtDay(t.expiracao)}` : labels[k]).join('; ') }); setBusy(false);
@@ -1966,7 +1972,7 @@ function LicForm({ l, onDone }) {
 }
 
 function LicCreate({ onClose, onCreated }) {
-  const [v, setV] = useState({ programa: '', edicao: '', quantidade: 1, prazo: 'anual', expiracao: '', uso: 'em-uso', chave: '' });
+  const [v, setV] = useState({ programa: '', edicao: '', usuarios: '', quantidade: 1, prazo: 'anual', expiracao: '', uso: 'em-uso', chave: '' });
   const [err, setErr] = useState({}); const [busy, setBusy] = useState(false);
   const submit = async e => {
     e.preventDefault(); const errs = validateLic(v); setErr(errs); if (Object.keys(errs).length) return;
@@ -2006,7 +2012,7 @@ function LicDrawer({ l, zeevs, openZeev, onClose, onRenew }) {
   const s = licStatus(l); const zs = zeevsDaLic(l, zeevs).sort((a, b) => zNum(b) - zNum(a));
   const editor = canEdit();
   const pend = zs.find(z => z.situacao === 'pendente');
-  const rows = [['Programa', l.programa], ['Edição ou plano', l.edicao], ['Assentos', String(l.quantidade || 1)], ['Prazo', PRAZO[l.prazo]], ['Expiração', l.expiracao ? `${fmtDay(l.expiracao)} (${licPrazoTxt(l).toLowerCase()})` : licPrazoTxt(l)], ['Origem', l.origem]].filter(([, v]) => v);
+  const rows = [['Programa', l.programa], ['Edição ou plano', l.edicao], ['Usuários', (l.usuarios || []).length ? html`${l.usuarios.map(u => html`<div>${u}</div>`)}` : 'Ninguém atribuído'], ['Assentos', String(l.quantidade || 1)], ['Prazo', PRAZO[l.prazo]], ['Expiração', l.expiracao ? `${fmtDay(l.expiracao)} (${licPrazoTxt(l).toLowerCase()})` : licPrazoTxt(l)], ['Origem', l.origem]].filter(([, v]) => v);
   return html`<div class="scrim" onClick=${onClose}></div>
   <aside class="drawer" role="dialog" aria-modal="true" aria-label=${licNome(l)}>
     <div class="drawer-h">
@@ -2045,7 +2051,7 @@ function LicPicker({ value, onChange }) {
   return html`<div class="field"><label for="lic-busca">Licenças que este Zeev renova</label>
     ${escolhidas.length > 0 && html`<div class="chips">${escolhidas.map(l => html`<button type="button" class="chip" aria-pressed="true" onClick=${() => toggle(l.id)} title="Remover"><${ProgBadge} p=${l.programa} s=${16} />${licNome(l)} · ${fmtDay(l.expiracao)} ×</button>`)}</div>`}
     <input id="lic-busca" type="search" placeholder="Buscar licença por programa, edição ou data" value=${q} onInput=${e => setQ(e.target.value)} />
-    <div class="lic-pick">${lista.slice(0, 60).map(l => html`<label class="lic-opt"><input type="checkbox" checked=${sel.has(l.id)} onChange=${() => toggle(l.id)} /><${ProgBadge} p=${l.programa} s=${20} /><span class="t">${licNome(l)}</span><span class="muted num">${l.quantidade > 1 ? l.quantidade + ' assentos · ' : ''}${l.expiracao ? fmtDay(l.expiracao) : PRAZO[l.prazo]}</span></label>`)}
+    <div class="lic-pick">${lista.slice(0, 60).map(l => html`<label class="lic-opt"><input type="checkbox" checked=${sel.has(l.id)} onChange=${() => toggle(l.id)} /><${ProgBadge} p=${l.programa} s=${20} /><span class="t">${licNome(l)}${l.usuarios?.length ? html`<span class="muted"> · ${usuariosTxt(l)}</span>` : ''}</span><span class="muted num">${l.quantidade > 1 ? l.quantidade + ' assentos · ' : ''}${l.expiracao ? fmtDay(l.expiracao) : PRAZO[l.prazo]}</span></label>`)}
       ${lista.length > 60 && html`<div class="muted" style=${{ padding: '8px 10px', fontSize: '12.5px' }}>Mostrando 60 de ${lista.length}. Refine a busca.</div>`}</div>
     <span class="muted" style=${{ fontSize: '12px' }}>Quando o Zeev for aprovado, cada licença marcada ganha mais um ano a partir da expiração atual.</span>
   </div>`;
@@ -2169,7 +2175,7 @@ function Admin() {
           <p class="muted" style=${{ margin: 0, fontSize: '13px' }}>Grava de volta os equipamentos, colaboradores, Zeevs e licenças do arquivo, substituindo os que têm o mesmo código. Itens criados depois do backup continuam como estão. A lista de acessos não é restaurada.</p>
           <div class="backup-row">
             <label class="btn file-pick"><${Icon} n="upload" />Escolher arquivo<input type="file" accept=".json,application/json" onChange=${escolher} /></label>
-            ${arquivo && html`<span class="muted" style=${{ fontSize: '13px' }}>${arquivo.nome}: ${arquivo.dados.ativos.length} equipamentos, ${arquivo.dados.colaboradores.length} colaboradores, ${(arquivo.dados.zeevs || []).length} Zeevs e ${(arquivo.dados.licencas || []).length} licenças${arquivo.dados.geradoEm ? `, de ${fmtDate(arquivo.dados.geradoEm)}` : ''}.</span>`}
+            ${arquivo && html`<span class="muted" style=${{ fontSize: '13px' }}>${arquivo.nome}: ${arquivo.dados.parcial ? 'atualização parcial (só completa campos de itens que já existem): ' : ''}${arquivo.dados.ativos.length} equipamentos, ${arquivo.dados.colaboradores.length} colaboradores, ${(arquivo.dados.zeevs || []).length} Zeevs e ${(arquivo.dados.licencas || []).length} licenças${arquivo.dados.geradoEm ? `, de ${fmtDate(arquivo.dados.geradoEm)}` : ''}.</span>`}
           </div>
           ${arquivo && html`<div class="backup-row"><button class=${'btn ' + (confirmRestore ? 'danger' : 'primary')} onClick=${restaurar} disabled=${restoring}>${restoring ? 'Restaurando…' : confirmRestore ? 'Confirmar: substituir pelos dados do arquivo' : 'Restaurar backup'}</button>${confirmRestore && !restoring && html`<button class="btn ghost" onClick=${() => setConfirmRestore(false)}>Cancelar</button>`}</div>`}
           ${restoreMsg && html`<p role="status" style=${{ margin: 0, fontSize: '13px' }}>${restoreMsg}</p>`}
