@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Inventário Europa · CESAR</title><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script>try{var t=localStorage.getItem("tema");if(t==="claro"||t==="escuro")document.documentElement.dataset.theme=t==="claro"?"light":"dark"}catch(e){}</script></head><body>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Inventário Europa · CESAR</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0c0b0a"><meta name="apple-mobile-web-app-title" content="Inventário"><meta name="mobile-web-app-capable" content="yes"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script>try{var t=localStorage.getItem("tema");if(t==="claro"||t==="escuro")document.documentElement.dataset.theme=t==="claro"?"light":"dark"}catch(e){}</script></head><body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&display=swap">
 <style>
@@ -17,6 +17,7 @@
   --accent-strong: #c23a04;
   --accent-soft: #fff2eb;
   --on-accent: #ffffff;
+  --accent-btn: #dd3805; --accent-btn-hover: #b32c04;
   --ok: #17804a; --ok-soft: #e7f6ee;
   --info: #2559c4; --info-soft: #eaf1fd;
   --held: #2a2825; --held-soft: #f1f0ee;
@@ -35,7 +36,7 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #1f1e1c; --surface: #161616; --surface-2: #2a2825; --line: #34322f;
   --fg: #f8f7f6; --fg-2: #cbc8c4; --muted: #a5a19c;
-  --accent: #ff6002; --accent-hover: #ff7936; --accent-strong: #ff8a45; --accent-soft: #3a2214; --on-accent: #ffffff;
+  --accent: #ff6002; --accent-hover: #ff7936; --accent-strong: #ff8a45; --accent-soft: #3a2214; --on-accent: #ffffff; --accent-btn: #dd3805; --accent-btn-hover: #ff3e03;
   --ok: #4fc485; --ok-soft: #173326; --info: #7aa7f0; --info-soft: #182840;
   --held: #e4e2df; --held-soft: #2a2825; --bad: #ff7b6e; --bad-soft: #3d1c16;
   --warn: #f5b54a; --warn-soft: #3a2a12; --mute: #a5a19c; --mute-soft: #2a2825;
@@ -47,7 +48,7 @@
 :root[data-theme="dark"] {
   --bg: #1f1e1c; --surface: #161616; --surface-2: #2a2825; --line: #34322f;
   --fg: #f8f7f6; --fg-2: #cbc8c4; --muted: #a5a19c;
-  --accent: #ff6002; --accent-hover: #ff7936; --accent-strong: #ff8a45; --accent-soft: #3a2214; --on-accent: #ffffff;
+  --accent: #ff6002; --accent-hover: #ff7936; --accent-strong: #ff8a45; --accent-soft: #3a2214; --on-accent: #ffffff; --accent-btn: #dd3805; --accent-btn-hover: #ff3e03;
   --ok: #4fc485; --ok-soft: #173326; --info: #7aa7f0; --info-soft: #182840;
   --held: #e4e2df; --held-soft: #2a2825; --bad: #ff7b6e; --bad-soft: #3d1c16;
   --warn: #f5b54a; --warn-soft: #3a2a12; --mute: #a5a19c; --mute-soft: #2a2825;
@@ -494,6 +495,75 @@ a.btn.primary { color: var(--on-accent); }
   .bottom-nav { background: var(--side-bg); border-top: 0; }
   .bottom-nav a { color: var(--side-muted); }
   .bottom-nav a[aria-current="page"] { color: #ff7936; }
+}
+
+/* ===== Acabamento: telas restantes, celular e acessibilidade ===== */
+.btn.primary, .kpi.accent, .nav a[aria-current="page"], .chip[aria-pressed="true"] { background: var(--accent-btn); border-color: var(--accent-btn); }
+.btn.primary:hover, .kpi.accent:hover { background: var(--accent-btn-hover); border-color: var(--accent-btn-hover); }
+.login-card .btn.primary { box-shadow: 0 10px 30px rgba(221,56,5,.28); }
+.login-hero p { font-size: 20px; font-weight: 600; max-width: 350px; }
+.login-hero .eyebrow { color: #161616; opacity: 1; }
+/* Avisos */
+.banner { background: var(--accent-soft); color: var(--fg); border-radius: var(--r); padding: 14px 18px; align-items: center; flex-wrap: wrap; gap: 6px 12px; }
+.banner b { color: var(--accent-strong); font-weight: 700; }
+.banner span { flex: 1 1 320px; }
+.banner a { color: var(--accent-strong); font-weight: 700; }
+.banner.bad { background: var(--bad-soft); }
+.banner.bad b { color: var(--bad); }
+/* Painéis, tabelas e quadros */
+.panel, .table-wrap, .pipe, .prog-card, .sec-list, .lic-pick { border-radius: var(--r); }
+.table-wrap { background: var(--bg); }
+th { background: var(--bg); font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 12px 14px; }
+td { padding: 12px 14px; }
+tbody tr:hover td { background: var(--surface); }
+tbody tr:focus-visible td { background: var(--accent-soft); }
+.pipe { background: var(--bg); }
+.col { background: var(--surface-2); border-radius: var(--r); padding: 12px; }
+.col-h h2, .col-h h3 { font-size: 14px; font-weight: 800; }
+.card { border-radius: var(--r-sm); padding: 12px 14px; }
+.card:hover { border-color: var(--accent); }
+.avatar { background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; }
+.chip { background: var(--bg); }
+.qchip { border-radius: 999px; padding: 0 6px 0 12px; }
+/* Gaveta de detalhe e formulários */
+.scrim { background: rgba(12,11,10,.45); backdrop-filter: blur(2px); }
+.drawer { border-radius: 24px 0 0 24px; }
+.drawer-h { padding: 22px 24px 16px; }
+.drawer-b { padding: 20px 24px 32px; }
+.drawer-h h2 { font-size: 22px; font-weight: 800; letter-spacing: -.015em; }
+.drawer-num { color: var(--accent-strong); font-weight: 700; }
+.dl dt { font-weight: 600; }
+.field label { font-size: 12.5px; font-weight: 600; }
+.field input, .field select, .field textarea { height: 40px; background: var(--bg); }
+.field textarea { height: auto; }
+.action-form { border-radius: var(--r); border-color: var(--accent); }
+.key-box { border-radius: var(--r-sm); }
+.section-t h2, .drawer-b h3 { font-weight: 800; }
+/* Licenças: programas dentro da paleta, identificados pelo nome e pelas iniciais */
+.prog-badge { background: var(--held); color: var(--bg); border-radius: 10px; }
+.prog-chip i { background: var(--accent); border-radius: 50%; }
+.prog-chip.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-soft); }
+.prog-card { border-left: 1px solid var(--line); }
+.prog-card > header { background: var(--surface); }
+.prog-card.fora { border-style: dashed; }
+/* Celular: menu inferior com 4 seções + Mais */
+.bottom-nav button { all: unset; }
+.mais-scrim, .mais-sheet { display: none; }
+@media (max-width: 760px) {
+  .bottom-nav { grid-template-columns: repeat(5, 1fr) !important; }
+  .bottom-nav a, .bottom-nav .bn-mais { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 2px 8px; font-size: 11px; color: var(--side-muted); text-decoration: none; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bottom-nav a[aria-current="page"], .bottom-nav .bn-mais.on, .bottom-nav .bn-mais[aria-expanded="true"] { color: #ff7936; }
+  .bn-ic { position: relative; display: inline-flex; }
+  .bn-badge { position: absolute; top: -6px; right: -12px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--accent-btn); color: #fff; font: 700 10px/16px var(--font); text-align: center; font-style: normal; }
+  .mais-scrim { display: block; position: fixed; inset: 0; z-index: 23; background: rgba(12,11,10,.4); }
+  .mais-sheet { display: flex; flex-direction: column; gap: 2px; position: fixed; left: 8px; right: 8px; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); z-index: 24; background: var(--side-bg); color: var(--side-fg); border-radius: 20px; padding: 10px; box-shadow: var(--shadow); animation: rise .18s ease; }
+  .mais-sheet a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; color: var(--side-fg); text-decoration: none; font-weight: 600; }
+  .mais-sheet a span:first-of-type { flex: 1; }
+  .mais-sheet a[aria-current="page"] { background: var(--accent-btn); color: #fff; }
+  .mais-sheet .count { font-size: 12px; color: var(--side-muted); }
+  .mais-tema { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 4px; border-top: 1px solid var(--side-line); margin-top: 4px; font-size: 13px; color: var(--side-muted); }
+  .tema-mobile { display: none !important; }
+  .drawer { border-radius: 0; }
 }
 </style>
 
@@ -1168,12 +1238,21 @@ const Repo = {
    ================================================================ */
 const ROUTES = ['painel', 'inventario', 'reparos', 'zeevs', 'licencas', 'qualidade', 'colaboradores', 'admin'];
 function useRoute() {
-  const get = () => { const h = location.hash.replace('#', ''); return ROUTES.includes(h) ? h : 'painel'; };
+  const get = () => { const h = location.hash.replace('#', '').split('?')[0]; return ROUTES.includes(h) ? h : 'painel'; };
   const [r, setR] = useState(get());
   useEffect(() => { const f = () => setR(get()); addEventListener('hashchange', f); return () => removeEventListener('hashchange', f); }, []);
   return r;
 }
 const go = r => { location.hash = r; };
+/** Parâmetros guardados no endereço (#inventario?q=...&tipo=...), para manter filtros e compartilhar links. */
+const memoriaInv = { tipo: 'todos', baixados: false };
+const lerParams = () => new URLSearchParams(location.hash.split('?')[1] || '');
+function gravarParams(rota, obj) {
+  if (location.hash.replace('#', '').split('?')[0] !== rota) return;
+  const q = new URLSearchParams(Object.entries(obj).filter(([, v]) => v != null && v !== '' && v !== false));
+  const novo = '#' + rota + (q.toString() ? '?' + q.toString() : '');
+  if (location.hash !== novo) history.replaceState(null, '', novo);
+}
 
 /* ================================================================
    4. INTERFACE
@@ -1198,6 +1277,7 @@ const Icon = ({ n, s = 16 }) => {
     sol: 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
     lua: 'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z',
     auto: 'M12 3a9 9 0 1 0 0 18zM12 3a9 9 0 0 1 0 18',
+    mais: 'M5 10.6a1.4 1.4 0 1 1 0 2.8a1.4 1.4 0 1 1 0-2.8zM12 10.6a1.4 1.4 0 1 1 0 2.8a1.4 1.4 0 1 1 0-2.8zM19 10.6a1.4 1.4 0 1 1 0 2.8a1.4 1.4 0 1 1 0-2.8z',
   }[n];
   return html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${p} /></svg>`;
 };
@@ -1294,7 +1374,9 @@ function Shell() {
   const licVence = useMemo(() => licencas.filter(l => licStatus(l) === 'vence').reduce((s, l) => s + (l.quantidade || 1), 0), [licencas]);
   const zPend = useMemo(() => zeevs.filter(z => z.situacao === 'pendente').length, [zeevs]);
   const gestores = useMemo(() => [...new Set([...Object.values(GESTOR_ALIAS), ...zeevs.flatMap(z => z.aprovadores || [])])].sort((a, b) => a.localeCompare(b, 'pt-BR')), [zeevs]);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() => lerParams().get('q') || '');
+  const [mais, setMais] = useState(false);
+  useEffect(() => setMais(false), [rawRoute]);
   const searchRef = useRef();
   const open = useCallback(id => setOpenId(id), []);
   const flags = useMemo(() => CHECKS.reduce((n, c) => n + (c.sev === 'bad' ? assets.filter(c.test).length : 0), 0), [assets]);
@@ -1364,9 +1446,15 @@ function Shell() {
       </main>
     </div>
   </div>
-  <nav class="bottom-nav" aria-label="Seções" style=${{ gridTemplateColumns: `repeat(${nav.length}, 1fr)` }}>
-    ${nav.map(([id, label]) => html`<a href=${'#' + id} aria-current=${route === id ? 'page' : null}><${Icon} n=${id} s=${20} />${label}</a>`)}
+  <nav class="bottom-nav" aria-label="Seções">
+    ${nav.slice(0, 4).map(([id, label, n]) => html`<a href=${'#' + id} aria-current=${route === id ? 'page' : null}><span class="bn-ic"><${Icon} n=${id} s=${20} />${n > 0 && id === 'zeevs' && html`<i class="bn-badge" aria-label=${n + ' pendentes'}>${n}</i>`}</span>${label}</a>`)}
+    <button type="button" class=${'bn-mais' + (nav.slice(4).some(([id]) => id === route) ? ' on' : '')} aria-expanded=${mais} aria-controls="menu-mais" onClick=${() => setMais(!mais)}><span class="bn-ic"><${Icon} n="mais" s=${20} /></span>Mais</button>
   </nav>
+  ${mais && html`<div class="mais-scrim" onClick=${() => setMais(false)}></div>
+  <div class="mais-sheet" id="menu-mais" role="menu" aria-label="Mais seções">
+    ${nav.slice(4).map(([id, label, n]) => html`<a role="menuitem" href=${'#' + id} aria-current=${route === id ? 'page' : null}><${Icon} n=${id} s=${20} /><span>${label}</span>${n != null && n > 0 && html`<span class="count">${n}</span>`}</a>`)}
+    <div class="mais-tema"><span>Tema</span><${TemaSeletor} /></div>
+  </div>`}
   ${openAsset && html`<${Drawer} asset=${openAsset} onClose=${() => setOpenId(null)} open=${open} />`}
   ${creating && editor && html`<${CreateDrawer} assets=${assets} onClose=${() => setCreating(false)} onCreated=${a => { setCreating(false); setOpenId(a.id); }} />`}
   <${Datalists} assets=${assets} people=${people} />
@@ -1391,9 +1479,9 @@ function Datalists({ assets, people }) {
 }
 
 function ConnBanner({ conn }) {
-  if (conn === 'offline') return html`<div class="banner"><b>Sem conexão com o banco.</b><span>Confira sua internet e recarregue a página.</span></div>`;
-  if (conn === 'error') return html`<div class="banner"><b>Erro de conexão.</b><span>${store.state.connError || 'O banco não respondeu.'} Recarregue a página para tentar de novo.</span></div>`;
-  if (conn === 'timeout') return html`<div class="banner"><b>O banco está demorando.</b><span>Os dados aparecem assim que a conexão responder.</span></div>`;
+  if (conn === 'offline') return html`<div class="banner bad" role="alert"><b>Sem conexão com o banco.</b><span>Alterações feitas agora não serão salvas. Confira o Wi-Fi ou a VPN e recarregue a página.</span><button class="btn sm" onClick=${() => location.reload()}>Recarregar</button></div>`;
+  if (conn === 'error') return html`<div class="banner bad" role="alert"><b>Não foi possível carregar os dados.</b><span>${store.state.connError || 'O banco não respondeu.'} Recarregue a página; se continuar, avise um administrador do inventário.</span><button class="btn sm" onClick=${() => location.reload()}>Recarregar</button></div>`;
+  if (conn === 'timeout') return html`<div class="banner" role="status"><b>O banco está demorando para responder.</b><span>Os dados aparecem assim que a conexão voltar. Se passar de um minuto, recarregue a página.</span></div>`;
   return null;
 }
 
@@ -1443,7 +1531,7 @@ function Dashboard({ assets, open, setQuery }) {
             <div class="bars">
               ${m.byCat.map(c => html`<div class="bar-row" role="button" tabindex="0" onClick=${() => toInv(c.k)} onKeyDown=${e => e.key === 'Enter' && toInv(c.k)}>
                 <span class="lbl">${CATEG[c.k]}</span>
-                <span class="bar-track" style=${{ width: (c.n / maxCat * 100) + '%' }} title=${Object.entries(c.by).map(([s, n]) => `${STATUS[s].label}: ${n}`).join(' · ')}>
+                <span class="bar-track" role="img" aria-label=${CATEG[c.k] + ': ' + Object.entries(c.by).map(([s, n]) => `${STATUS[s].label} ${n}`).join(', ')} style=${{ width: (c.n / maxCat * 100) + '%' }} title=${Object.entries(c.by).map(([s, n]) => `${STATUS[s].label}: ${n}`).join(' · ')}>
                   ${Object.keys(STATUS).filter(s => c.by[s]).map(s => html`<span class=${'c-' + s} style=${{ width: (c.by[s] / c.n * 100) + '%' }}></span>`)}
                 </span>
                 <span class="tot">${c.n}</span></div>`)}
@@ -1485,8 +1573,9 @@ const COLS = [
   ['tombamento', 'Tombamento'], ['tipo', 'Equipamento'], ['status', 'Status'], ['etapa', 'Onde está'], ['pessoa', 'Com / para'], ['serial', 'Serial'], ['atualizadoEm', 'Atualizado'],
 ];
 function Inventory({ assets, open, query, setQuery }) {
-  const [cat, setCat] = useState('todos');
-  const [showBaixados, setShowBaixados] = useState(false);
+  const [cat, setCat] = useState(() => lerParams().get('tipo') || memoriaInv.tipo);
+  const [showBaixados, setShowBaixados] = useState(() => lerParams().has('baixados') ? lerParams().get('baixados') === '1' : memoriaInv.baixados);
+  useEffect(() => { memoriaInv.tipo = cat; memoriaInv.baixados = showBaixados; gravarParams('inventario', { q: query.trim(), tipo: cat === 'todos' ? '' : cat, baixados: showBaixados ? '1' : '' }); }, [query, cat, showBaixados]);
   const [sort, setSort] = useState(['atualizadoEm', -1]);
   const [limit, setLimit] = useState(60);
   const parsed = useMemo(() => parseQuery(query), [query]);
@@ -1539,7 +1628,7 @@ function Inventory({ assets, open, query, setQuery }) {
         <thead><tr>${COLS.map(([k, l]) => html`<th aria-sort=${sort[0] === k ? (sort[1] > 0 ? 'ascending' : 'descending') : null}><button onClick=${() => setSort([k, sort[0] === k ? -sort[1] : 1])}>${l}${sort[0] === k ? (sort[1] > 0 ? ' ↑' : ' ↓') : ''}</button></th>`)}</tr></thead>
         <tbody>
           ${rows.slice(0, limit).map(a => html`<tr key=${a.id} onClick=${() => open(a.id)} tabindex="0" onKeyDown=${e => e.key === 'Enter' && open(a.id)}>
-            <td class="mono">${a.tombamento || html`<span class="muted">—</span>`}${flagIds.has(a.id) && html`<span class="flag" title="Tem pendência"></span>`}</td>
+            <td class="mono">${a.tombamento || html`<span class="muted">—</span>`}${flagIds.has(a.id) && html`<span class="flag" title="Tem pendência" role="img" aria-label="Tem pendência"></span>`}</td>
             <td><div class="t">${assetName(a)}</div><div class="sub">${[a.configuracao, a.ano].filter(Boolean).join(' · ') || CATEG_ONE[a.categoria]}</div></td>
             <td><${StatusPill} s=${a.status} /></td>
             <td><${Stage} a=${a} />${isRepair(a) && a.fornecedor && html`<div class="sub">${a.fornecedor}</div>`}</td>
