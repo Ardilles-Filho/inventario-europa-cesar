@@ -1,49 +1,59 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Inventário Europa · CESAR</title><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Inventário Europa · CESAR</title><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><script>try{var t=localStorage.getItem("tema");if(t==="claro"||t==="escuro")document.documentElement.dataset.theme=t==="claro"?"light":"dark"}catch(e){}</script></head><body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&display=swap">
 <style>
-/* Layout: app shell — barra lateral de navegação + área de trabalho; gaveta de detalhe à direita. Paleta oficial CESAR. */
+/* Identidade CESAR. Tema claro = proposta A (Institucional); tema escuro = proposta C (Noite CESAR).
+   Cores e medidas do CESAR Design System oficial: laranja #FF6002, neutros quentes, DM Sans, cantos arredondados. */
 :root {
   --bg: #ffffff;
-  --surface: #f7f6f2;
-  --surface-2: #efede6;
-  --line: #e2dfd6;
-  --fg: #161616;
-  --fg-2: #3f3f3f;
-  --muted: #6d7484;
+  --surface: #f8f7f6;
+  --surface-2: #f1f0ee;
+  --line: #e4e2df;
+  --fg: #0c0b0a;
+  --fg-2: #403e3b;
+  --muted: #6e6a65;
   --accent: #ff6002;
-  --accent-strong: #dd4012;
-  --accent-soft: #fff0e6;
+  --accent-hover: #ff3e03;
+  --accent-strong: #c23a04;
+  --accent-soft: #fff2eb;
   --on-accent: #ffffff;
-  --ok: #1f8a4c; --ok-soft: #e4f4ea;
-  --info: #2763c4; --info-soft: #e5eefb;
-  --held: #6a4bc4; --held-soft: #eee9fb;
-  --bad: #c2321b; --bad-soft: #fbe7e3;
-  --warn: #a66300; --warn-soft: #fbf0dc;
-  --mute: #818b9d; --mute-soft: #eef0f3;
-  --shadow: 0 1px 2px rgba(22,22,22,.06), 0 8px 24px rgba(22,22,22,.08);
+  --ok: #17804a; --ok-soft: #e7f6ee;
+  --info: #2559c4; --info-soft: #eaf1fd;
+  --held: #2a2825; --held-soft: #f1f0ee;
+  --bad: #c8281d; --bad-soft: #fcebea;
+  --warn: #8f5400; --warn-soft: #fef4e1;
+  --mute: #7c7873; --mute-soft: #f1f0ee;
+  --st-disponivel: #1f9d55; --st-reservado: #a5a19c; --st-alocado: #2a2825; --st-emprestado: #ff9e6b; --st-danificado: #e23a2e;
+  --kpi-bg: #ffffff; --kpi-line: #e4e2df;
+  --side-bg: #0c0b0a; --side-fg: #cbc8c4; --side-muted: #8a8580; --side-line: #2a2825; --side-hover: #1f1e1c;
+  --shadow: 0 1px 2px rgba(12,11,10,.06), 0 12px 28px rgba(12,11,10,.12);
   --font: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --r: 10px;
+  --r: 16px;
+  --r-sm: 12px;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #161616; --surface: #1e1e1d; --surface-2: #272725; --line: #34332f;
-  --fg: #f4f3ee; --fg-2: #cfcdc5; --muted: #9aa1ae;
-  --accent: #ff6d1a; --accent-strong: #ff8a45; --accent-soft: #3a2214; --on-accent: #161616;
+  --bg: #1f1e1c; --surface: #161616; --surface-2: #2a2825; --line: #34322f;
+  --fg: #f8f7f6; --fg-2: #cbc8c4; --muted: #a5a19c;
+  --accent: #ff6002; --accent-hover: #ff7936; --accent-strong: #ff8a45; --accent-soft: #3a2214; --on-accent: #ffffff;
   --ok: #4fc485; --ok-soft: #173326; --info: #7aa7f0; --info-soft: #182840;
-  --held: #a993f0; --held-soft: #261f3d; --bad: #f2775f; --bad-soft: #3d1c16;
-  --warn: #e6a74a; --warn-soft: #3a2a12; --mute: #9aa1ae; --mute-soft: #2a2b2e;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.45);
+  --held: #e4e2df; --held-soft: #2a2825; --bad: #ff7b6e; --bad-soft: #3d1c16;
+  --warn: #f5b54a; --warn-soft: #3a2a12; --mute: #a5a19c; --mute-soft: #2a2825;
+  --st-disponivel: #4fc485; --st-reservado: #7c7873; --st-alocado: #e4e2df; --st-emprestado: #ff9e6b; --st-danificado: #ff6b5e;
+  --kpi-bg: #2a2825; --kpi-line: transparent;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px rgba(0,0,0,.45);
   color-scheme: dark;
 } }
 :root[data-theme="dark"] {
-  --bg: #161616; --surface: #1e1e1d; --surface-2: #272725; --line: #34332f;
-  --fg: #f4f3ee; --fg-2: #cfcdc5; --muted: #9aa1ae;
-  --accent: #ff6d1a; --accent-strong: #ff8a45; --accent-soft: #3a2214; --on-accent: #161616;
+  --bg: #1f1e1c; --surface: #161616; --surface-2: #2a2825; --line: #34322f;
+  --fg: #f8f7f6; --fg-2: #cbc8c4; --muted: #a5a19c;
+  --accent: #ff6002; --accent-hover: #ff7936; --accent-strong: #ff8a45; --accent-soft: #3a2214; --on-accent: #ffffff;
   --ok: #4fc485; --ok-soft: #173326; --info: #7aa7f0; --info-soft: #182840;
-  --held: #a993f0; --held-soft: #261f3d; --bad: #f2775f; --bad-soft: #3d1c16;
-  --warn: #e6a74a; --warn-soft: #3a2a12; --mute: #9aa1ae; --mute-soft: #2a2b2e;
-  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.45);
+  --held: #e4e2df; --held-soft: #2a2825; --bad: #ff7b6e; --bad-soft: #3d1c16;
+  --warn: #f5b54a; --warn-soft: #3a2a12; --mute: #a5a19c; --mute-soft: #2a2825;
+  --st-disponivel: #4fc485; --st-reservado: #7c7873; --st-alocado: #e4e2df; --st-emprestado: #ff9e6b; --st-danificado: #ff6b5e;
+  --kpi-bg: #2a2825; --kpi-line: transparent;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 28px rgba(0,0,0,.45);
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -371,6 +381,120 @@ td select { height: 30px; border: 1px solid var(--line); border-radius: 7px; bac
 .sec-list .li { padding: 9px 12px; }
 td .actions-inline { display: flex; gap: 6px; justify-content: flex-end; }
 @media (max-width: 860px) { .people-form { grid-template-columns: minmax(0, 1fr); } }
+
+/* ===== Identidade CESAR: ajustes de componentes ===== */
+body { background: var(--surface); }
+h1 { font-size: 32px; font-weight: 800; letter-spacing: -.02em; }
+h2 { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+.eyebrow { font-weight: 700; color: var(--accent-strong); }
+.side { background: var(--side-bg); border-right: 0; color: var(--side-fg); padding: 26px 14px 20px; }
+.brand { flex-direction: column; align-items: flex-start; gap: 12px; padding: 0 10px; color: #fff; }
+.brand .logo { width: 76px; height: auto; color: #fff; }
+.brand b { font-size: 15px; font-weight: 800; color: #fff; }
+.nav { gap: 3px; }
+.nav a { color: var(--side-fg); padding: 10px 14px; border-radius: 999px; }
+.nav a:hover { background: var(--side-hover); color: #fff; }
+.nav a[aria-current="page"] { background: var(--accent); color: #fff; box-shadow: none; font-weight: 700; }
+.nav a[aria-current="page"] svg { color: #fff; }
+.nav .count { color: var(--side-muted); }
+.nav .count.hot { color: #ff9e6b; }
+.nav a[aria-current="page"] .count { color: #fff; }
+.side-foot { color: var(--side-muted); gap: 12px; padding: 0 10px; }
+.side .who { border-top: 1px solid var(--side-line); padding-top: 12px; }
+.side .who span { color: #fff; font-weight: 600; }
+.side .role-tag { color: var(--side-muted); font-weight: 400; }
+.side .btn.ghost { color: var(--side-fg); }
+.side .btn.ghost:hover { background: var(--side-hover); color: #fff; }
+.side .mono { color: var(--side-fg); }
+.tema { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: var(--side-hover); align-self: flex-start; }
+.tema button { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; color: var(--side-muted); padding: 5px 10px; border-radius: 999px; cursor: pointer; font-size: 12px; }
+.tema button:hover { color: #fff; }
+.tema button[aria-pressed="true"] { background: #2a2825; color: #fff; font-weight: 600; }
+.tema-mobile { display: none; }
+.topbar { background: color-mix(in srgb, var(--surface) 88%, transparent); border-bottom: 0; padding-block: 18px 6px; }
+.search input { height: 44px; border-radius: 999px; background: var(--bg); padding-left: 42px; }
+.search svg { left: 16px; top: 14px; }
+.search kbd { top: 12px; right: 14px; }
+.content { padding-top: 14px; }
+.btn { border-radius: 999px; padding: 0 16px; }
+.btn.sm { padding: 0 12px; }
+.btn.primary { font-weight: 700; }
+.btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.topbar .btn.primary { height: 44px; padding: 0 22px; }
+.icon-btn { width: 34px; padding: 0; }
+.field input, .field select, .field textarea, td select { border-radius: var(--r-sm); }
+.kpi { background: var(--kpi-bg); border: 1px solid var(--kpi-line); padding: 20px; }
+.kpi:hover { border-color: var(--accent); background: var(--kpi-bg); }
+.kpi .v { font-size: 40px; font-weight: 800; letter-spacing: -.035em; }
+.kpi .l { font-weight: 700; }
+.kpi.accent { border-color: var(--accent); }
+.kpi.accent:hover { background: var(--accent-hover); }
+.panel { box-shadow: 0 1px 2px rgba(12,11,10,.04); }
+.panel-h { padding: 16px 20px; }
+.panel-b { padding: 18px 20px; }
+.bar-track { border-radius: 999px; height: 12px; }
+.c-disponivel { background: var(--st-disponivel); } .c-reservado { background: var(--st-reservado); } .c-alocado { background: var(--st-alocado); }
+.c-emprestado { background: var(--st-emprestado); } .c-danificado { background: var(--st-danificado); } .c-baixado { background: var(--mute); }
+.pipe .v { font-weight: 800; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.seg { border-radius: 999px; }
+.seg button { border-radius: 999px; }
+.card { border-radius: var(--r-sm); }
+.toast { border-radius: 999px; padding: 10px 18px; }
+.banner { border-radius: var(--r-sm); }
+a.btn { color: var(--accent-strong); text-decoration: none; }
+a.btn.primary { color: var(--on-accent); }
+.banner a, .empty a { color: var(--accent-strong); font-weight: 600; }
+/* Login: painel da marca + cartão de acesso */
+.login { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); padding: 0; place-items: stretch; background: var(--surface); }
+.login-hero { position: relative; overflow: hidden; background: var(--accent); color: #fff; padding: 64px 72px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
+.login-hero .logo { width: 124px; height: auto; color: #fff; position: relative; z-index: 1; }
+.login-hero .txt { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 18px; max-width: 520px; }
+.login-hero .eyebrow { color: #fff; opacity: .92; }
+.login-hero h1 { font-size: clamp(44px, 6vw, 76px); line-height: 1; font-weight: 900; letter-spacing: -.035em; color: #fff; }
+.login-hero p { margin: 0; font-size: 18px; line-height: 1.55; opacity: .95; max-width: 400px; }
+.login-hero .deco { position: absolute; border-radius: 50%; pointer-events: none; }
+.login-hero .d1 { right: -260px; bottom: -200px; width: 820px; height: 500px; border: 2px solid rgba(255,255,255,.28); }
+.login-hero .d2 { right: -160px; bottom: -130px; width: 620px; height: 360px; border: 2px solid rgba(255,255,255,.22); }
+.login-hero .d3 { right: -60px; bottom: -60px; width: 420px; height: 220px; background: rgba(255,255,255,.14); }
+.login-side { display: grid; place-items: center; padding: 48px 32px; }
+.login-card { width: min(420px, 100%); border-radius: 24px; padding: 44px 40px; gap: 20px; }
+.login-card h2 { font-size: 30px; line-height: 1.15; font-weight: 800; letter-spacing: -.02em; }
+.login-card .btn { height: 52px; font-size: 16px; }
+.login-card .btn.primary { box-shadow: 0 10px 30px rgba(255,96,2,.28); }
+.login-card .note { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+.login-card .tema { background: var(--surface-2); }
+.login-card .tema button { color: var(--muted); }
+.login-card .tema button:hover { color: var(--fg); }
+.login-card .tema button[aria-pressed="true"] { background: var(--bg); color: var(--fg); box-shadow: var(--shadow); }
+:root[data-theme="dark"] .login-hero { background: #161616; }
+:root[data-theme="dark"] .login-hero .d1 { left: auto; right: 150px; bottom: -70px; width: 150px; height: 300px; border: 0; border-radius: 150px 0 0 150px; background: linear-gradient(135deg, #dd4012, #e9a04a); }
+:root[data-theme="dark"] .login-hero .d2 { left: auto; right: -12px; bottom: -70px; width: 150px; height: 300px; border: 0; border-radius: 150px 0 0 150px; background: linear-gradient(135deg, #e8833a, #edb259); }
+:root[data-theme="dark"] .login-hero .d3 { right: 64px; top: -90px; bottom: auto; width: 260px; height: 260px; background: radial-gradient(circle at 35% 30%, #edb259, #dd4012 75%); }
+:root[data-theme="dark"] .login-hero .eyebrow { color: #ff7936; opacity: 1; }
+:root[data-theme="dark"] .login-hero p { color: #cbc8c4; }
+:root[data-theme="dark"] .login-side { background: #161616; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .login-hero { background: #161616; }
+  :root:not([data-theme="light"]) .login-hero .d1 { left: auto; right: 150px; bottom: -70px; width: 150px; height: 300px; border: 0; border-radius: 150px 0 0 150px; background: linear-gradient(135deg, #dd4012, #e9a04a); }
+  :root:not([data-theme="light"]) .login-hero .d2 { left: auto; right: -12px; bottom: -70px; width: 150px; height: 300px; border: 0; border-radius: 150px 0 0 150px; background: linear-gradient(135deg, #e8833a, #edb259); }
+  :root:not([data-theme="light"]) .login-hero .d3 { right: 64px; top: -90px; bottom: auto; width: 260px; height: 260px; background: radial-gradient(circle at 35% 30%, #edb259, #dd4012 75%); }
+  :root:not([data-theme="light"]) .login-hero .eyebrow { color: #ff7936; opacity: 1; }
+  :root:not([data-theme="light"]) .login-hero p { color: #cbc8c4; }
+  :root:not([data-theme="light"]) .login-side { background: #161616; }
+}
+@media (max-width: 860px) {
+  .login { grid-template-columns: minmax(0, 1fr); }
+  .login-hero { padding: 40px 28px 48px; min-height: 0; }
+  .login-hero .logo { width: 92px; }
+  .login-side { padding: 28px 20px 48px; }
+}
+@media (max-width: 760px) {
+  .tema-mobile { display: inline-flex; }
+  .bottom-nav { background: var(--side-bg); border-top: 0; }
+  .bottom-nav a { color: var(--side-muted); }
+  .bottom-nav a[aria-current="page"] { color: #ff7936; }
+}
 </style>
 
 <div id="app"></div>
@@ -1071,32 +1195,79 @@ const Icon = ({ n, s = 16 }) => {
     search: 'M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14zM21 21l-5-5',
     plus: 'M12 5v14M5 12h14', x: 'M6 6l12 12M18 6L6 18', down: 'M12 4v12M6 10l6 6 6-6',
     sort: 'M8 5v14M4 15l4 4 4-4M16 19V5M12 9l4-4 4 4', send: 'M4 12l16-8-6 16-2-7z',
+    sol: 'M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+    lua: 'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z',
+    auto: 'M12 3a9 9 0 1 0 0 18zM12 3a9 9 0 0 1 0 18',
   }[n];
   return html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${p} /></svg>`;
 };
+
+/* Logo oficial do CESAR (arquivo SVG da página Marca do site), na cor do texto ao redor. */
+const LogoCesar = ({ cls = 'logo' }) => html`<svg class=${cls} viewBox="0 0 926.01 554.88" fill="currentColor" role="img" aria-label="CESAR"><path d="M911.87,489.08c-.25,5.2-2.32,8.550-6.26,10.09-3.84,1.76-7.22,2.54-10.05,2.41h-12.24c-2.7,0-4.07-1.38-4.07-4.13v-4.54c0-4.61,1.43-8.580,4.26-11.96,2.83-3.41,6.870-5.170,12.05-5.290,4.58,0,8.430,1.07,11.51,3.23,3.08,2.22,4.67,5.64,4.8,10.2M926.01,531.05c0-5.73-.83-10.34-2.51-13.75-1.75-3.25-3.75-5.67-6.08-7.26-1.52-1.38-1.52-2.69,0-3.95,1.5-.91,3.28-2.66,5.31-5.29,2.06-2.63,3.15-6.51,3.27-11.68-.13-8.48-2.96-15.06-8.46-19.69-5.85-4.66-13.16-6.98-22-6.98-9.06.13-16.4,3.16-21.97,9.08-5.66,5.89-8.48,13.03-8.48,21.42v54.17c0,2.69,1.33,4.04,4.03,4.04h6.08c2.7,0,4.04-1.35,4.04-4.04v-29.06c0-2.79,1.37-4.17,4.07-4.17h12.24c5.18.13,9.22,1.88,12.05,5.26,2.82,3.38,4.25,7.36,4.25,11.9v16.06c0,2.69,1.34,4.04,4.04,4.04h6.07c2.7,0,4.04-1.35,4.04-4.04v-16.06ZM694.72,497.44c0,2.76-1.37,4.13-4.06,4.13h-24.48c-2.71,0-4.08-1.38-4.08-4.13v-4.54c0-4.61,1.44-8.580,4.27-11.96,2.83-3.41,6.86-5.170,12.04-5.290,5.18.13,9.22,1.88,12.05,5.29,2.83,3.38,4.25,7.36,4.25,11.96v4.54ZM708.86,492.94c-.13-8.4-2.89-15.53-8.3-21.42-5.4-5.92-12.78-8.95-22.16-9.08-9.06.13-16.39,3.16-21.96,9.08-5.67,5.89-8.49,13.03-8.49,21.42v54.17c0,2.69,1.35,4.04,4.04,4.04h6.07c2.7,0,4.04-1.35,4.04-4.040v-29.06c0-2.79,1.37-4.17,4.08-4.17h24.48c2.7,0,4.06,1.38,4.06,4.17v29.06c0,2.69,1.34,4.04,4.04,4.04h6.07c2.7,0,4.04-1.35,4.04-4.04v-54.17ZM491.72,524.85c-.13-8.77-3.12-15.25-9.03-19.45-5.82-4.1-12.97-6.29-21.46-6.54-.35.13-2.830-.5-7.38-1.91-2-.76-3.65-1.94-4.96-3.6-1.66-1.47-2.45-3.54-2.45-6.17,0-2.41,1.05-4.92,3.15-7.57,2.13-2.63,6.01-4.01,11.67-4.14,4.58,0,8.67,1.75,12.37,5.23,1.88,1.66,3.78,1.85,5.78.56l4.42-3.23c2.16-1.56,2.35-3.41.54-5.51-2.48-2.85-5.53-5.26-9.22-7.26-3.84-1.76-8.46-2.7-13.89-2.82-9.38.13-16.43,2.76-21.2,7.89-4.8,5.04-7.22,10.71-7.22,17,.26,14.87,9.73,23.14,28.45,24.8.38-.13,3.08.37,8.14,1.47,2.13.69,4.04,1.94,5.78,3.76,1.56,1.91,2.35,4.41,2.35,7.55,0,3.66-1.24,7.01-3.69,10.02-2.48,3.13-6.67,4.72-12.58,4.85-4.19,0-7.92-1.25-11.09-3.76-3.09-2.38-5.67-4.95-7.79-7.71-1.3-2-3.08-2.37-5.31-1.09l-4.26,3.04c-2.13,1.69-2.51,3.63-1.17,5.76,2.22,3.79,5.75,7.48,10.55,11.05,4.8,3.7,11.16,5.67,19.04,5.92,9.72-.12,17.23-2.88,22.5-8.23,5.31-5.26,7.95-11.9,7.95-19.92M262.34,499.33c0,2.75-1.37,4.14-4.07,4.14h-24.47c-2.71,0-4.08-1.38-4.08-4.14v-4.54c0-4.61,1.43-8.58,4.26-11.97,2.83-3.41,6.87-5.16,12.05-5.29,5.18.13,9.22,1.88,12.05,5.29,2.83,3.39,4.26,7.36,4.26,11.97v4.54ZM276.48,494.79c-.13-8.4-2.9-15.51-8.3-21.39-5.4-5.92-12.78-8.95-22.16-9.08-9.06.13-16.4,3.16-21.97,9.08-5.66,5.88-8.48,12.99-8.48,21.39v29.71c0,8.27,2.82,15.31,8.48,21.2,5.57,5.98,12.91,9.05,21.97,9.18,7.75-.13,14.01-1.92,18.85-5.39,2.44-1.76,4.48-3.54,6.1-5.35,1.56-1.88,2.92-3.72,4.07-5.48.6-.88.92-1.85.92-2.94-.13-1.03-.76-2.01-1.91-2.85l-4.07-3.04c-.85-.72-1.75-1.03-2.7-.91-1.14.13-2.09.69-2.8,1.66-1.52,2.25-3.75,4.63-6.71,7.14-3.05,2.51-6.99,3.82-11.83,3.95-5.18-.13-9.18-1.94-12.01-5.45-2.83-3.45-4.23-7.36-4.23-11.75v-4.54c0-2.78,1.37-4.16,4.08-4.16h34.54c5.31,0,8.01-2.76,8.14-8.24v-12.74ZM58.06,536.37c1.24-2.13.67-4.010-1.72-5.57l-4.23-3.04c-2-1.41-3.82-.91-5.5,1.48-.34.66-.92,1.56-1.72,2.66-.73,1.16-1.72,2.35-2.99,3.57-2.45,2.76-6.16,4.19-11.16,4.32-5.18-.13-9.18-1.94-12.08-5.41-2.83-3.45-4.23-7.36-4.23-11.72v-29.87c0-4.54,1.4-8.52,4.23-11.9,2.9-3.35,6.9-5.1,12.08-5.23,2.58,0,4.83.34,6.77,1.1,1.85.97,3.37,2.07,4.58,3.23,1.27,1.09,2.26,2.28,2.99,3.56.76,1.09,1.27,2.1,1.52,3.03,1.56,2.07,3.4,2.39,5.5.91l4.42-3.2c1.15-.88,1.78-1.88,1.91-3.03,0-.97-.25-1.84-.74-2.56-.66-2.13-3.02-5.29-7.05-9.56-1.97-1.85-4.61-3.47-7.930-4.78-3.36-1.29-7.34-1.92-11.98-1.92-9.12.13-16.46,3.16-21.97,9.08-5.66,5.89-8.49,13-8.49,21.39v29.72c0,8.26,2.83,15.31,8.46,21.2,5.53,5.98,12.84,9.05,21.97,9.17,4.51-.12,8.45-.84,11.82-2.19,3.31-1.28,6-2.82,8.11-4.66,2.22-1.88,3.94-3.76,5.15-5.63,1.08-1.72,1.84-3.1,2.25-4.14" /><path d="M366.46,0C157.54,18.01,0,93.33,0,183.07c0,103.09,207.9,187.170,462.8,187.17s462.8-84.08,462.8-187.17c0-89.73-157.54-165.06-366.46-183.07v8.63c108.16,12.97,185.72,61.85,185.72,101.74,0,50.97-126.71,92.54-282.06,92.54s-282.06-41.57-282.06-92.54c0-39.88,77.57-86.49,185.73-99.46V0Z" /><path d="M422.22,22.16c-86.58,6.64-151.86,34.4-151.86,67.48,0,38,86.15,68.99,191.79,68.99s191.79-30.99,191.79-68.99c0-33.07-65.28-60.84-151.86-67.48v8.62c44.82,4.78,76.97,17.35,76.97,32.06,0,18.79-52.51,34.11-116.89,34.11s-116.9-15.32-116.9-34.11c0-14.7,32.15-27.28,76.97-32.06v-8.62Z" /></svg>`;
+
+/* Tema: automático (segue o sistema), claro ou escuro. Fica salvo neste navegador. */
+const TEMAS = [['auto', 'Auto', 'Seguir o sistema'], ['claro', 'Claro', 'Tema claro'], ['escuro', 'Escuro', 'Tema escuro']];
+const temaOuvintes = new Set();
+const lerTema = () => { try { return localStorage.getItem('tema') || 'auto'; } catch (e) { return 'auto'; } };
+function aplicarTema(t) {
+  const r = document.documentElement;
+  if (t === 'claro') r.dataset.theme = 'light'; else if (t === 'escuro') r.dataset.theme = 'dark'; else delete r.dataset.theme;
+  try { t === 'auto' ? localStorage.removeItem('tema') : localStorage.setItem('tema', t); } catch (e) {}
+  temaOuvintes.forEach(f => f(t));
+}
+function useTema() {
+  const [t, setT] = useState(lerTema);
+  useEffect(() => { temaOuvintes.add(setT); return () => temaOuvintes.delete(setT); }, []);
+  return [t, aplicarTema];
+}
+function TemaSeletor() {
+  const [t, set] = useTema();
+  return html`<div class="tema" role="group" aria-label="Tema">${TEMAS.map(([id, label, dica]) => html`<button type="button" aria-pressed=${t === id} title=${dica} onClick=${() => set(id)}><${Icon} n=${id === 'claro' ? 'sol' : id === 'escuro' ? 'lua' : 'auto'} s=${13} />${label}</button>`)}</div>`;
+}
+function TemaBotao() {
+  const [t, set] = useTema();
+  const prox = { auto: 'claro', claro: 'escuro', escuro: 'auto' }[t];
+  const atual = TEMAS.find(x => x[0] === t);
+  return html`<button type="button" class="btn icon-btn tema-mobile" title=${atual[2] + '. Toque para mudar.'} aria-label=${'Tema: ' + atual[1] + '. Mudar tema'} onClick=${() => set(prox)}><${Icon} n=${t === 'claro' ? 'sol' : t === 'escuro' ? 'lua' : 'auto'} /></button>`;
+}
+
 const StatusPill = ({ s }) => html`<span class=${'pill ' + (STATUS[s]?.tone || 'mute')}>${STATUS[s]?.label || s}</span>`;
 const Stage = ({ a }) => html`<span class="stage">${ETAPA[a.etapa]?.label || a.etapa}</span>`;
+
+function LoginHero() {
+  return html`<section class="login-hero">
+    <i class="deco d1" aria-hidden="true"></i><i class="deco d2" aria-hidden="true"></i><i class="deco d3" aria-hidden="true"></i>
+    <${LogoCesar} />
+    <div class="txt">
+      <span class="eyebrow">Suporte de TI · Projeto Europa</span>
+      <h1>Inventário Europa</h1>
+      <p>Equipamentos, colaboradores, reparos, Zeevs e licenças do time em um só lugar, sincronizados ao vivo.</p>
+    </div>
+  </section>`;
+}
 
 function Login() {
   const { authReady, authError } = useStore(s => s);
   const [busy, setBusy] = useState(false);
-  return html`<div class="login"><div class="login-card">
-    <div class="brand" style=${{ padding: 0 }}><div class="brand-mark"><i></i><i></i></div><div><b>Inventário Europa</b><span>Suporte · CESAR</span></div></div>
-    <h1 style=${{ fontSize: '22px' }}>Entre para ver o inventário</h1>
-    <p>Use sua conta Google @${window.DOMINIO_PERMITIDO || 'da empresa'}. Só a equipe com acesso consegue ver e editar os equipamentos.</p>
+  return html`<div class="login"><${LoginHero} /><div class="login-side"><div class="login-card">
+    <span class="eyebrow">Acesso restrito</span>
+    <h2>Entre com sua conta CESAR</h2>
+    <p>Use sua conta Google <b>@${window.DOMINIO_PERMITIDO || 'da empresa'}</b>. Só a equipe com acesso consegue ver e editar os equipamentos.</p>
     <button class="btn primary" disabled=${!authReady || busy} onClick=${async () => { setBusy(true); await Repo.signIn(); setBusy(false); }}>${!authReady ? 'Carregando…' : busy ? 'Abrindo o Google…' : 'Entrar com Google'}</button>
     ${authError && html`<span class="err" role="alert">${authError}</span>`}
-  </div></div>`;
+    <span class="note">Sem acesso? Peça a um administrador do inventário.</span>
+    <${TemaSeletor} />
+  </div></div></div>`;
 }
 
 function NoAccess() {
   const { authUser } = useStore(s => s);
-  return html`<div class="login"><div class="login-card">
-    <div class="brand" style=${{ padding: 0 }}><div class="brand-mark"><i></i><i></i></div><div><b>Inventário Europa</b><span>Suporte · CESAR</span></div></div>
-    <h1 style=${{ fontSize: '22px' }}>Seu acesso ainda não foi liberado</h1>
+  return html`<div class="login"><${LoginHero} /><div class="login-side"><div class="login-card">
+    <span class="eyebrow">Quase lá</span>
+    <h2>Seu acesso ainda não foi liberado</h2>
     <p>Você entrou como <b>${authUser.email}</b>. Peça a um administrador do inventário, na equipe de suporte, para liberar esse e-mail. Depois disso, a página abre sozinha.</p>
     <button class="btn" onClick=${() => Repo.signOut()}>Entrar com outra conta</button>
-  </div></div>`;
+  </div></div></div>`;
 }
 
 function App() {
@@ -1159,13 +1330,14 @@ function Shell() {
   return html`
   <div class="shell">
     <aside class="side">
-      <div class="brand"><div class="brand-mark"><i></i><i></i></div><div><b>Inventário Europa</b><span>Suporte · CESAR</span></div></div>
+      <div class="brand"><${LogoCesar} /><b>Inventário Europa</b></div>
       <nav class="nav" aria-label="Seções">
         ${nav.map(([id, label, n]) => html`<a href=${'#' + id} aria-current=${route === id ? 'page' : null}><${Icon} n=${id} />${label}${n != null && n > 0 && html`<span class=${'count' + (id === 'qualidade' ? ' hot' : '')}>${n}</span>`}</a>`)}
       </nav>
       <div class="side-foot">
         <span class=${'conn ' + conn}>${{ live: 'Sincronizado ao vivo', connecting: 'Conectando…', offline: 'Sem conexão com o banco', error: 'Erro de conexão', timeout: 'Conexão lenta' }[conn]}</span>
         <span>Atalho: <span class="mono">Ctrl K</span> busca</span>
+        <${TemaSeletor} />
         <div class="who" title=${authUser.email}><span>${authUser.nome}<br /><span class="role-tag">${PAPEIS[role]?.label}</span></span><button class="btn ghost sm" onClick=${() => Repo.signOut()}>Sair</button></div>
       </div>
     </aside>
@@ -1176,6 +1348,7 @@ function Shell() {
           <input id="busca-global" ref=${searchRef} type="search" placeholder="Busque por tombamento, serial, pessoa… ou “m1 disponível”" value=${query} onInput=${e => onSearch(e.target.value)} aria-label="Buscar no inventário" />
           <kbd>Ctrl K</kbd>
         </div>
+        <${TemaBotao} />
         ${editor && html`<button class="btn primary" onClick=${() => setCreating(true)}><${Icon} n="plus" /><span class="new-label">Novo ativo</span></button>`}
       </header>
       <main class="content">
